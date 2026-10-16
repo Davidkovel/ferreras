@@ -436,7 +436,7 @@ def ia(R):
     demo = (f'<div class="grelha conversa" data-demo><div class="conv-txt">{etq("", "Así responde", "n")}<h2 class="titulo t-l" data-linhas>Lo importante <em>es dónde calla.</em></h2>'
             f'<p class="lead" data-sube>Responde lo que sabe, consulta lo autorizado y, en el punto que usted decide, pasa el caso a recepción.</p>'
             f'<p class="mini">{AVISO_DEMO}</p><p><button type="button" class="enlace" data-demo-play><span>Repetir</span> <span class="fl">↺</span></button></p></div>'
-            f'<div class="movil">{chat_html()}</div></div>')
+            f'<div class="conv-lado"><span class="contorno conv-c" aria-hidden="true">23:40</span><div class="movil">{chat_html()}</div></div></div>')
     return (ph_media(R, "Departamento de IA", L("Que su empresa", "atienda siempre.", "<em>También de noche.</em>"),
                      "Agentes de atención en más de veinte idiomas, con supervisión humana.",
                      btn(R + DIAG, CTA) + btn("#hace", "Qué hace", "btn-linha btn-vidro", False), fundo_img(R, "yate-noche", "Un yate de noche con las luces del salón encendidas")).replace(
