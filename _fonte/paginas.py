@@ -409,7 +409,7 @@ def marketing(R):
     ch = "".join(f'<div data-sube style="--i:{i}"><dt>{a}</dt><dd>{b}</dd></div>' for i, (a, b) in enumerate(cifras))
     return (ph_media(R, "Departamento de Marketing", L("Que su empresa", "se perciba", "<em>como lo que es.</em>"),
                      "Estrategia, producción audiovisual propia y distribución, dentro de su empresa.",
-                     btn(R + DIAG, CTA) + btn("#hacemos", "Qué hacemos", "btn-linha btn-vidro", False), filme(R, "mkt"))
+                     btn(R + DIAG, CTA) + btn("#hacemos", "Qué hacemos", "btn-linha btn-vidro", False), filme(R, "hero"))
             + sec(cab("", "Qué hacemos", "Rodamos, publicamos <em>y le ponemos delante.</em>") + f'<div class="pilares">{ph_}</div>', "p-pilares", ' id="hacemos"')
             + sec(f'<div class="grelha antes"><div class="antes-txt">{etq("", "La diferencia", "n")}<h2 class="titulo t-l" data-linhas>El mismo coche. <em>Contado por nosotros.</em></h2>'
                   f'<p class="lead" data-sube>Deslice la línea: de una ficha con doce fotos a una pieza que la gente comparte.</p><dl class="cifras-m">{ch}</dl></div>{rx}</div>')
