@@ -245,7 +245,9 @@
     $('h3', passoEl).focus({ preventScroll: true });
     SITE.remede();
   };
-  const avanca = () => { guarda(); ir(i + 1); };
+  // nunca se salta uma pergunta: depois de responder, vai para a primeira que ainda falta
+  const falta = () => { const k = P.findIndex((p) => r[p.id] === undefined); return k < 0 ? N : k; };
+  const avanca = () => { guarda(); ir(falta()); };
   passoEl.addEventListener('click', (e) => {
     if (i >= N) return;
     const p = P[i];
@@ -269,7 +271,7 @@
   // la placa también navega: cada línea lleva a su pregunta
   $$('[data-pl-l]', placa).forEach((l) => {
     l.tabIndex = 0; l.setAttribute('role', 'button');
-    const vai = () => { if (!recoEl.hidden) return; const k = P.findIndex((p) => p.id === l.dataset.plL); if (k >= 0) ir(k); };
+    const vai = () => { if (!recoEl.hidden) return; const k = P.findIndex((p) => p.id === l.dataset.plL); if (k >= 0 && k <= falta()) ir(k); };
     l.addEventListener('click', vai); l.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), vai()));
   });
   addEventListener('keydown', (e) => {

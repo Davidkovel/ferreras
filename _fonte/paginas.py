@@ -68,7 +68,7 @@ AVISO_DEMO = "Guion fijo con fines ilustrativos. No es una conversación en vivo
 def chat_html():
     ms = "".join(f'<p class="msg {c}">{se(bool(q), "<small>" + q + "</small>")}{e(t)}</p>' for c, q, t in [CHAT[i] for i in (0, 3, 4, 5, 6)])
     return (f'<div class="chat" role="log" aria-live="polite" aria-label="Simulación de una conversación con un agente de atención">'
-            f'<div class="chat-cab"><b><i aria-hidden="true"></i>Agente de atención · Hotel</b><span>Simulación ilustrativa</span></div>'
+            f'<p class="chat-ej">Ejemplo · así respondería su agente</p><div class="chat-cab"><b><i aria-hidden="true"></i>Agente de atención · Hotel</b><span>Simulación ilustrativa</span></div>'
             f'<div class="chat-lista">{ms}</div>'
             f'<div class="chat-pe"><span class="escribe" data-escribe hidden aria-hidden="true"><i></i><i></i><i></i></span><span>Permisos: solo lectura · registro activo</span></div></div>')
 
