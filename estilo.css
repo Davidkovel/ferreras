@@ -164,6 +164,9 @@ body.a-abrir .topo-marca{opacity:0}
 /* el menú de pantalla entera */
 .menu{position:fixed;inset:0;z-index:55;background:var(--noche);padding:calc(var(--topo) + 4vh + env(safe-area-inset-top,0px)) var(--g) calc(2rem + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;justify-content:space-between;overflow:auto;opacity:0;transition:opacity var(--t-entra) var(--curva)}
 .menu.aberto{opacity:1}
+.menu:not(.aberto){pointer-events:none}
+/* «hidden» manda sempre: um display de classe não pode ressuscitar uma camada invisível por cima da página */
+[hidden]{display:none!important}
 .menu-lista{display:grid;gap:.2rem}
 .menu-lista a{font:330 clamp(2rem,9vw,3.4rem)/1.08 var(--serif);letter-spacing:-.02em;display:flex;align-items:baseline;gap:.6rem;padding:.25rem 0}
 .menu-lista a small{font:500 .7rem/1 var(--sans);letter-spacing:.16em;color:var(--piedra);width:2.2rem}
@@ -925,7 +928,7 @@ main{position:relative}
 .dj-etapas{position:relative;height:2.2rem;margin-top:.9rem}
 .dj-etapas li{position:absolute;left:calc(var(--p)*100%);transform:translateX(calc(var(--p)*-100%));font:500 var(--f-mi)/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--piedra-c);white-space:nowrap}
 .dj-etapas li::before{content:"";position:absolute;top:-1.55rem;left:calc(var(--p)*100%);width:9px;height:9px;margin-left:calc(var(--p)*-9px);border-radius:50%;background:var(--marfil);border:1px solid var(--oro-3)}
-.dj-coche{position:absolute;top:2.6rem;left:calc(var(--k)*100%);width:52px;height:24px;margin:-11px 0 0 -26px;transition:left var(--t-cena) var(--curva),opacity var(--t-entra) linear}
+.dj-coche{position:absolute;top:2.6rem;left:calc(var(--k)*(100% - 52px) + 26px);width:52px;height:24px;margin:-11px 0 0 -26px;transition:left var(--t-cena) var(--curva),opacity var(--t-entra) linear}
 .dj-coche .coche{width:24px;height:52px;transform:translate(14px,-14px) rotate(-90deg);filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
 .dj-corpo{grid-area:c;min-width:0}
 .dj-passo,.dj-reco{display:grid;gap:1.3rem}
@@ -1087,5 +1090,8 @@ main{position:relative}
   .ph-quien .ph-foto{grid-row:1;margin:calc(var(--topo)*-1 - 4vh) calc(var(--g)*-1) 0;min-height:0;aspect-ratio:4/4.4}
   .sx,.sx.inv{grid-template-columns:minmax(0,1fr);row-gap:1.6rem}
   .sx-media,.sx.inv .sx-media,.sx-txt,.sx.inv .sx-txt{grid-column:1;grid-row:auto}
-  .sx-c{display:none}
+  .sx-c{position:static;font-size:clamp(4rem,22vw,6rem);margin:-.1em 0 -.25em;z-index:0}
+  .sxs{gap:4.5rem}
+  .sect-caps{padding-top:3rem}
+  .sx-txt{gap:1rem}
 }

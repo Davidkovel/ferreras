@@ -195,7 +195,7 @@
     plazo: { inmediato: 'rayo', '30-90': 'calendario', trimestre: 'calendario', exploracion: 'lupa' },
     rol: { propiedad: 'corona', direccion: 'maletin', responsable: 'persona', investigacion: 'lupa' },
   };
-  const FOTO = { hoteles: 'ia-hotel-atencion-atardecer', 'joyeria-relojeria': 'diamantes-anillos', 'automocion-lujo': 'tn-autosport-deportivos', nautica: 'yate-vistas' };
+  const FOTO = { hoteles: 'ia-hotel-atencion-atardecer', 'joyeria-relojeria': 'diamantes-anillos', 'automocion-lujo': 'tn-autosport-deportivos', nautica: 'yate-vistas', 'inmobiliaria-premium': 'ia-hotel-estudio-establecimiento', b2b: 'ia-portada-esfera', otro: 'reloj-detalle-f' };
   const NIVEL = { volumen: { bajo: 1, medio: 2, alto: 3, 'muy-alto': 4 }, inversion: { 'menos-1000': 1, '1000-2000': 2, '2000-4000': 3, '4000-mas': 4, 'proyecto-4-8': 2, 'proyecto-8-15': 3, 'proyecto-15-mas': 4 } };
   const ETAPA = (k) => (k === 0 ? 'Su empresa' : k < 4 ? 'Su objetivo' : k < 8 ? 'Su momento' : 'Contacto');
 
