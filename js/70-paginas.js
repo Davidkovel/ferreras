@@ -26,6 +26,26 @@
     }
   });
 
+  /* ---------- SECTORES, el palco: el scroll cambia de sector dentro de una escena fija (computador);
+     el índice de la izquierda lleva la barra del sector activo y salta a cualquiera ---------- */
+  $$('[data-palco]').forEach((pc) => {
+    const ms = $$('[data-pl-m]', pc), ts = $$('[data-pl-t]', pc), is = $$('[data-pl-i]', pc), ws = $$('[data-pl-w]', pc), N = ms.length;
+    const fixo = matchMedia('(min-width: 901px)');
+    let k = 0, pAnt = '';
+    const liga = (n) => { if (n === k) return; k = n; [ms, ts, is, ws].forEach((l) => l.forEach((x, j) => x.classList.toggle('on', j === n))); };
+    SITE.aCada(() => {
+      if (!fixo.matches) return;
+      const p = SITE.fixado(pc) * N, n = Math.min(N - 1, Math.floor(p));
+      liga(n);
+      const f = Math.min(1, p - n).toFixed(3);
+      if (f !== pAnt) { pAnt = f; pc.style.setProperty('--p', f); }
+    });
+    is.forEach((li, j) => $('button', li).addEventListener('click', () => {
+      const c = SITE.caixa(pc);
+      scrollTo({ top: c.top + (c.height - innerHeight) * (j + 0.15) / N, behavior: reduz ? 'auto' : 'smooth' });
+    }));
+  });
+
   /* ---------- resultados: filtrar por sector o por problema ---------- */
   const fbox = $('[data-filtros]');
   if (fbox) {
