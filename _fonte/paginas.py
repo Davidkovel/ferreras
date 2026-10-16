@@ -69,7 +69,7 @@ def chat_html():
     ms = "".join(f'<p class="msg {c}">{se(bool(q), "<small>" + q + "</small>")}{e(t)}</p>' for c, q, t in [CHAT[i] for i in (0, 3, 4, 5, 6)])
     return (f'<div class="chat" role="log" aria-live="polite" aria-label="Simulación de una conversación con un agente de atención">'
             f'<div class="chat-cab"><b><i aria-hidden="true"></i>Agente de atención · Hotel</b><span>Simulación ilustrativa</span></div>'
-            f'<div class="chat-lista">{ms}<p class="chat-vazio">Pulse «Probar la demostración».</p></div>'
+            f'<div class="chat-lista">{ms}</div>'
             f'<div class="chat-pe"><span class="escribe" data-escribe hidden aria-hidden="true"><i></i><i></i><i></i></span><span>Permisos: solo lectura · registro activo</span></div></div>')
 
 
@@ -370,9 +370,11 @@ def quien(R):
               ("diamantes-anillos", "Dos anillos de diamantes sobre terciopelo azul oscuro", "Joyería", "Joyería de diamantes · España"),
               ("sm-cardress-funda", "Coupé deportivo cubierto con una funda textil a medida con diseño personalizado", "Automoción", "Producto premium para automoción")]
     mh = "".join(f'<figure class="marca-c" data-sube style="--i:{i % 3}"><div class="ventana">{img(R, b, alt, "(min-width: 900px) 34vw, 90vw")}</div><figcaption><p class="etiqueta">{s}</p><h3>{t}</h3></figcaption></figure>' for i, (b, alt, s, t) in enumerate(marcas))
+    nomes = "".join(f"<li>{t}</li>" for t in ["Relojes Ferreras", "TN Autosport", "Hotel Boltaña Ordesa", "SM CarDress", "Club náutico · Costa Brava", "Joyería de diamantes"])
     return (ph(R, "Quién somos", L("Llevamos el marketing", "de marcas de referencia", "<em>en su sector.</em>"),
                "El departamento de marketing de TN Autosport y los creadores de Relojes Ferreras.",
-               btn(R + DIAG, CTA), img(R, "fernando-ferreras-ceo", "Fernando Ferreras en un puerto deportivo, junto a dos vehículos de alta gama con estuches de reloj expuestos y embarcaciones al fondo", "(min-width: 900px) 40vw, 100vw", lazy=False))
+               btn(R + DIAG, CTA) + btn(R + "resultados/", "Ver resultados", "btn-linha", False), img(R, "fernando-ferreras-ceo", "Fernando Ferreras en un puerto deportivo, junto a dos vehículos de alta gama con estuches de reloj expuestos y embarcaciones al fondo", "(min-width: 900px) 46vw, 100vw", lazy=False)).replace(
+                'class="pag-hero com-foto"', 'class="pag-hero com-foto ph-quien"').replace('</div><figure', f'<div class="ph-nomes"><p class="etiqueta">Trabajamos con</p><ul>{nomes}</ul></div></div><figure', 1)
             + sec(cab("", "Marcas que llevamos", "Detrás de marcas que su sector <em>ya reconoce.</em>") + f'<div class="marcas">{mh}</div>')
             + sec(f'<div class="grelha estandar"><figure class="est-foto ventana" data-janela>{img(R, "reloj-detalle-firma", "Esfera de un reloj Ferreras con el logotipo de la casa", "(min-width: 900px) 40vw, 100vw")}</figure>'
                   f'<div class="est-txt"><p class="titulo promessa" data-duas-tintas>El lujo no es una etiqueta. <em>Es un estándar de ejecución.</em></p><p class="lead" data-sube>Pocas empresas, muy de cerca. La dirección entra en cada proyecto y no se delega.</p></div></div>')
@@ -506,9 +508,30 @@ for k, v in SECTORES.items():
     sector_pagina(k, v)
 
 
+SECT_MEDIA = {"hoteles": ("img", "ia-hotel-atencion-atardecer", "Recepción de un hotel al atardecer, con una huésped atendida en el mostrador", "Hotel"),
+              "automocion-lujo": ("vid", "reel-tn-porsche", "Porsche 911 GT3 RS negro en el estudio de TN Autosport", "Motor"),
+              "nautica": ("img", "yate-completo", "Yate de lujo fondeado en una cala de aguas turquesa, fotografiado desde el aire", "Mar"),
+              "joyeria-relojeria": ("vid", "reel-diamantes", "Un joyero muestra piedras y anillos ante la cámara", "Joya")}
+
+
+def sector_capitulo(R, i, chave, d):
+    tipo, base, alt, palavra = SECT_MEDIA[chave]
+    m = video(R, base, alt) if tipo == "vid" else img(R, base, alt, "(min-width: 900px) 60vw, 100vw")
+    n = len(casos_de(chave)) + (1 if chave == "joyeria-relojeria" else 0)
+    ch = "".join(f"<li>{e(t)}</li>" for t, _ in d["margen"][:3])
+    return (f'<article class="sx{se(i % 2 == 1, " inv")}"><a class="sx-media ventana" href="{R}sectores/{chave}/" data-janela aria-label="{e(d["nome"])}">{m}</a>'
+            f'<div class="sx-txt"><span class="contorno sx-c" aria-hidden="true">{palavra}</span><p class="etiqueta">{e(d["nome"])}</p>'
+            f'<h2 class="titulo t-l" data-linhas>{" ".join(d["h1"])}</h2><p class="lead" data-sube>{d["lead"]}</p>'
+            f'<p class="sx-rot">Dónde se pierde el margen</p><ul class="sx-chips" data-sube>{ch}</ul>'
+            f'<div class="acoes" data-sube>{btn(R + "sectores/" + chave + "/", "Ver el sector")}'
+            f'{btn(R + DIAG + "?sector=" + chave, f"{n} caso" + ("" if n == 1 else "s") + " · Diagnóstico", "btn-linha", False)}</div></div></article>')
+
+
 def sectores_idx(R):
-    return (ph(R, "Sectores", L("Cuatro sectores", "que conocemos", "<em>por dentro.</em>"), "Donde cada detalle se nota.").replace('class="pag-hero"', 'class="pag-hero compacto"')
-            + sec(sect_html(R), "sect-idx") + banda("¿Su sector <em>no está aquí?</em>", "Inmobiliaria premium, servicios profesionales o B2B: el diagnóstico le dice por dónde empezar.", btn(R + DIAG, CTA)))
+    caps = "".join(sector_capitulo(R, i, k, v) for i, (k, v) in enumerate(SECTORES.items()))
+    return (ph_media(R, "Sectores", L("Cuatro sectores", "que conocemos", "<em>por dentro.</em>"), "Donde cada detalle se nota: hoteles, automoción, náutica y joyería.",
+                     btn("#capitulos", "Ver los sectores"), filme(R, "auto"))
+            + sec(f'<div class="sxs">{caps}</div>', "sect-caps", ' id="capitulos"') + banda("¿Su sector <em>no está aquí?</em>", "Inmobiliaria premium, servicios profesionales o B2B: el diagnóstico le dice por dónde empezar.", btn(R + DIAG, CTA)))
 
 pagina("sectores/", "Sectores", "Hotelería, automoción de lujo, náutica y joyería: cuatro sectores que conocemos por dentro.", sectores_idx)
 

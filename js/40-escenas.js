@@ -87,6 +87,7 @@
   $$('[data-demo]').forEach((d) => {
     const b = $('[data-demo-play]', d), lbl = $('span', b), msgs = $$('.msg', d), esc = $('[data-escribe]', d);
     let ts = [];
+    msgs.forEach((m) => m.classList.add('vis')); // nunca vacía: el guion entero ya está; a la vista se vuelve a encadenar
     const toca = () => {
       ts.forEach(clearTimeout); ts = [];
       msgs.forEach((m) => m.classList.remove('vis'));
