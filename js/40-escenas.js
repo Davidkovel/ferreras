@@ -55,8 +55,10 @@
     SITE.quieto().then(() => { mede(); pinta(); });
     addEventListener('load', () => { mede(); pinta(); });
     const vai = (k) => { if (!posicoes.length) mede(); k = clamp(k, 0, itens.length - 1); c.scrollTo({ left: posicoes[k], behavior: reduz ? 'auto' : 'smooth' }); };
-    ant && ant.addEventListener('click', () => vai(atual() - 1));
-    prox && prox.addEventListener('click', () => vai(atual() + 1));
+    // vai ao cartão anterior/seguinte de verdade: no fim do carril vários cartões partilham o mesmo scroll máximo,
+    // por isso procura-se a primeira posição que realmente fica atrás (ou à frente) do ponto atual
+    ant && ant.addEventListener('click', () => { if (!posicoes.length) mede(); let k = -1; posicoes.forEach((p, j) => { if (p < c.scrollLeft - 4) k = j; }); vai(Math.max(0, k)); });
+    prox && prox.addEventListener('click', () => { if (!posicoes.length) mede(); const k = posicoes.findIndex((p) => p > c.scrollLeft + 4); vai(k < 0 ? itens.length - 1 : k); });
     // arrastar com o rato; o toque e o trackpad usam o deslizar nativo com encaixe
     let xIni = null, sIni = 0, moveu = false, ultimoX = 0, vel = 0;
     c.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' || e.button !== 0) return; xIni = e.clientX; sIni = c.scrollLeft; moveu = false; ultimoX = e.clientX; vel = 0; });
