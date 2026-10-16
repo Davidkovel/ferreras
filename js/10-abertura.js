@@ -19,9 +19,9 @@
   const espera = (ms) => new Promise((r) => setTimeout(r, ms));
   const quadros = (n) => new Promise((r) => { const f = () => (--n <= 0 ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
 
-  Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), espera(900)])
+  Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), espera(500)])
     .then(() => quadros(2))
-    .then(() => { ab.classList.add('monta'); return espera(T * 9.5); })
+    .then(() => { ab.classList.add('monta'); return espera(T * 5.2); })
     .then(() => {
       const caixa = $('.caja', ab), alvo = $('[data-logo-alvo] svg');
       const a = caixa.getBoundingClientRect(), b = alvo.getBoundingClientRect();
@@ -39,6 +39,6 @@
         setTimeout(() => ab.remove(), T * 2);
       };
       caixa.addEventListener('transitionend', (e) => e.propertyName === 'transform' && pousa());
-      setTimeout(pousa, T * 9);
+      setTimeout(pousa, T * 7.5);
     });
 })();

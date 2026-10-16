@@ -3,23 +3,26 @@
     python -I _fonte/build.py
 
 O site publicado é só HTML/CSS/JS; este script é a ferramenta que o escreve (não há build no servidor).
-O conteúdo vem do site antigo (marketingferreras.com), reescrito em «usted» e encurtado; nada inventado.
+O conteúdo vem do site antigo (marketingferreras.com), em «usted», encurtado; nada inventado.
 Python 3.11: nenhuma expressão de f-string leva barra invertida nem o mesmo tipo de aspas.
 """
 import html as H
 import json
+import math
+import random
 import re
+import sys
 from pathlib import Path
 
 from PIL import Image
-import sys
-sys.stdout.reconfigure(encoding="utf-8")
 
+sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "1"
+VERSAO = "2"
 Q = '"'
+CTA = "Pida su diagnóstico"
 
 
 def e(s):
@@ -69,11 +72,11 @@ LETRAS = _letras()
 
 def logo_svg(pecas=False):
     """F + FERRERAS na horizontal; com pecas=True cada peça leva classe e índice para a abertura."""
-    def p(cls, d, i=None, extra=""):
-        k = cls + (" pz" if pecas and i is not None else "") + (" pz-senal" if pecas and extra == "senal" else "")
+    def p(cls, d, i=None, senal=False):
+        k = cls + (" pz" if pecas and i is not None else "") + (" pz-senal" if pecas and senal else "")
         st = f' style="--i:{i}"' if pecas and i is not None else ""
         return f'<path class="{k}"{st} fill-rule="evenodd" d="{d}"/>'
-    partes = [p("lg-m", MARFIL[0], 0), p("lg-p", _M["#a"], 1), p("lg-m", MARFIL[1], 2), p("lg-s", _M["#0"], extra="senal")]
+    partes = [p("lg-m", MARFIL[0], 0), p("lg-p", _M["#a"], 1), p("lg-m", MARFIL[1], 2), p("lg-s", _M["#0"], senal=True)]
     letras = "".join(f'<path{se(pecas, f" class={Q}letra{Q} style={Q}--i:{i}{Q}")} fill-rule="evenodd" d="{d}"/>' for i, d in enumerate(LETRAS))
     return f'<svg viewBox="0 0 1253 256" aria-hidden="true">{"".join(partes)}<g class="lg-w" transform="translate(305 79) scale(1.0208)">{letras}</g></svg>'
 
@@ -87,72 +90,80 @@ def wordmark_svg(cls="wm"):
     return f'<svg class="{cls}" viewBox="0 0 929 96" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="{WORD_D}"/></svg>'
 
 
-# ---------------------------------------------------------------- o relógio (inspirado no Ferreras Almirante)
-def reloj_html(R=""):
-    """O relógio da página: a esfera verdadeira do Ferreras (foto endireitada, com o coração aberto recortado),
-    por baixo dela o disco dia/noite que gira dentro da abertura, por cima os ponteiros em SVG."""
-    oro = ('<linearGradient id="oroG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ead39f"/>'
+# ---------------------------------------------------------------- o relógio
+def reloj_html(R="", sfx=""):
+    """A esfera verdadeira do Ferreras (foto endireitada, com o coração aberto recortado); por baixo, um céu que gira
+    dentro da abertura (dia com sol, entardecer, noite com lua e estrelas); por cima, os ponteiros em SVG."""
+    oro = (f'<linearGradient id="oroG{sfx}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ead39f"/>'
            '<stop offset=".5" stop-color="#b8975a"/><stop offset="1" stop-color="#d9bf88"/></linearGradient>')
-    estrelas = "".join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#f3e6dc" opacity="{o}"/>' for x, y, r, o in [(160, 296, 1.6, .8), (238, 284, 1.2, .6), (222, 318, 1.8, .9), (176, 330, 1.1, .5), (252, 312, 1, .5), (148, 270, 1, .4)])
-    fundo = f'''<svg class="r-fundo" viewBox="0 0 400 400" aria-hidden="true"><defs>{oro}
-<radialGradient id="solG"><stop offset="0" stop-color="#fff6dc"/><stop offset=".35" stop-color="#f1d79a"/><stop offset="1" stop-color="rgba(241,215,154,0)"/></radialGradient>
-<linearGradient id="diaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9cf95"/><stop offset=".5" stop-color="#b48f4f"/></linearGradient>
-<linearGradient id="nocheG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#000814"/><stop offset=".5" stop-color="#00205a"/></linearGradient></defs>
-<circle cx="200" cy="200" r="199" fill="#081322"/>
-<g class="ag-d"><path d="M25 200 A175 175 0 0 1 375 200 Z" fill="url(#diaG)"/><path d="M25 200 A175 175 0 0 0 375 200 Z" fill="url(#nocheG)"/>
-<circle cx="200" cy="104" r="34" fill="url(#solG)"/><circle cx="200" cy="104" r="13" fill="#fff4d8"/>
-{estrelas}<rect x="193" y="289" width="14" height="14" fill="#0022f1"/><rect x="189" y="285" width="22" height="22" fill="rgba(0,34,241,.25)"/></g>
-<circle cx="200" cy="200" r="197.5" fill="none" stroke="url(#oroG)" stroke-width="3"/>
-<circle cx="200" cy="200" r="193" fill="none" stroke="#0b1622" stroke-width="5"/></svg>'''
-    esfera = f'<img class="r-esfera" src="{R}img/dial-ferreras.webp" width="832" height="832" alt="" decoding="async">'
+    caixa = (f'<svg class="r-caixa" viewBox="0 0 400 400" aria-hidden="true"><defs>{oro}</defs>'
+             '<circle cx="200" cy="200" r="199" fill="#081322"/>'
+             f'<circle cx="200" cy="200" r="197.5" fill="none" stroke="url(#oroG{sfx})" stroke-width="3"/>'
+             '<circle cx="200" cy="200" r="193" fill="none" stroke="#0b1622" stroke-width="5"/></svg>')
+    ceu = '<div class="r-ceu ag-d"></div>'
+    esfera = f'<img class="r-esfera" src="{R}img/dial-ferreras.webp" width="832" height="832" alt="">'
     agujas = f'''<svg class="r-agujas" viewBox="0 0 400 400" aria-hidden="true"><defs>{oro.replace('oroG', 'oroH')}
-<filter id="sombraA" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="1.5" dy="2.5" stdDeviation="1.6" flood-color="#2a1d08" flood-opacity=".45"/></filter></defs>
-<g filter="url(#sombraA)">
-<g class="ag ag-h"><polygon points="200,98 207,200 200,216 193,200" fill="url(#oroH)" stroke="#6b5222" stroke-width=".7"/><polygon points="200,98 200,216 193,200" fill="rgba(110,80,30,.45)"/></g>
-<g class="ag ag-m"><polygon points="200,40 205,200 200,219 195,200" fill="url(#oroH)" stroke="#6b5222" stroke-width=".7"/><polygon points="200,40 200,219 195,200" fill="rgba(110,80,30,.45)"/></g>
+<filter id="sombraA{sfx}" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="1.5" dy="2.5" stdDeviation="1.6" flood-color="#2a1d08" flood-opacity=".45"/></filter></defs>
+<g filter="url(#sombraA{sfx})">
+<g class="ag ag-h"><polygon points="200,98 207,200 200,216 193,200" fill="url(#oroH{sfx})" stroke="#6b5222" stroke-width=".7"/><polygon points="200,98 200,216 193,200" fill="rgba(110,80,30,.45)"/></g>
+<g class="ag ag-m"><polygon points="200,40 205,200 200,219 195,200" fill="url(#oroH{sfx})" stroke="#6b5222" stroke-width=".7"/><polygon points="200,40 200,219 195,200" fill="rgba(110,80,30,.45)"/></g>
 <g class="ag ag-s"><line x1="200" y1="244" x2="200" y2="54" stroke="#001a39" stroke-width="1.6"/><circle cx="200" cy="230" r="5.5" fill="none" stroke="#001a39" stroke-width="1.6"/><rect x="195" y="44" width="10" height="10" fill="#0022f1"/></g>
-<circle cx="200" cy="200" r="8.5" fill="url(#oroH)" stroke="#6b5222" stroke-width=".6"/><circle cx="200" cy="200" r="2.6" fill="#001a39"/></g></svg>'''
-    return f'<div class="reloj">{fundo}{esfera}{agujas}<div class="brillo"></div></div>'
-
-
-def _reloj_antigo():
-    t = []
-    for i in range(60):
-        lg = i % 5 == 0
-        t.append(f'<line x1="200" y1="{19 if lg else 20}" x2="200" y2="{27 if lg else 24}" transform="rotate({i * 6} 200 200)" stroke="rgba(243,230,220,{0.6 if lg else 0.32})" stroke-width="{1.4 if lg else 1}"/>')
-    b = ['<rect x="191.5" y="34" width="6" height="30" rx="1.4" fill="url(#oroG)"/><rect x="202.5" y="34" width="6" height="30" rx="1.4" fill="url(#oroG)"/>']
-    for h in range(1, 12):
-        w = 7 if h % 3 == 0 else 5.5
-        b.append(f'<rect x="{200 - w / 2}" y="36" width="{w}" height="{28 if h % 3 == 0 else 24}" rx="1.4" fill="url(#oroG)" transform="rotate({h * 30} 200 200)"/>')
-    svg = f'''<svg viewBox="0 0 400 400" aria-hidden="true"><defs>
-<linearGradient id="oroG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ead39f"/><stop offset=".5" stop-color="#b8975a"/><stop offset="1" stop-color="#d9bf88"/></linearGradient>
-<radialGradient id="esfG" cx=".5" cy=".42" r=".62"><stop offset="0" stop-color="#0c2d5a"/><stop offset=".55" stop-color="#05203f"/><stop offset="1" stop-color="#010d1d"/></radialGradient>
-<linearGradient id="discoG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2c690"/><stop offset=".5" stop-color="#b8975a"/><stop offset=".5" stop-color="#001a39"/><stop offset="1" stop-color="#000814"/></linearGradient>
-<clipPath id="janelaC"><rect x="168" y="250" width="64" height="30" rx="15"/></clipPath></defs>
-<circle cx="200" cy="200" r="198" fill="#0a1626"/><circle cx="200" cy="200" r="197" fill="none" stroke="url(#oroG)" stroke-width="2.4"/>
-<circle cx="200" cy="200" r="190" fill="url(#esfG)"/><circle cx="200" cy="200" r="190" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3"/>
-<circle cx="200" cy="200" r="186.5" fill="none" stroke="rgba(243,230,220,.14)" stroke-width=".8"/>
-<g clip-path="url(#janelaC)"><rect x="160" y="246" width="80" height="38" fill="#000814"/><g class="ag-d"><circle cx="200" cy="300" r="46" fill="url(#discoG)"/><circle cx="200" cy="268" r="9" fill="rgba(255,243,214,.25)"/><circle cx="200" cy="268" r="5.5" fill="#fff3d6"/><rect x="195.5" y="327.5" width="9" height="9" fill="#0022f1"/></g></g>
-<rect x="168" y="250" width="64" height="30" rx="15" fill="none" stroke="url(#oroG)" stroke-width="1.6"/>
-<text x="200" y="300" text-anchor="middle" font-family="Geist,system-ui,sans-serif" font-size="8" letter-spacing="3.4" fill="rgba(243,230,220,.55)">BARCELONA</text>
-<text x="200" y="313" text-anchor="middle" font-family="Geist,system-ui,sans-serif" font-size="6" letter-spacing="2.6" fill="rgba(243,230,220,.35)">MARKETING · IA</text>
-<g transform="translate(189.5 74) scale(.09)">{marca_paths()}</g>
-<g transform="translate(163 106) scale(.08)"><path fill="rgba(243,230,220,.85)" fill-rule="evenodd" d="{WORD_D}"/></g>
-{"".join(t)}{"".join(b)}
-<g class="ag ag-h"><polygon points="200,96 206.5,200 200,214 193.5,200" fill="url(#oroG)"/><polygon points="200,96 200,214 193.5,200" fill="rgba(120,90,40,.55)"/></g>
-<g class="ag ag-m"><polygon points="200,36 204.8,200 200,217 195.2,200" fill="url(#oroG)"/><polygon points="200,36 200,217 195.2,200" fill="rgba(120,90,40,.55)"/></g>
-<g class="ag ag-s"><line x1="200" y1="240" x2="200" y2="52" stroke="#f3e6dc" stroke-width="1.3"/><circle cx="200" cy="228" r="5.2" fill="none" stroke="#f3e6dc" stroke-width="1.3"/><rect x="195.5" y="44" width="9" height="9" fill="#0022f1"/></g>
-<circle cx="200" cy="200" r="8" fill="url(#oroG)"/><circle cx="200" cy="200" r="2.6" fill="#00101f"/></svg>'''
-    return f'<div class="reloj"><div class="guilloche"></div>{svg}<div class="brillo"></div></div>'
+<circle cx="200" cy="200" r="8.5" fill="url(#oroH{sfx})" stroke="#6b5222" stroke-width=".6"/><circle cx="200" cy="200" r="2.6" fill="#001a39"/></g></svg>'''
+    return f'<div class="reloj">{caixa}{ceu}{esfera}{agujas}<div class="brillo"></div></div>'
 
 
 def mini_reloj():
-    return ('<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#05203f" stroke="#c2a263" stroke-width="1.2"/>'
-            '<line x1="20" y1="20" x2="20" y2="9" stroke="#d6bc86" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="20" x2="27" y2="24" stroke="#d6bc86" stroke-width="2" stroke-linecap="round"/>'
+    return ('<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#f3e6dc" stroke="#c2a263" stroke-width="1.6"/>'
+            '<line x1="20" y1="20" x2="20" y2="9" stroke="#a98b52" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="20" x2="27" y2="24" stroke="#a98b52" stroke-width="2" stroke-linecap="round"/>'
             '<rect x="18.5" y="4.5" width="3" height="3" fill="#0022f1"/></svg>')
 
 
-# ---------------------------------------------------------------- imagens
+# ---------------------------------------------------------------- as 24 horas de uma recepção (ilustração)
+def dia24_svg():
+    """Consultas de um dia qualquer à volta de um mostrador de 24 h (00 em cima). Com a recepção fechada (23–08)
+    cada consulta é um quadrado azul: o sinal do logótipo, o agente. Pontos fixos (semente), nada aleatório no browser."""
+    rnd = random.Random(2340)
+    peso = [3, 2, 1, 1, 1, 1, 1, 2, 4, 6, 6, 5, 4, 3, 3, 4, 5, 5, 4, 4, 4, 4, 4, 4]
+    fechado = lambda hh: hh >= 23 or hh < 8
+    pts = []
+    for hh, n in enumerate(peso):
+        for _ in range(n):
+            pts.append((hh * 60 + rnd.uniform(4, 56), rnd.uniform(-22, 22)))
+    alvo = 23 * 60 + 40
+    pts = [p for p in pts if abs(p[0] - alvo) > 9]      # o lugar da consulta das 23:40 fica livre
+    pts.append((alvo, 0))
+    out = []
+    pol = lambda m, r: (200 + r * math.sin(m / 1440 * 2 * math.pi), 200 - r * math.cos(m / 1440 * 2 * math.pi))
+    for i in range(24):
+        a, b = (162, 180) if i % 6 == 0 else (170, 177)
+        x1, y1 = pol(i * 60, a)
+        x2, y2 = pol(i * 60, b)
+        out.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" class="tq{se(i % 6 == 0, " tq6")}"/>')
+    for hh, lab in ((0, "00"), (6, "06"), (12, "12"), (18, "18")):
+        x, y = pol(hh * 60, 197)
+        out.append(f'<text x="{x:.1f}" y="{y + 4:.1f}" class="lab">{lab}</text>')
+    x0, y0 = pol(23 * 60, 150)
+    x1, y1 = pol(32 * 60, 150)
+    out.append(f'<path class="arco" d="M{x0:.1f} {y0:.1f} A150 150 0 0 1 {x1:.1f} {y1:.1f}"/>')
+    for m, j in sorted(pts):
+        x, y = pol(m, 150 + j)
+        d = f"{m / 1440 * 3.2:.2f}s"
+        if m == alvo:
+            out.append(f'<g class="pt alvo" style="--d:{d}"><circle cx="{x:.1f}" cy="{y:.1f}" r="13" class="anel"/><rect x="{x - 5:.1f}" y="{y - 5:.1f}" width="10" height="10" class="ag"/></g>')
+            tx, ty = pol(m, 117)
+            out.append(f'<text x="{tx + 6:.1f}" y="{ty + 6:.1f}" class="pt lab-alvo" style="--d:{d}">23:40 · DE</text>')
+        elif fechado(int(m // 60)):
+            out.append(f'<rect class="pt ag" style="--d:{d}" x="{x - 3.2:.1f}" y="{y - 3.2:.1f}" width="6.4" height="6.4"/>')
+        else:
+            out.append(f'<circle class="pt eq" style="--d:{d}" cx="{x:.1f}" cy="{y:.1f}" r="3.3"/>')
+    centro = ('<text x="200" y="200" class="c1">24 h</text>'
+              '<text x="200" y="228" class="c2">NINGUNA CONSULTA</text><text x="200" y="244" class="c2">SIN RESPUESTA</text>')
+    varre = '<line class="varre" x1="200" y1="200" x2="200" y2="16"/>'
+    return (f'<svg class="dia24-svg" viewBox="-34 -34 468 468" role="img" aria-label="Ilustración: las consultas de un día cualquiera; '
+            f'de las 23:00 a las 8:00, con la recepción cerrada, las atiende el agente">{"".join(out)}{varre}{centro}</svg>')
+
+
+# ---------------------------------------------------------------- imagens e vídeo
 def _dim(base, w):
     p = RAIZ / "img" / f"{base}-{w}.webp"
     return Image.open(p).size if p.exists() else None
@@ -164,6 +175,11 @@ def img(R, base, alt, sizes="100vw", lazy=True, extra=""):
     w, h = d16 or d9
     carga = ' loading="lazy" decoding="async"' if lazy else ' fetchpriority="high"'
     return f'<img src="{R}img/{base}-{1600 if d16 else 900}.webp" srcset="{", ".join(src)}" sizes="{sizes}" width="{w}" height="{h}" alt="{e(alt)}"{carga}{extra}>'
+
+
+def video(R, nome, alt, w=540, h=960):
+    return (f'<video muted playsinline loop preload="none" width="{w}" height="{h}" poster="{R}video/{nome}-poster.webp" '
+            f'data-src="{R}video/{nome}.mp4" data-video-auto aria-label="{e(alt)}"></video>')
 
 
 # ---------------------------------------------------------------- shell
@@ -195,7 +211,7 @@ def head(R, titulo, desc, rota):
 <meta property="og:url" content="{URL}{rota}">
 <meta property="og:image" content="{URL}og/inicio.jpg">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="El reloj Ferreras sobre azul noche junto al logotipo y la frase Su departamento de marketing e IA. Todo incluido.">
+<meta property="og:image:alt" content="La esfera del reloj Ferreras sobre azul noche junto al logotipo y la frase Su departamento de marketing e IA. Todo incluido.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="{URL}og/inicio.jpg">
 <link rel="icon" href="{R}favicon.svg" type="image/svg+xml">
@@ -219,11 +235,15 @@ def cabecera(R, atual):
 <header class="topo" data-topo>
   <nav class="topo-lado" aria-label="Principal">{nav}</nav>
   <a class="topo-marca" href="{inicio}" data-logo-alvo aria-label="IA &amp; Marketing Ferreras, inicio">{logo_svg()}</a>
-  <div class="topo-dir"><a class="btn btn-claro" href="{R}diagnostico/">Pide su diagnóstico <span class="fl">→</span></a><button class="menu-botao" type="button" data-menu-botao aria-expanded="false" aria-controls="menu"><span>Menú</span><i></i></button></div>
+  <div class="topo-dir">
+    <div class="hud" data-hud aria-hidden="true"><div class="hud-txt"><b class="hud-hora" data-hud-hora>07:30<small>MKT</small></b><span class="hud-mom" data-hud-mom></span></div><div class="hud-dock" data-hud-dock><svg class="hud-anillo" data-hud-anillo viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" class="f"/><circle class="v" cx="50" cy="50" r="48" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" transform="rotate(-90 50 50)"/></svg></div></div>
+    <a class="btn btn-claro topo-cta" href="{R}diagnostico/">{CTA} <span class="fl">→</span></a>
+    <button class="menu-botao" type="button" data-menu-botao aria-expanded="false" aria-controls="menu"><span>Menú</span><i></i></button>
+  </div>
 </header>
 <div class="menu" id="menu" data-menu hidden>
   <nav aria-label="Menú"><ul class="menu-lista">{menu}</ul><div class="menu-sub">{sub}</div></nav>
-  <div class="menu-pe"><a class="btn btn-claro" href="{R}diagnostico/">Pide su diagnóstico <span class="fl">→</span></a><p class="mini">{EMAIL}</p></div>
+  <div class="menu-pe"><a class="btn btn-claro" href="{R}diagnostico/">{CTA} <span class="fl">→</span></a><p class="mini">{EMAIL}</p></div>
 </div>
 '''
 
@@ -243,16 +263,12 @@ def rodape(R):
   </div>
   <div class="rodape-legal"><p>© 2026 IA &amp; Marketing Ferreras · FERRERAS LUXURY GROUP, S.L. · NIF B25958869</p><nav aria-label="Legal"><a href="{R}legal/aviso-legal/">Aviso legal</a><a href="{R}legal/privacidad/">Privacidad</a><a href="{R}legal/cookies/">Cookies</a></nav><p class="concepto">Propuesta de rediseño · concepto</p></div>
 </footer>
-<div class="barra-dx" data-barra><a class="btn btn-claro" href="{R}diagnostico/">Diagnóstico <span class="fl">→</span></a></div>
-<aside class="hud" data-hud aria-hidden="true">
-  <div class="hud-dock" data-hud-dock><svg class="hud-anillo" data-hud-anillo viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" stroke="rgba(243,230,220,.14)"/><circle class="v" cx="50" cy="50" r="48" stroke="var(--acento)" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" transform="rotate(-90 50 50)"/></svg></div>
-  <div class="hud-txt"><b class="hud-hora" data-hud-hora>07:30<small>MKT</small></b><div class="hud-mom" data-hud-mom></div></div>
-</aside>
+<div class="barra-dx" data-barra><a class="btn btn-claro" href="{R}diagnostico/">{CTA} <span class="fl">→</span></a></div>
 <div class="reloj-voo" data-reloj-voo aria-hidden="true">{reloj_html(R)}</div>
 '''
 
 
-SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "70-paginas", "80-ai-demo"]
+SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "70-paginas"]
 FEITAS = []
 
 
@@ -262,7 +278,7 @@ def pagina(rota, titulo, desc, corpo, inicio=False):
     s = "".join(f'<script src="{R}js/{n}.js?v={VERSAO}"></script>' for n in SCRIPTS)
     cls = ' class="a-abrir"' if inicio else ' class="interior"'
     doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{corpo(R)}\n</main>\n{rodape(R)}{s}\n</body>\n</html>\n"
-    if rota == "diagnostico/":
+    if rota in ("diagnostico/", "contacto/"):
         doc = doc.replace('<div class="barra-dx" data-barra>', '<div class="barra-dx" data-barra hidden>')
     destino = RAIZ / rota / "index.html"
     destino.parent.mkdir(parents=True, exist_ok=True)
@@ -308,8 +324,8 @@ def sec(c, cls="", extra=""):
     return f'<section class="sec {cls}"{extra}>{c}</section>'
 
 
-def banda(titulo, txt, botoes):
-    return sec(f'<div class="banda"><div class="cab" style="margin:0"><h2 class="titulo t-l" data-linhas>{titulo}</h2><p class="lead" data-sube>{txt}</p></div><div class="acoes">{botoes}</div></div>')
+def banda(titulo, txt, botoes, extra=""):
+    return sec(f'<div class="banda"><div class="cab" style="margin:0"><h2 class="titulo t-l" data-linhas>{titulo}</h2><p class="lead" data-sube>{txt}</p>{extra}</div><div class="acoes">{botoes}</div></div>')
 
 
 def tabs(pref, items):
@@ -327,8 +343,8 @@ def passos(items):
     return f'<div class="passos" style="--cols:{len(items)}">{out}</div>'
 
 
-def chips(items):
-    return '<ul class="chips">' + "".join(f"<li>{e(x)}</li>" for x in items) + "</ul>"
+def chips(items, cls="chips"):
+    return f'<ul class="{cls}">' + "".join(f"<li>{e(x)}</li>" for x in items) + "</ul>"
 
 
 def ph(R, eti, h1, lead, botoes="", foto=None, chips_=None, migas=None):
@@ -344,9 +360,6 @@ def ph(R, eti, h1, lead, botoes="", foto=None, chips_=None, migas=None):
     return f'<section class="{cls}"><div class="ph-txt">{m}{et}<h1 class="titulo t-xl" data-linhas>{h1}</h1><p class="lead" data-sube>{lead}</p>{ac}{ch}</div>{f}</section>'
 
 
-CONDICIONES = [("Alcance cerrado por escrito", "Antes de empezar a producir, y lo que queda fuera se dice entonces."),
-               ("Sin permanencia obligatoria", "Recomendamos continuidad porque la autoridad se construye, no porque le atemos."),
-               ("La propiedad es suya", "El proyecto, el dominio y todos los accesos quedan a su nombre desde el primer día."),
-               ("Trato uno a uno", "Trabajamos con pocas empresas. Habla siempre con quien dirige su proyecto.")]
+CONDICIONES = ["Alcance cerrado por escrito", "Sin permanencia obligatoria", "El proyecto y los accesos son suyos", "Trato uno a uno"]
 
 exec((Path(__file__).parent / "paginas.py").read_text(encoding="utf-8"))
