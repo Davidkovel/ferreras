@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "3"
+VERSAO = "4"
 Q = '"'
 CTA = "Pida su diagnóstico"
 
@@ -179,7 +179,34 @@ def img(R, base, alt, sizes="100vw", lazy=True, extra=""):
 
 def video(R, nome, alt, w=540, h=960):
     return (f'<video muted playsinline loop preload="none" width="{w}" height="{h}" poster="{R}video/{nome}-poster.webp" '
-            f'data-src="{R}video/{nome}.mp4" data-video-auto aria-label="{e(alt)}"></video>')
+            f'data-src="{R}video/{nome}.mp4?v={VERSAO}" data-video-auto aria-label="{e(alt)}"></video>')
+
+
+def coche_svg(sfx=""):
+    """O coche visto de cima, de frente para baixo (+y): carroçaria negra brilhante, asa traseira e a barra de luz
+    vermelha de um GT3 RS, faróis acesos. Serve à rota da home e de marcador no diagnóstico."""
+    corpo = ("M24 3C34 1 46 1 56 3C70 5 78 16 78 38C78 60 74 78 74 96C74 112 77 128 77 146C77 162 70 172 58 174"
+             "C48 175.5 32 175.5 22 174C10 172 3 162 3 146C3 128 6 112 6 96C6 78 2 60 2 38C2 16 10 5 24 3Z")
+    return (f'<svg class="coche" viewBox="0 0 80 176" aria-hidden="true"><defs>'
+            f'<linearGradient id="cc-c{sfx}" x1="0" x2="1"><stop offset="0" stop-color="#04070b"/><stop offset=".36" stop-color="#141b24"/>'
+            f'<stop offset=".5" stop-color="#2a3542"/><stop offset=".64" stop-color="#141b24"/><stop offset="1" stop-color="#04070b"/></linearGradient>'
+            f'<linearGradient id="cc-v{sfx}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22303f"/><stop offset="1" stop-color="#06090d"/></linearGradient>'
+            f'<radialGradient id="cc-f{sfx}"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#e3edff"/><stop offset="1" stop-color="#e3edff" stop-opacity="0"/></radialGradient>'
+            f'<filter id="cc-b{sfx}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>'
+            f'<ellipse cx="40" cy="90" rx="39" ry="87" fill="#000" opacity=".4" filter="url(#cc-b{sfx})"/>'
+            f'<path d="{corpo}" fill="url(#cc-c{sfx})" stroke="rgba(255,255,255,.24)" stroke-width=".8"/>'
+            f'<rect x="15" y="4.4" width="50" height="3.2" rx="1.6" fill="#ff2b2b" opacity=".75" filter="url(#cc-b{sfx})"/>'
+            f'<rect x="15" y="5.1" width="50" height="1.8" rx=".9" fill="#ff3b30"/>'
+            f'<rect x="5" y="12" width="70" height="7" rx="2" fill="#0a0e13" stroke="rgba(255,255,255,.26)" stroke-width=".6"/>'
+            f'<path d="M28 26h24M27 30h26M27 34h26M28 38h24" stroke="rgba(255,255,255,.12)" stroke-width="1"/>'
+            f'<path d="M26 58H54L51 46H29Z" fill="url(#cc-v{sfx})" stroke="rgba(255,255,255,.15)" stroke-width=".5"/>'
+            f'<rect x="22" y="58" width="36" height="40" rx="7" fill="#0e141b"/>'
+            f'<path d="M22 98H58L64 121H16Z" fill="url(#cc-v{sfx})" stroke="rgba(255,255,255,.18)" stroke-width=".5"/>'
+            f'<path d="M26 101H40L33 118H20Z" fill="#fff" opacity=".07"/>'
+            f'<ellipse cx="5.5" cy="104" rx="4" ry="2.6" fill="#0a0e13" stroke="rgba(255,255,255,.22)" stroke-width=".5"/>'
+            f'<ellipse cx="74.5" cy="104" rx="4" ry="2.6" fill="#0a0e13" stroke="rgba(255,255,255,.22)" stroke-width=".5"/>'
+            f'<path d="M40 125V166M26 167H54" stroke="rgba(255,255,255,.1)" stroke-width="1.2"/>'
+            f'<ellipse cx="17" cy="159" rx="6.5" ry="4.5" fill="url(#cc-f{sfx})"/><ellipse cx="63" cy="159" rx="6.5" ry="4.5" fill="url(#cc-f{sfx})"/></svg>')
 
 
 # ---------------------------------------------------------------- shell
@@ -268,7 +295,7 @@ def rodape(R):
 '''
 
 
-SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "70-paginas"]
+SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "45-ruta", "70-paginas"]
 FEITAS = []
 
 
@@ -278,7 +305,10 @@ def pagina(rota, titulo, desc, corpo, inicio=False):
           '<div class="rasto-w"><i class="rasto"></i><i class="rasto-cab"></i></div></div>') if inicio else ""
     s = "".join(f'<script src="{R}js/{n}.js?v={VERSAO}"></script>' for n in SCRIPTS)
     cls = ' class="a-abrir"' if inicio else ' class="interior"'
-    doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{corpo(R)}\n</main>\n{rodape(R)}{s}\n</body>\n</html>\n"
+    # a rota do coche (home, computador): estrada em SVG, rasto de luz num canvas, o coche por cima (js/45-ruta.js)
+    rt = ('<div class="ruta" data-ruta aria-hidden="true"><svg class="ruta-svg" data-ruta-svg><path class="ruta-p" data-ruta-p d=""/></svg>'
+          f'<div class="coche-w" data-coche><span class="feixe"></span>{coche_svg("-r")}</div></div><canvas class="ruta-luz" data-ruta-luz aria-hidden="true"></canvas>') if inicio else ""
+    doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{rt}{corpo(R)}\n</main>\n{rodape(R)}{s}\n</body>\n</html>\n"
     if rota in ("diagnostico/", "contacto/"):
         doc = doc.replace('<div class="barra-dx" data-barra>', '<div class="barra-dx" data-barra hidden>')
     destino = RAIZ / rota / "index.html"

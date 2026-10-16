@@ -59,7 +59,7 @@ window.SITE = (() => {
   addEventListener('load', remede);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(remede);
   if ('ResizeObserver' in window) new ResizeObserver(remede).observe(document.documentElement);
-  addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
+  addEventListener('pageshow', (e) => { if (e.persisted) sujas = true; });
   addEventListener('load', () => setTimeout(() => document.documentElement.classList.add('suave'), 400));
 
   // la apertura avisa cuando el logotipo se posa; sin apertura, ya está abierto

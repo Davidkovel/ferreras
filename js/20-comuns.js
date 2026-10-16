@@ -58,7 +58,15 @@
     const caixa = v.parentElement;
     v.muted = true; v.defaultMuted = true; v.setAttribute('muted', ''); v.playsInline = true;
     if (reduz) { caixa.classList.add('kb'); return; }
-    const d = v.dataset, fonte = () => { if (!v.src) v.src = vertical ? (grande && d.srcVd) || d.srcV : (grande && d.srcHd) || d.srcH; };
+    const d = v.dataset;
+    // a fonte grande primeiro; se falhar (erro ou parada mais de 2,5 s a carregar) desce para a leve no mesmo segundo
+    const leve = vertical ? d.srcV : d.srcH, pesada = vertical ? d.srcVd : d.srcHd;
+    const fonte = () => { if (!v.src) v.src = (grande && pesada) || leve; };
+    const desce = () => { if (!pesada || !v.src.includes(pesada.split('?')[0]) || !leve) return; const t = v.currentTime; v.src = leve; v.currentTime = t; v.play().catch(() => {}); };
+    v.addEventListener('error', desce);
+    let espera = 0;
+    v.addEventListener('waiting', () => { clearTimeout(espera); espera = setTimeout(() => v.readyState < 3 && desce(), 2500); });
+    v.addEventListener('playing', () => clearTimeout(espera));
     const preguica = v.dataset.lazy !== undefined;
     if (!preguica) fonte();
     let vis = !preguica, pendente = false, tent = 0;
@@ -119,6 +127,8 @@
   const topo = $('[data-topo]'), claros = $$('[data-claro]');
   const barra = $('[data-barra]'), rodape = $('[data-rodape]');
   let claroAnt = null, fundoAnt = null, barraOn = null, yAnt = scrollY, acum = 0;
+  const heroS = $('[data-hero]'), abre = $$('.interludio,[data-abre]').map((el) => ({ el, v: '' }));
+  let qAnt = '';
   SITE.aCada((t, { y, h }) => {
     if (topo) {
       // sobre una sección clara la cabecera pasa a tinta; con el scroll gana un velo detrás para leerse
@@ -148,6 +158,13 @@
       tt.n = n;
     }
     if (reduz) return;
+    if (heroS) { const q = clamp(y / h).toFixed(3); if (q !== qAnt) { qAnt = q; heroS.style.setProperty('--q', q); } }
+    for (const a of abre) {
+      const c = SITE.caixa(a.el), top = c.top - y;
+      if (c.bottom - y < -h || top > h * 1.2) continue;
+      const k = clamp((h - top) / (h * 0.85)).toFixed(3);
+      if (k !== a.v) { a.v = k; a.el.style.setProperty('--a', k); }
+    }
     for (const j of janelas) {
       const c = SITE.caixa(j.el), top = c.top - y;
       if (c.bottom - y <= 0 || top >= h) continue;

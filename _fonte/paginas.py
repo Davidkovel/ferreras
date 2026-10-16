@@ -29,10 +29,10 @@ def filme(R, nome, cls=""):
     if (RAIZ / "video" / f"{nome}-1080.mp4").exists():
         pic = (f'{mv} srcset="{v}-v720-poster.webp 720w, {v}-v1080-poster.webp 1080w" sizes="100vw">'
                f'<img src="{v}-1080-poster.webp" srcset="{v}-720-poster.webp 1280w, {v}-1080-poster.webp 1920w" sizes="100vw" alt=""{carga}>')
-        fontes = f'data-src-h="{v}-720.mp4" data-src-hd="{v}-1080.mp4" data-src-v="{v}-v720.mp4" data-src-vd="{v}-v1080.mp4"'
+        fontes = f'data-src-h="{v}-720.mp4?v={VERSAO}" data-src-hd="{v}-1080.mp4?v={VERSAO}" data-src-v="{v}-v720.mp4?v={VERSAO}" data-src-vd="{v}-v1080.mp4?v={VERSAO}"'
     else:
         pic = f'{mv} srcset="{v}-v-poster.webp"><img src="{v}-h-poster.webp" alt=""{carga}>'
-        fontes = f'data-src-h="{v}-h.mp4" data-src-v="{v}-v.mp4"'
+        fontes = f'data-src-h="{v}-h.mp4?v={VERSAO}" data-src-v="{v}-v.mp4?v={VERSAO}"'
     return (f'<div class="filme {cls}" aria-hidden="true"><picture>{pic}</picture>'
             f'<video muted playsinline loop preload="{"none" if preguica else "auto"}" data-filme{preguica} {fontes}></video></div>')
 
@@ -66,7 +66,7 @@ AVISO_DEMO = "Guion fijo con fines ilustrativos. No es una conversación en vivo
 
 
 def chat_html():
-    ms = "".join(f'<p class="msg {c}">{se(bool(q), "<small>" + q + "</small>")}{e(t)}</p>' for c, q, t in CHAT)
+    ms = "".join(f'<p class="msg {c}">{se(bool(q), "<small>" + q + "</small>")}{e(t)}</p>' for c, q, t in [CHAT[i] for i in (0, 3, 4, 5, 6)])
     return (f'<div class="chat" role="log" aria-live="polite" aria-label="Simulación de una conversación con un agente de atención">'
             f'<div class="chat-cab"><b><i aria-hidden="true"></i>Agente de atención · Hotel</b><span>Simulación ilustrativa</span></div>'
             f'<div class="chat-lista">{ms}<p class="chat-vazio">Pulse «Probar la demostración».</p></div>'
@@ -110,6 +110,62 @@ TRABAJO = [("vid:reel-tn-porsche", "v", "Porsche 911 GT3 RS negro en el estudio 
            ("yate-completo-vertical", "v", "Yate de lujo fondeado en una cala de aguas turquesa, fotografiado desde el aire", "Náutica", "Alquiler de yates, Costa Brava")]
 
 
+def campo(id_, nome, rot, tipo="text", req="", auto="", opc=False, extra=""):
+    lab = rot + (" <small>(opcional)</small>" if opc else "")
+    r = f' data-req="{req}"' if req else ""
+    a = f' autocomplete="{auto}"' if auto else ""
+    return f'<div class="campo"><label for="{id_}">{lab}</label><input id="{id_}" name="{nome}" type="{tipo}"{a}{r}{extra}><span class="erro" id="{id_}-erro"></span></div>'
+
+
+def area(id_, nome, rot, req="", ph="", opc=False):
+    lab = rot + (" <small>(opcional)</small>" if opc else "")
+    r = f' data-req="{req}" data-min="10"' if req else ""
+    return f'<div class="campo largo"><label for="{id_}">{lab}</label><textarea id="{id_}" name="{nome}" rows="3" placeholder="{ph}"{r}></textarea><span class="erro" id="{id_}-erro"></span></div>'
+
+
+def pills(nome, legenda, ops, pre=None):
+    """Escolha única em pílulas (rádios nativos por baixo)."""
+    pre = pre if pre is not None else ops[0][0]
+    ls = "".join(f'<label><input type="radio" name="{nome}" value="{e(v)}"{se(v == pre, " checked")}><span>{e(t)}</span></label>' for v, t in ops)
+    return f'<fieldset class="campo largo pills"><legend>{legenda}</legend><div>{ls}</div></fieldset>'
+
+
+def consentimento(R, pref):
+    return (f'<div class="campo largo consent"><label class="check"><input type="checkbox" id="{pref}-ok" name="consentimiento" data-req="Necesitamos su consentimiento para poder responderle.">'
+            f'<i aria-hidden="true"></i><span>He leído la <a href="{R}legal/privacidad/">política de privacidad</a> y acepto que Ferreras me contacte sobre esta solicitud.</span></label><span class="erro" id="{pref}-ok-erro"></span></div>')
+
+
+TRAMPA = '<input type="text" name="website" tabindex="-1" autocomplete="off" class="vh" aria-hidden="true">'
+PREF = [("email", "Email"), ("telefono", "Teléfono"), ("whatsapp", "WhatsApp")]
+
+
+def estado_envio(titulo_ok):
+    """Os três estados do envio, como no site antigo: a enviar, recebido, falhou (com o correio como saída)."""
+    return (f'<div class="envio" data-envio aria-live="polite"><p class="envio-a" data-e="a" hidden>Enviando…</p>'
+            f'<div class="envio-ok" data-e="ok" hidden><b>{titulo_ok}</b><p>Una persona del equipo la revisa y le responde en un día laborable.</p></div>'
+            f'<div class="envio-ko" data-e="ko" hidden><b>No hemos podido conectar.</b><p>Sus datos siguen escritos: puede reintentarlo o escribirnos a <a data-mailto href="mailto:{EMAIL}">{EMAIL}</a>.</p></div></div>')
+
+
+def placa_html(R, linhas, pe="Passeig de Gràcia 95, 5º 1ª · 08008 Barcelona"):
+    """A placa da casa: fotografia, marca e as linhas que o formulário vai preenchendo."""
+    ls = "".join(f'<div data-pl-l="{k}"><dt>{t}</dt><dd class="vazio" data-pl="{k}">Elegir</dd></div>' for k, t in linhas)
+    return (f'<aside class="placa" data-placa><div class="placa-foto">{img(R, "reloj-ferreras-almirante", "Reloj Ferreras Almirante en su estuche", "(min-width: 900px) 30vw, 90vw")}'
+            f'<div class="placa-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg><span>Barcelona</span></div></div>'
+            f'<dl class="placa-l">{ls}</dl><p class="placa-pe">{pe}</p><div class="selo" data-selo hidden><b>Recibido</b><span data-selo-t></span></div></aside>')
+
+
+def diag_html(R):
+    """O diagnóstico como uma viagem: a estrada com as quatro etapas e o coche como marcador; as opções em cartões
+    sobre um painel escuro; a placa à direita regista cada resposta. Lógica e envio em js/70-paginas.js."""
+    linhas = [("sector", "Sector"), ("objetivo", "Objetivo"), ("friccion", "Fricción"), ("activos", "Activos"), ("volumen", "Volumen"),
+              ("plazo", "Plazo"), ("inversion", "Inversión"), ("rol", "Su papel")]
+    etapas = "".join(f'<li style="--p:{p}">{t}</li>' for p, t in [(0, "Su empresa"), (0.25, "Su objetivo"), (0.5, "Su momento"), (1, "Contacto")])
+    return (f'<div class="dj" data-diag data-raiz="{R}"><div class="dj-estrada" data-estrada><div class="dj-linha"><i data-estrada-viva></i></div>'
+            f'<ol class="dj-etapas">{etapas}</ol><span class="dj-coche" data-coche-diag data-ruta-fim>{coche_svg("-d")}</span></div>'
+            f'<div class="dj-corpo"><div class="dj-passo" data-diag-paso></div><div class="dj-reco" data-reco hidden tabindex="-1"></div></div>'
+            f'{placa_html(R, linhas)}</div>')
+
+
 # ================================================================= INICIO
 # Composição à maneira do De Antonio, adaptada aos blocos da Ferreras: âncoras alternadas à esquerda e à direita,
 # título e frase lado a lado, media fora do eixo ou a sair da margem, ar entre blocos, dois momentos de ecrã inteiro,
@@ -124,9 +180,24 @@ def inicio(R):
     <div class="hero-tit"><p class="etiqueta" style="--i:0"><span class="hora">07:30</span>Barcelona · Marketing de lujo e inteligencia artificial</p>
       <h1 class="titulo t-xxl" data-linhas>{L('Su departamento', 'de marketing e IA.', '<em>Todo incluido.</em>')}</h1></div>
     <div class="hero-lado"><p class="lead" style="--i:1">De la agencia que crea marcas de lujo y tiene la suya propia.</p>
-      <div class="acoes" style="--i:2">{btn(R + DIAG, CTA)}{btn('#trabajo', 'Ver el trabajo', 'btn-linha btn-vidro', False)}</div></div>
+      <div class="acoes" style="--i:2">{btn('#diagnostico', CTA, extra=' data-vai')}{btn('#que-hacemos', 'Qué hacemos', 'btn-linha btn-vidro', False)}</div></div>
   </div>
-  <p class="hero-pista" aria-hidden="true"><i></i>El reloj avanza con usted</p>
+  <p class="hero-pista" aria-hidden="true"><i></i>Baje: el coche le acompaña</p>
+</section>
+
+<section class="sec p-que" id="que-hacemos" data-hora="08:30" data-momento="Qué hacemos">
+  <div class="grelha p-que-cab">
+    <div class="p-que-tit" data-ruta-ini>{etq('08:30', 'Qué hacemos')}<h2 class="titulo t-l" data-linhas>{L('Le hacemos visible.', '<em>Y le hacemos responder.</em>')}</h2></div>
+    <p class="lead p-que-lead" data-sube>Un departamento de marketing y otro de inteligencia artificial, dentro de su empresa. Sin contratar, formar ni coordinar a nadie.</p>
+  </div>
+  <div class="puertas">
+    <a class="puerta" href="{R}marketing/" data-sube><div class="ventana pu-media">{video(R, 'reel-tn-porsche', 'Porsche 911 GT3 RS negro en el estudio de TN Autosport')}</div>
+      <div class="pu-txt"><p class="etiqueta">Departamento de Marketing</p><h3>Que le vean <em>como merece.</em></h3>
+      <ul><li>Estrategia a doce meses, por escrito</li><li>Producción propia: dron, cámaras y sonido</li><li>Redes, publicidad y email</li></ul><span class="enlace">Ver el departamento <span class="fl">→</span></span></div></a>
+    <a class="puerta" href="{R}inteligencia-artificial/" data-sube style="--i:1"><div class="ventana pu-media">{img(R, 'ia-hotel-recepcion-equipo', 'Recepcionista atendiendo en persona a una huésped mientras un sistema resuelve consultas en paralelo', '(min-width: 900px) 50vw, 100vw')}</div>
+      <div class="pu-txt"><p class="etiqueta">Departamento de IA</p><h3>Que nadie se quede <em>sin respuesta.</em></h3>
+      <ul><li>Teléfono, WhatsApp, chat y email</li><li>Más de veinte idiomas, a cualquier hora</li><li>Pasa a una persona cuando hace falta</li></ul><span class="enlace">Ver el departamento <span class="fl">→</span></span></div></a>
+  </div>
 </section>
 
 <section class="sec prod p-prod" id="trabajo" data-hora="10:30" data-momento="Rodaje en el puerto">
@@ -138,18 +209,18 @@ def inicio(R):
   <div class="grelha p-pe"><div class="prod-dado" data-sube><b><span data-conta="20000">20.000</span>–<span data-conta="300000">300.000</span></b><span>visitas de media por pieza en la línea editorial de un negocio de automoción deportiva</span></div>{ctl}</div>
 </section>
 
-<section class="interludio" data-hora="12:00" data-momento="Lo que no se puede repetir">
+<section class="interludio" data-ruta-tunel data-hora="12:00" data-momento="Lo que no se puede repetir">
   {filme(R, 'interludio', 'lazy')}
   <div class="int-velo" aria-hidden="true"></div>
   <h2 class="titulo t-xl int-h" data-linhas>{L('Lo que no se puede repetir', '<em>se prepara antes.</em>')}</h2>
 </section>
 
-<section class="sec mitades p-mit" data-hora="13:00" data-momento="Dos departamentos, un solo plan">
+<section class="sec mitades p-mit" data-hora="13:00" data-momento="El mismo barco, de día y de noche">
   <div class="grelha p-mit-cab">
     <p class="contorno mit-24" aria-hidden="true">24 h</p>
-    <div class="p-mit-tit">{etq('13:00', 'Las dos mitades')}<h2 class="titulo t-xl" data-linhas>{L('Marketing que atrae.', '<em>IA que atiende.</em>')}</h2><p class="lead" data-sube>Deslice la línea: el mismo barco, de día y de noche.</p></div>
+    <div class="p-mit-tit">{etq('13:00', 'Las dos mitades')}<h2 class="titulo t-xl" data-linhas>{L('De día, que le vean.', '<em>De noche, que le atiendan.</em>')}</h2><p class="lead" data-sube>Deslice la línea: el mismo barco, de día y de noche.</p></div>
   </div>
-  <div class="rx rx-total" data-rx role="slider" tabindex="0" aria-label="Del día a la noche: marketing e inteligencia artificial" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+  <div class="rx rx-total" data-rx data-ruta-tunel role="slider" tabindex="0" aria-label="Del día a la noche: marketing e inteligencia artificial" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
     <div class="rx-capa rx-dia">{img(R, 'yate-completo', 'Yate de lujo fondeado en una cala de aguas turquesa, de día')}</div>
     <div class="rx-capa rx-noche">{img(R, 'yate-noche', 'El mismo yate de noche, con las luces del salón encendidas')}</div>
     <div class="rx-linha" aria-hidden="true"></div><div class="rx-pega" aria-hidden="true">↔</div>
@@ -172,30 +243,14 @@ def inicio(R):
   <div class="grelha p-marca-pe"><p data-sube>{enlace('https://relojes-ferreras.com/', 'Conocer Relojes Ferreras', True)}</p><p class="marca-nota" data-sube>{mini_reloj()}El reloj que le acompaña en esta página es el nuestro.</p></div>
 </section>
 
-<section class="sec noche p-noche" data-hora="23:40" data-momento="La consulta que entra de noche">
-  <div class="grelha noche-g">
-    <figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure>
-    <div class="noche-txt">
-      {etq('23:40', 'Departamento de IA')}
-      <h2 class="titulo t-l" data-linhas>{L('La consulta de las 23:40', '<em>no es una consulta perdida.</em>')}</h2>
-      <p class="lead" data-sube>El agente responde en su idioma y, en el punto que usted decide, pasa el caso a una persona.</p>
-      <p data-sube>{enlace(R + 'inteligencia-artificial/#demo', 'Ver una conversación de ejemplo')}</p>
-    </div>
+<section class="sec claro final p-final" id="diagnostico" data-claro data-hora="07:30" data-momento="Veinticuatro horas después">
+  <div class="grelha final-cab">
+    <div class="final-txt">{etq('07:30', 'Veinticuatro horas después')}<h2 class="titulo t-xl" data-linhas>{L('Pida su diagnóstico.', '<em>Dos minutos.</em>')}</h2></div>
+    <p class="lead final-lead" data-sube>Ocho preguntas y una recomendación concreta: qué priorizar y por dónde empezar. Sin compromiso.</p>
   </div>
-</section>
-
-<section class="sec claro final p-final" data-claro data-hora="07:30" data-momento="Veinticuatro horas después">
-  <div class="grelha final-grid">
-    <div class="final-txt">
-      {etq('07:30', 'Veinticuatro horas después')}
-      <h2 class="titulo t-xl" data-linhas>{L('Ha llegado hasta aquí', 'porque nunca se ha conformado.', '<em>Su empresa tampoco debería.</em>')}</h2>
-      <div class="acoes" data-sube>{btn(R + DIAG, CTA, 'btn-oscuro')}{btn(R + 'contacto/', 'Escribir directamente', 'btn-linha', False)}</div>
-    </div>
-    <div class="final-dados" data-sube><div><b>8</b><span>preguntas</span></div><div><b>2 min</b><span>para completarlo</span></div><div><b>0 €</b><span>sin compromiso</span></div><div><b>3</b><span>primeras acciones</span></div></div>
-  </div>
+  {diag_html(R)}
 </section>
 '''
-
 
 pagina("", "IA & Marketing Ferreras · Su departamento de marketing e IA. Todo incluido.",
        "Un departamento de marketing y otro de inteligencia artificial montados dentro de su empresa, con un solo plan. Agencia de marketing de lujo en Barcelona: hotelería, automoción, náutica y joyería.",
@@ -336,14 +391,27 @@ MKT = [("Estrategia a doce meses", "Qué tiene que cambiar en la percepción de 
        ("Web, ecommerce y SEO", "Desarrollada por nuestro equipo: una web que cualifica.", ("img", "reloj-ferreras-almirante", "Reloj automático Ferreras Almirante presentado en su estuche"), "web/")]
 
 def marketing(R):
-    problemas = ["Le comparan con quien no debería", "Publica, pero no acumula", "Depende de usted estar delante", "Las métricas no hablan de dinero"]
+    pilares = [("reel-tn-porsche", "Porsche 911 GT3 RS negro en el estudio de TN Autosport", "Rodamos.", "Equipo propio: dron, cámaras, sonido e iluminación. Desplazamientos incluidos."),
+               ("reel-ferreras-lifestyle", "Campaña de Relojes Ferreras: coche, gastronomía, música y el reloj", "Publicamos.", "Redes, publicidad y email, con una línea editorial que se reconoce."),
+               ("reel-diamantes", "Un joyero explica una pieza ante la cámara", "Le ponemos delante.", "Podcast y entrevistas: que se le vea explicando su criterio.")]
+    ph_ = "".join(f'<figure class="pilar" data-sube style="--i:{i}"><div class="ventana">{video(R, b, alt)}</div><figcaption><h3>{t}</h3><p>{p}</p></figcaption></figure>' for i, (b, alt, t, p) in enumerate(pilares))
+    rx = (f'<div class="rx rx-ad" data-rx role="slider" tabindex="0" aria-label="Antes y después: una ficha de inventario frente a una pieza de vídeo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">'
+          f'<div class="rx-capa rx-dia">{img(R, "tn-autosport-deportivos", "Dos coches deportivos expuestos en un concesionario, en una fotografía de catálogo", "(min-width: 900px) 40vw, 100vw")}'
+          f'<div class="ficha"><p class="etiqueta">Ficha de inventario</p><b>Deportivo de ocasión</b><span>12 fotos · Precio a consultar</span></div></div>'
+          f'<div class="rx-capa rx-noche">{video(R, "reel-tn-track", "Porsche GT3 en circuito, rodado desde un coche en paralelo")}'
+          f'<div class="ad-dado"><b>20.000–300.000</b><span>visitas de media por pieza</span></div></div>'
+          f'<div class="rx-linha" aria-hidden="true"></div><div class="rx-pega" aria-hidden="true">↔</div>'
+          f'<span class="rx-rot d"><b>Antes</b><span>Una ficha más</span></span><span class="rx-rot n"><b>Con Ferreras</b><span>Una pieza que se comparte</span></span></div>')
+    cifras = [("20.000–300.000", "visitas de media por pieza, en la línea editorial de un negocio de automoción deportiva"),
+              ("12 meses", "de estrategia por escrito, revisada cada mes"), ("Todo incluido", "equipo, producción y desplazamientos")]
+    ch = "".join(f'<div data-sube style="--i:{i}"><dt>{a}</dt><dd>{b}</dd></div>' for i, (a, b) in enumerate(cifras))
     return (ph_media(R, "Departamento de Marketing", L("Que su empresa", "se perciba", "<em>como lo que es.</em>"),
                      "Estrategia, producción audiovisual propia y distribución, dentro de su empresa.",
-                     btn(R + DIAG, CTA) + btn("#incluye", "Ver qué incluye", "btn-linha btn-vidro", False), filme(R, "mkt"))
-            + sec(cab("", "El problema", "El producto está a la altura. <em>La percepción, casi nunca.</em>") + tachado(problemas))
-            + sec(cab("", "Qué incluye", "Todo lo que haría <em>un departamento propio.</em>") + indice(R, MKT, "Qué incluye el departamento de marketing"), extra=' id="incluye"')
-            + sec(cab("", "El orden", "Cinco fases. <em>Ninguna se salta.</em>") + flujo(["Diagnóstico", "Estrategia", "Producción", "Distribución", "Lectura"]))
-            + banda("¿Cómo se ve hoy su empresa <em>desde fuera?</em>", "Lo analizamos sin compromiso.", btn(R + DIAG, CTA), chips(CONDICIONES, "chips chips-cond")))
+                     btn(R + DIAG, CTA) + btn("#hacemos", "Qué hacemos", "btn-linha btn-vidro", False), filme(R, "mkt"))
+            + sec(cab("", "Qué hacemos", "Rodamos, publicamos <em>y le ponemos delante.</em>") + f'<div class="pilares">{ph_}</div>', "p-pilares", ' id="hacemos"')
+            + sec(f'<div class="grelha antes"><div class="antes-txt">{etq("", "La diferencia", "n")}<h2 class="titulo t-l" data-linhas>El mismo coche. <em>Contado por nosotros.</em></h2>'
+                  f'<p class="lead" data-sube>Deslice la línea: de una ficha con doce fotos a una pieza que la gente comparte.</p><dl class="cifras-m">{ch}</dl></div>{rx}</div>')
+            + banda("¿Cómo se ve hoy su empresa <em>desde fuera?</em>", "Lo analizamos sin compromiso, en dos minutos.", btn(R + DIAG, CTA), chips(CONDICIONES, "chips chips-cond")))
 
 pagina("marketing/", "Departamento de Marketing", "Un departamento de marketing completo dentro de su empresa: estrategia a doce meses, producción audiovisual propia con dron y equipo, podcast, redes, publicidad, email marketing y web.", marketing)
 
@@ -356,18 +424,25 @@ IA = [("Primero, usted", "Sistemas que le quitan horas a usted antes de tocar la
       ("Control y mejora", "Permisos, registro y revisión de conversaciones reales.", ("img", "ia-hotel-recepcion-equipo", "Recepcionista atendiendo en persona a una huésped mientras un sistema resuelve consultas en paralelo"))]
 
 def ia(R):
-    demo = (f'<div class="demo" data-demo><div class="cab" style="margin:0">{etq("", "Demostración", "n")}<h2 class="titulo t-l" data-linhas>Pruébelo <em>usted mismo.</em></h2>'
-            f'<p class="lead" data-sube>Fíjese menos en lo que responde y más en lo que se niega a responder.</p>'
-            f'<div class="acoes" data-sube><button type="button" class="btn btn-claro" data-demo-play><span>Probar la demostración</span> <span class="fl">→</span></button></div>'
-            f'<p class="mini">{AVISO_DEMO}</p></div>{chat_html()}</div>')
+    feed = [("23:40", "DE", "Guten Abend, haben Sie am Wochenende noch ein Doppelzimmer frei?"), ("00:12", "EN", "Is breakfast included?"),
+            ("01:05", "FR", "Le parking est-il gratuit ?"), ("06:48", "ES", "¿A qué hora es el check-in?")]
+    fd = "".join(f'<li style="--i:{i}"><span class="fd-h">{h} · {l}</span><span class="fd-t">{e(t)}</span><span class="fd-ok">Respondido en su idioma</span></li>' for i, (h, l, t) in enumerate(feed))
+    hace = [("ia-hotel-multiidioma", "Recepción de hotel atendiendo a un grupo de huéspedes, con iconos de idiomas superpuestos", "Atiende.", "Teléfono, WhatsApp, chat y email. En más de veinte idiomas, a cualquier hora."),
+            ("ia-hotel-capacidades", "Vestíbulo de hotel con paneles de información superpuestos", "Consulta.", "Disponibilidad, horarios y datos de su casa, conectado a sus sistemas. Solo lectura por defecto."),
+            ("ia-hotel-recepcion-equipo", "Recepcionista atendiendo en persona a una huésped mientras un sistema resuelve consultas en paralelo", "Avisa a una persona.", "Cuando algo sale de lo autorizado, pasa el caso con todo el contexto.")]
+    hh = "".join(f'<figure class="pilar" data-sube style="--i:{i}"><div class="ventana">{img(R, b, alt, "(min-width: 900px) 60vw, 120vw")}</div><figcaption><h3>{t}</h3><p>{p}</p></figcaption></figure>' for i, (b, alt, t, p) in enumerate(hace))
+    demo = (f'<div class="grelha conversa" data-demo><div class="conv-txt">{etq("", "Así responde", "n")}<h2 class="titulo t-l" data-linhas>Lo importante <em>es dónde calla.</em></h2>'
+            f'<p class="lead" data-sube>Responde lo que sabe, consulta lo autorizado y, en el punto que usted decide, pasa el caso a recepción.</p>'
+            f'<p class="mini">{AVISO_DEMO}</p><p><button type="button" class="enlace" data-demo-play><span>Repetir</span> <span class="fl">↺</span></button></p></div>'
+            f'<div class="movil">{chat_html()}</div></div>')
     return (ph_media(R, "Departamento de IA", L("Que su empresa", "atienda siempre.", "<em>También de noche.</em>"),
                      "Agentes de atención en más de veinte idiomas, con supervisión humana.",
-                     btn(R + DIAG, CTA) + btn("#demo", "Ver la demostración", "btn-linha btn-vidro", False), fundo_img(R, "yate-noche", "Un yate de noche con las luces del salón encendidas"))
-            + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("", "Cómo funciona", "n")}<h2 class="titulo t-l" data-linhas>Dónde responde, <em>y dónde deja de hacerlo.</em></h2><p class="lead" data-sube>El punto exacto en el que calla y avisa a una persona se decide con usted.</p></div></div>', "noche")
-            + sec(cab("", "Qué incluye", "Empezamos por usted. <em>Después, por la empresa.</em>") + indice(R, IA, "Qué incluye el departamento de IA"))
+                     btn(R + DIAG, CTA) + btn("#hace", "Qué hace", "btn-linha btn-vidro", False), fundo_img(R, "yate-noche", "Un yate de noche con las luces del salón encendidas")).replace(
+                '<div class="pm-velo" aria-hidden="true"></div>', f'<div class="pm-velo" aria-hidden="true"></div><ul class="feed" data-feed aria-label="Ilustración: consultas que entran de noche">{fd}</ul>')
+            + sec(cab("", "Qué hace", "Atiende, consulta <em>y avisa.</em>") + f'<div class="pilares">{hh}</div>', "p-pilares", ' id="hace"')
+            + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("", "Las 24 horas", "n")}<h2 class="titulo t-l" data-linhas>La consulta de las 23:40 <em>no es una consulta perdida.</em></h2><p class="lead" data-sube>Su equipo atiende de día. El agente, cuando la recepción está cerrada.</p></div></div>', "noche")
             + sec(demo, extra=' id="demo"')
-            + sec(cab("", "El orden", "Seis pasos. <em>El primero no es instalar nada.</em>") + flujo(["Analizamos", "Decidimos", "Diseñamos", "Probamos", "Arrancamos", "Optimizamos"]))
-            + banda("¿Qué atiende hoy su equipo <em>que no debería?</em>", "Lo analizamos sin compromiso.", btn(R + DIAG, CTA) + btn(R + "ia-hoteles/", "El caso de hotelería", "btn-linha")))
+            + banda("¿Qué atiende hoy su equipo <em>que no debería?</em>", "Lo analizamos sin compromiso, en dos minutos.", btn(R + DIAG, CTA) + btn(R + "ia-hoteles/", "El caso de hotelería", "btn-linha")))
 
 pagina("inteligencia-artificial/", "Departamento de IA", "Un departamento de desarrollo de inteligencia artificial dentro de su empresa: agentes de atención en más de veinte idiomas, integraciones con sus sistemas, automatización de procesos y formación a su equipo.", ia)
 
@@ -495,17 +570,17 @@ def ia_hoteles(R):
            ("Pasar a una persona", "Con el contexto ya recogido."), ("Conectarse a sus sistemas", "Según API y permisos."), ("Seguir sus protocolos", "Definidos con usted.")]
     mk = [("Imagen audiovisual", "Un hotel se vende por cómo se ve."), ("Email marketing", "La reserva directa más barata."), ("Redes sociales", "Lo que el huésped comparte."), ("Canales de venta", "Directa frente a comisión.")]
     hab = ["Menos de 20 habitaciones", "Entre 20 y 50", "Entre 50 y 100", "Entre 100 y 200", "Más de 200", "Varios establecimientos"]
-    opt = "".join(f"<option>{e(x)}</option>" for x in hab)
     caso = dict(CASOS[2], t="Hotel Boltaña Ordesa", s="Un agente alrededor de la operativa real de un hotel de montaña.", ev=[])
-    form = f'''<form class="form" data-mail="Estudio de hotel" novalidate>
-<div class="campo-duo"><div class="campo"><label for="h-nome">Nombre</label><input id="h-nome" name="nombre" autocomplete="name" data-campo="Nombre" data-req="Indique su nombre."><span class="erro" id="h-nome-erro"></span></div>
-<div class="campo"><label for="h-emp">Hotel o empresa</label><input id="h-emp" name="empresa" autocomplete="organization" data-campo="Hotel o empresa" data-req="Indique el nombre del hotel."><span class="erro" id="h-emp-erro"></span></div></div>
-<div class="campo-duo"><div class="campo"><label for="h-mail">Email</label><input id="h-mail" name="email" type="email" autocomplete="email" data-campo="Email" data-req="Indique su email."><span class="erro" id="h-mail-erro"></span></div>
-<div class="campo"><label for="h-hab">Habitaciones</label><select id="h-hab" name="habitaciones" data-campo="Habitaciones">{opt}</select></div></div>
-<input type="text" name="website" tabindex="-1" autocomplete="off" class="vh" aria-hidden="true">
-<div class="acoes"><button class="btn btn-claro" type="submit">Quiero estudiar mi caso <span class="fl">→</span></button></div>
-<p class="form-nota">Se abre su correo con el mensaje ya escrito para {EMAIL}.</p>
-</form><div class="form-ok" data-ok hidden><b>Su correo ya tiene el mensaje preparado.</b><p class="texto">Si no se ha abierto: <a href="mailto:{EMAIL}">{EMAIL}</a>.</p></div>'''
+    habs = [(x, x) for x in hab]
+    form = (f'<form class="form-l" data-lead="hotel" novalidate><div class="campos">'
+            + campo("h-nome", "nombre", "Nombre", req="Indique su nombre.", auto="name")
+            + campo("h-emp", "hotel", "Hotel o establecimiento", req="Indique el nombre del establecimiento.", auto="organization")
+            + campo("h-tel", "telefono", "Teléfono", "tel", req="Necesitamos un teléfono para poder llamarle.", auto="tel", extra=' data-min-dig="6"')
+            + campo("h-mail", "email", "Email", "email", req="Revise la dirección de email.", auto="email")
+            + pills("habitaciones", "Habitaciones", habs, hab[1])
+            + area("h-mej", "mejora", "Qué quiere mejorar o automatizar", ph="Por ejemplo: reservas fuera de horario, preguntas repetidas, idiomas.", opc=True)
+            + consentimento(R, "h") + TRAMPA
+            + f'</div><div class="acoes"><button class="btn btn-claro" type="submit">Quiero estudiar mi caso <span class="fl">→</span></button></div>{estado_envio("Solicitud recibida")}</form>')
     return (ph_media(R, "Agentes de IA para hoteles", L("Su hotel puede atender", "24 horas, en cualquier idioma,", "<em>sin ampliar recepción.</em>"), "Un agente diseñado alrededor de la operativa real de su establecimiento.",
                      btn("#estudio", "Estudiar mi hotel") + btn("#como", "Ver cómo funciona", "btn-linha btn-vidro", False), fundo_img(R, "ia-hotel-atencion-atardecer", "Recepción de un hotel al atardecer, con una huésped atendida en el mostrador"))
             + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Recepción</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("", "El día a día", "n")}<h2 class="titulo t-l" data-linhas>El teléfono no suena <em>cuando recepción está libre.</em></h2><div data-sube>{chips(preg)}</div></div></div>', "noche", ' id="como"')
@@ -520,56 +595,33 @@ pagina("ia-hoteles/", "Agentes de IA para hoteles", "Agentes de IA y marketing p
 
 # ================================================================= CONTACTO
 def contacto(R):
-    sectores = ["Hotelería", "Automoción", "Náutica", "Joyería", "Otro"]
-    plazos = ["Inmediato", "En 30–90 días", "El próximo trimestre", "Solo estoy explorando"]
-
-    def rad(nome, campo, lista, pre):
-        return "".join(f'<label><input type="radio" name="{nome}" value="{e(x)}" data-campo="{campo}"{se(x == pre, " checked")}><span>{e(x)}</span></label>' for x in lista)
-    form = f'''<form class="form" data-mail="Solicitud desde la web" novalidate>
-<div class="campo-duo"><div class="campo"><label for="c-nome">Nombre</label><input id="c-nome" name="nombre" autocomplete="name" data-campo="Nombre" data-req="Indique su nombre."><span class="erro" id="c-nome-erro"></span></div>
-<div class="campo"><label for="c-emp">Empresa</label><input id="c-emp" name="empresa" autocomplete="organization" data-campo="Empresa" data-req="Indique el nombre de su empresa."><span class="erro" id="c-emp-erro"></span></div></div>
-<div class="campo-duo"><div class="campo"><label for="c-mail">Email</label><input id="c-mail" name="email" type="email" autocomplete="email" data-campo="Email" data-req="Indique su email."><span class="erro" id="c-mail-erro"></span></div>
-<div class="campo"><label for="c-tel">Teléfono <small>(opcional)</small></label><input id="c-tel" name="telefono" type="tel" autocomplete="tel" data-campo="Teléfono"></div></div>
-<fieldset class="campo"><legend>Sector</legend><div class="radios">{rad("sector", "Sector", sectores, "")}</div></fieldset>
-<fieldset class="campo"><legend>Plazo</legend><div class="radios">{rad("plazo", "Plazo", plazos, "")}</div></fieldset>
-<div class="campo"><label for="c-msg">Objetivo</label><textarea id="c-msg" name="mensaje" data-campo="Objetivo" data-req="Cuéntenos en dos líneas qué quiere conseguir." placeholder="Dos líneas bastan: qué quiere conseguir y qué le frena."></textarea><span class="erro" id="c-msg-erro"></span></div>
-<input type="text" name="website" tabindex="-1" autocomplete="off" class="vh" aria-hidden="true">
-<div class="acoes"><button class="btn btn-claro" type="submit">Enviar solicitud <span class="fl">→</span></button></div>
-<p class="form-nota">Se abre su correo con la solicitud ya escrita para {EMAIL}. Respuesta personal en un día laborable.</p>
-</form><div class="form-ok" data-ok hidden><b>Su correo ya tiene la solicitud preparada.</b><p class="texto">Si no se ha abierto: <a href="mailto:{EMAIL}">{EMAIL}</a>.</p></div>'''
-    pasos3 = [("Leemos su caso", "Una persona, no un mensaje automático."), ("Respondemos en un día", "Con una primera lectura de su caso."), ("Asesoría privada", "Media hora. El presupuesto, después.")]
-    return (ph(R, "Contacto", L("Dos formas de empezar.", "<em>Elija la que le ahorre tiempo.</em>"), "Si no sabe qué necesita, el diagnóstico. Si ya lo sabe, escríbanos.").replace('class="pag-hero"', 'class="pag-hero compacto"')
-            + sec(f'<div class="vias"><div class="via" data-sube><p class="etiqueta"><span class="n">A</span>No sé qué necesito</p><h2>Diagnóstico de dos minutos</h2><p class="texto">Ocho preguntas y una recomendación concreta.</p><div class="acoes">{btn(R + DIAG, CTA)}</div><address class="nota direccion">IA &amp; Marketing Ferreras<br>Passeig de Gràcia 95, 5º 1ª · 08008 Barcelona<br><a class="enlace" href="mailto:{EMAIL}">{EMAIL}</a></address></div><div class="via" data-sube style="--i:1"><p class="etiqueta"><span class="n">B</span>Ya sé qué necesito</p><h2>Escríbanos</h2>{form}</div></div>')
-            + sec(cab("", "Qué pasa después", "Tres pasos, ninguno <em>le compromete.</em>") + flujo([a for a, _ in pasos3])))
-
+    sectores = [("Hotelería", "Hotelería"), ("Automoción", "Automoción"), ("Náutica", "Náutica"), ("Joyería", "Joyería"), ("Otro", "Otro")]
+    plazos = [("Inmediato", "Inmediato"), ("En 30–90 días", "En 30–90 días"), ("El próximo trimestre", "El próximo trimestre"), ("Solo estoy explorando", "Solo estoy explorando")]
+    form = (f'<form class="form-l" data-lead="contacto" novalidate><div class="campos">'
+            + campo("c-nome", "nombre", "Nombre", req="Indique su nombre.", auto="name")
+            + campo("c-emp", "empresa", "Empresa", req="Indique el nombre de su empresa.", auto="organization")
+            + campo("c-mail", "email", "Email", "email", req="Revise la dirección de email.", auto="email")
+            + campo("c-tel", "telefono", "Teléfono", "tel", auto="tel", opc=True)
+            + campo("c-cargo", "cargo", "Cargo", auto="organization-title", opc=True)
+            + pills("sector", "Sector", sectores) + pills("plazo", "Plazo", plazos)
+            + area("c-msg", "objetivo", "Qué quiere conseguir", req="Cuéntenos brevemente qué necesita.", ph="Dos líneas bastan: qué quiere conseguir y qué le frena.")
+            + pills("preferencia", "Prefiero que me contacten por", PREF) + consentimento(R, "c") + TRAMPA
+            + f'</div><div class="acoes"><button class="btn btn-oscuro" type="submit">Enviar solicitud <span class="fl">→</span></button></div>{estado_envio("Solicitud recibida")}</form>')
+    lado = (f'<aside class="placa placa-c"><div class="placa-foto">{img(R, "fernando-ferreras-ceo", "Fernando Ferreras en un puerto deportivo", "(min-width: 900px) 30vw, 90vw")}'
+            f'<div class="placa-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg><span>Barcelona</span></div></div>'
+            f'<dl class="placa-l"><div><dt>Dirección</dt><dd>Passeig de Gràcia 95, 5º 1ª</dd></div><div><dt>Ciudad</dt><dd>08008 Barcelona</dd></div>'
+            f'<div><dt>Email</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div><div><dt>Respuesta</dt><dd>Una persona, en un día laborable</dd></div></dl>'
+            f'<p class="placa-pe">¿No sabe qué necesita? {enlace(R + DIAG, "Diagnóstico de dos minutos")}</p></aside>')
+    return (ph(R, "Contacto", L("Escríbanos.", "<em>Le responde una persona.</em>"), "Si ya sabe lo que necesita, aquí. Si no, el diagnóstico de dos minutos.").replace('class="pag-hero"', 'class="pag-hero compacto"')
+            + sec(f'<div class="grelha contacto-g"><div class="contacto-form">{form}</div>{lado}</div>', "claro", " data-claro"))
 
 pagina("contacto/", "Contacto", "Dos vías: si ya sabe lo que necesita, un formulario corto. Si no lo tiene claro, un diagnóstico de dos minutos.", contacto)
 
 
 # ================================================================= DIAGNÓSTICO
 def diagnostico(R):
-    form = f'''<form class="form" novalidate>
-<div class="campo-duo"><div class="campo"><label for="d-nome">Nombre</label><input id="d-nome" name="nombre" autocomplete="name" data-req="Indique su nombre."><span class="erro" id="d-nome-erro"></span></div>
-<div class="campo"><label for="d-emp">Empresa</label><input id="d-emp" name="empresa" autocomplete="organization" data-req="Indique el nombre de su empresa."><span class="erro" id="d-emp-erro"></span></div></div>
-<div class="campo-duo"><div class="campo"><label for="d-mail">Email</label><input id="d-mail" name="email" type="email" autocomplete="email" data-req="Revise la dirección de email."><span class="erro" id="d-mail-erro"></span></div>
-<div class="campo"><label for="d-tel">Teléfono <small>(opcional)</small></label><input id="d-tel" name="telefono" type="tel" autocomplete="tel"></div></div>
-<div class="acoes"><button class="btn btn-claro" type="submit">Enviar a Ferreras <span class="fl">→</span></button></div>
-<p class="form-nota">Se abre su correo con sus respuestas y la recomendación ya escritas para {EMAIL}.</p>
-</form><div class="form-ok" data-ok hidden><b>Su correo ya tiene el diagnóstico preparado.</b><p class="texto">Si no se ha abierto: <a href="mailto:{EMAIL}">{EMAIL}</a>.</p></div>'''
-    reco = f'''<div class="reco" data-reco hidden>
-<p class="etiqueta"><span class="n">✓</span>Su recomendación</p>
-<h2 class="titulo t-l" tabindex="-1" data-r="prioridad"></h2>
-<p class="lead" data-r="porque"></p>
-<div class="reco-grid"><div><span class="etiqueta">Punto de partida</span><b data-r="plano"></b><p class="texto"><a class="enlace" data-r="ruta-a" href="#"><span data-r="ruta"></span> <span class="fl">→</span></a></p></div><div><span class="etiqueta">Su presupuesto</span><b>Tras la asesoría</b><p class="texto">Sin tarifas cerradas: primero entendemos su caso.</p></div></div>
-<div><h3 class="titulo t-s" style="margin-bottom:1.2rem">Sus tres primeras acciones</h3><ol data-r="acoes"></ol></div>
-<div class="deps" data-r="deps"></div>
-<p class="texto"><b>Siguiente paso:</b> <span data-r="prox"></span></p>
-<div class="via">{form}</div>
-<p><button type="button" class="enlace" data-recomeca><span class="fl">↺</span> Empezar de nuevo</button></p>
-</div>'''
     return (ph(R, "Diagnóstico comercial", L("Ocho preguntas.", "Dos minutos.", "<em>Una recomendación concreta.</em>"), "Sin puntuaciones ni presión. Al terminar sabrá por dónde empezar.").replace('class="pag-hero"', 'class="pag-hero compacto"')
-            + sec(f'<div class="diag" data-diag><div class="diag-lado"><div class="diag-prog" data-diag-prog aria-hidden="true"></div><div class="diag-placa" data-diag-placa aria-label="Sus respuestas"></div><p class="mini">Sus respuestas se guardan en este navegador para que pueda retomarlo. Los datos de contacto solo se envían cuando usted decide.</p></div><div><div class="diag-paso" data-diag-paso aria-live="polite"></div>{reco}</div></div>', "diag-sec"))
-
+            + sec(diag_html(R), "claro diag-sec", " data-claro"))
 
 pagina("diagnostico/", "Diagnóstico de 2 minutos", "Ocho preguntas, dos minutos y una recomendación concreta: qué priorizar, por dónde empezar y cuáles son sus tres primeras acciones. Sin precios y sin compromiso.", diagnostico)
 
