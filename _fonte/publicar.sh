@@ -12,7 +12,7 @@ echo "Cuenta: $U"
 code=$(curl -s -o /dev/null -w "%{http_code}" "${H[@]}" $API/repos/$U/ferreras)
 if [ "$code" != "200" ]; then
   curl -s -o /dev/null -w "Repositorio creado: %{http_code}\n" -X POST "${H[@]}" $API/user/repos \
-    -d '{"name":"ferreras","description":"IA & Marketing Ferreras · propuesta de rediseño (concepto Las 24 horas)","private":false,"has_wiki":false,"has_projects":false}'
+    -d '{"name":"ferreras","description":"IA and Marketing Ferreras - propuesta de rediseno (concepto Las 24 horas)","private":false,"has_wiki":false,"has_projects":false}'
 fi
 git remote get-url origin >/dev/null 2>&1 || git remote add origin "https://github.com/$U/ferreras.git"
 git push -u origin main
