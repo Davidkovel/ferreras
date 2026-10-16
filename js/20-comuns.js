@@ -2,7 +2,7 @@
   const { $, $$, reduz, clamp } = SITE;
   /* ---------- entradas: por línea y subidas ---------- */
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('dentro'); io.unobserve(e.target); } }), { threshold: 0, rootMargin: '0px 0px -6% 0px' });
-  $$('[data-linhas],[data-sube]').forEach((el) => { if (!el.closest('[data-hero]')) io.observe(el); });
+  $$('[data-linhas],[data-sube],[data-tacha]').forEach((el) => { if (!el.closest('[data-hero]')) io.observe(el); });
   // los títulos de la hero entran con la apertura, no con el observador
   SITE.abertura.then(() => $$('[data-hero] [data-linhas]').forEach((el) => el.classList.add('dentro')));
 
@@ -50,11 +50,15 @@
      iPhone: sin sonido, en línea, sin controles; si el navegador lo rechaza (Ahorro de energía) el cartaz
      gana un Ken Burns lento y cualquier gesto vuelve a intentarlo. */
   const vertical = matchMedia('(max-width: 899px) and (orientation: portrait)').matches;
+  // 1080 cuando la pantalla lo aprovecha (píxeles reales, no CSS) y la conexión no pide ahorro; si no, 720
+  const cx = navigator.connection || {}, poupa = cx.saveData || /2g/.test(cx.effectiveType || '');
+  const grande = !poupa && innerWidth * (devicePixelRatio || 1) > (vertical ? 800 : 1440);
+  const tocam = [];
   $$('video[data-filme]').forEach((v) => {
     const caixa = v.parentElement;
     v.muted = true; v.defaultMuted = true; v.setAttribute('muted', ''); v.playsInline = true;
     if (reduz) { caixa.classList.add('kb'); return; }
-    const fonte = () => { if (!v.src) v.src = vertical ? v.dataset.srcV : v.dataset.srcH; };
+    const d = v.dataset, fonte = () => { if (!v.src) v.src = vertical ? (grande && d.srcVd) || d.srcV : (grande && d.srcHd) || d.srcH; };
     const preguica = v.dataset.lazy !== undefined;
     if (!preguica) fonte();
     let vis = !preguica, pendente = false, tent = 0;
@@ -77,7 +81,10 @@
     if (preguica) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { fonte(); o.disconnect(); } }, { rootMargin: '100% 0px' }).observe(caixa);
     new IntersectionObserver(([e]) => { vis = e.isIntersecting; vis ? toca() : v.pause(); }, { threshold: 0 }).observe(caixa);
     document.addEventListener('visibilitychange', () => (document.hidden ? v.pause() : toca()));
+    tocam.push(() => { v.classList.remove('a-tocar'); toca(true); });
   });
+  // volver con «atrás» (página guardada en memoria): los vídeos estaban parados, se reanudan
+  addEventListener('pageshow', (e) => { if (e.persisted) tocam.forEach((f) => f()); });
 
   /* ---------- vídeos de las secciones: sólo cargan y tocan a la vista ---------- */
   const ioV = new IntersectionObserver((es) => es.forEach((e) => {
@@ -89,6 +96,7 @@
     } else if (!v.paused) v.pause();
   }), { threshold: 0.2 });
   $$('video[data-video-auto]').forEach((v) => { v.muted = true; v.defaultMuted = true; v.playsInline = true; ioV.observe(v); });
+  addEventListener('pageshow', (e) => { if (e.persisted) $$('video[data-video-auto]').forEach((v) => { ioV.unobserve(v); ioV.observe(v); }); });
 
   /* ---------- menú de pantalla entera ---------- */
   const mb = $('[data-menu-botao]'), menu = $('[data-menu]');

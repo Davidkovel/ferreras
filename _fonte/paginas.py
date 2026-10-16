@@ -19,13 +19,22 @@ def figura(R, base, alt, cap_b="", cap="", cls="", sizes="(min-width: 900px) 40v
 
 
 def filme(R, nome, cls=""):
+    """Vídeo de fundo: horizontal no computador, vertical no telemóvel ao alto. O cartaz é um <picture> por baixo,
+    o vídeo aparece por cima quando há fotogramas a sério (js/20-comuns.js). As montagens nítidas (showreel2.py)
+    têm duas resoluções de cada lado e o JS escolhe pelo ecrã; as outras são um par -h/-v simples."""
     preguica = " data-lazy" if "lazy" in cls.split() else ""
     carga = ' loading="lazy"' if preguica else ' fetchpriority="high"'
-    """Vídeo de fundo: horizontal no computador, vertical no telemóvel ao alto. O cartaz é um <picture> por baixo,
-    o vídeo aparece por cima quando há fotogramas a sério (js/20-comuns.js)."""
-    return (f'<div class="filme {cls}" aria-hidden="true"><picture><source media="(max-width: 899px) and (orientation: portrait)" srcset="{R}video/{nome}-v-poster.webp">'
-            f'<img src="{R}video/{nome}-h-poster.webp" alt=""{carga}></picture>'
-            f'<video muted playsinline loop preload="{"none" if preguica else "auto"}" data-filme{preguica} data-src-h="{R}video/{nome}-h.mp4" data-src-v="{R}video/{nome}-v.mp4"></video></div>')
+    v = f"{R}video/{nome}"
+    mv = '<source media="(max-width: 899px) and (orientation: portrait)"'
+    if (RAIZ / "video" / f"{nome}-1080.mp4").exists():
+        pic = (f'{mv} srcset="{v}-v720-poster.webp 720w, {v}-v1080-poster.webp 1080w" sizes="100vw">'
+               f'<img src="{v}-1080-poster.webp" srcset="{v}-720-poster.webp 1280w, {v}-1080-poster.webp 1920w" sizes="100vw" alt=""{carga}>')
+        fontes = f'data-src-h="{v}-720.mp4" data-src-hd="{v}-1080.mp4" data-src-v="{v}-v720.mp4" data-src-vd="{v}-v1080.mp4"'
+    else:
+        pic = f'{mv} srcset="{v}-v-poster.webp"><img src="{v}-h-poster.webp" alt=""{carga}>'
+        fontes = f'data-src-h="{v}-h.mp4" data-src-v="{v}-v.mp4"'
+    return (f'<div class="filme {cls}" aria-hidden="true"><picture>{pic}</picture>'
+            f'<video muted playsinline loop preload="{"none" if preguica else "auto"}" data-filme{preguica} {fontes}></video></div>')
 
 
 def ph_media(R, eti, h1, lead, botoes, media, migas=None):
@@ -42,18 +51,6 @@ def ph_media(R, eti, h1, lead, botoes, media, migas=None):
 def fundo_img(R, base, alt):
     return img(R, base, alt, "100vw", lazy=False)
 
-
-def faq_cab(num, titulo, link=""):
-    return f'<div class="faq-cab">{etq(num, "Preguntas frecuentes", "n")}<h2 class="titulo t-l" data-linhas>{titulo}</h2>{link}</div>'
-
-
-FAQ_INICIO = [
-    ("¿Ferreras trabaja solo con marcas de lujo?", "No. Trabajamos habitualmente en entornos de lujo —automoción, joyería, relojería, hotelería y náutica— porque son sectores donde cada detalle se nota. Ese estándar lo aplicamos a cualquier empresa consolidada con margen y reputación que defender."),
-    ("¿Tengo que elegir entre marketing e inteligencia artificial?", "No. Son las dos mitades del mismo departamento y entran juntas. En el diagnóstico decidimos por dónde empezar, según dónde se esté perdiendo hoy el dinero."),
-    ("¿Cómo se controla lo que hace un agente de IA?", "Con alcance definido, permisos mínimos, registro de actividad, confirmación para acciones sensibles, entorno de pruebas y transferencia a una persona cuando la gestión lo requiere. Un agente hace lo que se le ha autorizado a hacer, y queda constancia."),
-    ("¿Existe permanencia?", "En marketing recomendamos un mínimo de seis meses, porque la autoridad no se construye en menos. En proyectos web y de IA no hay permanencia: hay alcance, hitos y, si se desea, mantenimiento."),
-    ("¿Cuándo recibiré respuesta?", "Una persona del equipo revisa cada solicitud y responde en un día laborable. Nunca con un mensaje automático haciéndose pasar por una persona."),
-]
 
 # el guion de la demostración de la web original (página del Departamento de IA)
 CHAT = [
@@ -76,27 +73,18 @@ def chat_html():
             f'<div class="chat-pe"><span class="escribe" data-escribe hidden aria-hidden="true"><i></i><i></i><i></i></span><span>Permisos: solo lectura · registro activo</span></div></div>')
 
 
-FASES = [("Diagnóstico", "Entender el negocio antes que el canal."), ("Diseño", "Definir el sistema y lo que queda fuera."),
-         ("Implantación", "Construir, conectar y probar antes de encender."), ("Optimización", "Aprender de los datos y ajustar.")]
-
-
-def fases_html():
-    fs = "".join(f'<div class="fase" data-fase data-sube style="--i:{i}"><span class="num">0{i + 1}</span><h3>{n}</h3><p>{h}</p></div>' for i, (n, h) in enumerate(FASES))
-    return f'<div class="grelha fases" data-linha-alvo><div class="linha-viva" data-linha-viva></div>{fs}</div>'
-
-
 MKT_LISTA = ["Estrategia a 12 meses", "Podcast y entrevistas", "Vídeo y fotografía", "Redes y publicidad", "Imagen profesional", "Equipo y desplazamientos"]
 IA_LISTA = ["Sistemas para su día a día", "Análisis de su empresa", "Agentes y automatizaciones", "Mejoras continuas", "Formación a su equipo"]
 
 
 def sect_html(R, compacto=False):
-    S = [("sectores/hoteles/", "hotel-boltana", "Fachada y terraza exterior de un hotel de montaña rodeado de arbolado", "Hotelería", "Hoteles", "Más reservas y una marca que se recomienda."),
+    S = [("sectores/hoteles/", "ia-hotel-atencion-atardecer", "Recepción de un hotel al atardecer, con una huésped atendida en el mostrador", "Hotelería", "Hoteles", "Más reservas y una marca que se recomienda."),
          ("sectores/automocion-lujo/", "tn-autosport-deportivos", "Dos coches deportivos expuestos en el interior de un concesionario de automoción", "Automoción", "Automoción de lujo", "Contenido que enamora y vende coches."),
          ("sectores/nautica/", "yate-vistas", "Zona exterior de un yate con mesa, asientos y vistas a la costa", "Náutica", "Náutica, yates y puertos", "El mar, vivido antes de zarpar."),
          ("sectores/joyeria-relojeria/", "diamantes-anillos", "Dos anillos de diamantes sobre terciopelo azul oscuro", "Joyería", "Joyería y relojería", "Lujo que se desea y se recuerda.")]
     out = []
     for i, (h, b, alt, eti, t, p) in enumerate(S):
-        out.append(f'<a href="{R}{h}">{img(R, b, alt, "(min-width: 900px) 45vw, 50vw")}<span class="etiqueta"><span class="n">0{i + 1}</span>{eti}</span><h3>{t}</h3><p>{p}</p><span class="fl" aria-hidden="true">→</span></a>')
+        out.append(f'<a href="{R}{h}">{img(R, b, alt, "(min-width: 900px) 1600px, 100vw")}<span class="etiqueta">{eti}</span><h3>{t}</h3><p>{p}</p><span class="fl" aria-hidden="true">→</span></a>')
     return f'<div class="sect{se(compacto, " baixo")}">{"".join(out)}</div>'
 
 
@@ -128,11 +116,9 @@ TRABAJO = [("vid:reel-tn-porsche", "v", "Porsche 911 GT3 RS negro en el estudio 
 # números enormes só em contorno por trás das imagens. Os percentuais são guia de ritmo, não regra.
 def inicio(R):
     ctl, pista = carril(R, TRABAJO, "Trabajos de producción propia")
-    cifras = [("4", "sectores"), ("20+", "idiomas"), ("24 h", "de atención"), ("1 día", "laborable para responder")]
-    cifras_h = "".join(f'<div data-sube style="--i:{i}"><dt>{a}</dt><dd>{b}</dd></div>' for i, (a, b) in enumerate(cifras))
     return f'''
 <section class="hero" data-hero data-hora="07:30" data-momento="Abre su empresa">
-  {filme(R, 'showreel', 'hero-filme')}
+  {filme(R, 'hero', 'hero-filme')}
   <div class="hero-velo" aria-hidden="true"></div>
   <div class="hero-grid">
     <div class="hero-tit"><p class="etiqueta" style="--i:0"><span class="hora">07:30</span>Barcelona · Marketing de lujo e inteligencia artificial</p>
@@ -186,16 +172,6 @@ def inicio(R):
   <div class="grelha p-marca-pe"><p data-sube>{enlace('https://relojes-ferreras.com/', 'Conocer Relojes Ferreras', True)}</p><p class="marca-nota" data-sube>{mini_reloj()}El reloj que le acompaña en esta página es el nuestro.</p></div>
 </section>
 
-<section class="sec p-dep" data-hora="20:00" data-momento="Todo incluido">
-  <div class="grelha p-dep-cab">
-    <div class="p-dep-tit">{etq('20:00', 'El departamento')}<h2 class="titulo t-l" data-linhas>{L('Un departamento', 'dentro de su empresa.', '<em>Todo incluido.</em>')}</h2></div>
-    <p class="lead p-dep-lead" data-sube>Marketing e inteligencia artificial: dos equipos de especialistas con un solo plan.</p>
-  </div>
-  <figure class="p-dep-card"><div class="ventana" data-janela>{img(R, 'fernando-ferreras-ceo', 'Fernando Ferreras en un puerto deportivo, junto a dos vehículos de alta gama con estuches de reloj expuestos y embarcaciones al fondo', '(min-width: 900px) 72vw, 100vw')}</div><figcaption class="pie"><b>Fernando Ferreras</b>Dirección</figcaption></figure>
-  <ul class="p-dep-tres"><li data-sube>Sin contratar, formar ni coordinar a nadie</li><li data-sube style="--i:1">Un solo equipo, un solo plan</li><li data-sube style="--i:2">Trato uno a uno con quien dirige su proyecto</li></ul>
-  <dl class="cifras">{cifras_h}</dl>
-</section>
-
 <section class="sec noche p-noche" data-hora="23:40" data-momento="La consulta que entra de noche">
   <div class="grelha noche-g">
     <figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure>
@@ -206,10 +182,6 @@ def inicio(R):
       <p data-sube>{enlace(R + 'inteligencia-artificial/#demo', 'Ver una conversación de ejemplo')}</p>
     </div>
   </div>
-</section>
-
-<section class="sec p-faq" data-hora="07:00" data-momento="Antes de empezar">
-  <div class="grelha">{faq_cab('07:00', L('Lo que suelen', 'preguntarnos', '<em>antes de empezar.</em>'), '<p>' + enlace(R + 'contacto/', 'Hacer otra pregunta') + '</p>')}{faq(FAQ_INICIO, 'fi')}</div>
 </section>
 
 <section class="sec claro final p-final" data-claro data-hora="07:30" data-momento="Veinticuatro horas después">
@@ -282,24 +254,56 @@ CASO_FERRERAS = dict(id="ferreras", sector="joyeria-relojeria", sl="Marca propia
                      r="Un banco de pruebas permanente: lo que recomendamos lo hemos aplicado antes en casa.", ev=[])
 
 
-def caso_html(R, c, filtro=False):
-    foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 30vw, 100vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
-    ev = ""
-    if c["ev"]:
-        ev = '<div class="evid">' + "<br>".join(e(x) for x in c["ev"]) + "<small>Trabajo dirigido por Ferreras. Las cifras se publican una vez verificadas con el cliente.</small></div>"
+def caso_card(R, c, filtro=False):
+    """Um caso num cartão de fotografia: sector, título e o resultado numa linha. Nada se abre nem se expande."""
+    foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 56vw, 120vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
+    ev = f'<p class="cc-ev">{e(c["ev"][0])}</p>' if c["ev"] else ""
     atr = f' data-caso data-sector="{c["sector"]}" data-problema="{c["prob"]}"' if filtro else ""
-    return (f'<details class="caso"{atr}><summary><div class="caso-foto ventana">{foto}</div><div class="caso-cab"><p class="etiqueta">{e(c["sl"])}</p>'
-            f'<h3>{e(c["t"])}</h3><p>{e(c["s"])}</p><span class="caso-abre">Ver el caso<i aria-hidden="true"></i></span></div></summary>'
-            f'<dl><dt>Problema</dt><dd>{e(c["p"])}</dd><dt>Intervención</dt><dd>{e(c["i"])}</dd><dt>Resultado</dt><dd>{e(c["r"])}</dd>{ev}</dl></details>')
+    return (f'<article class="cc"{atr}><div class="cc-foto">{foto}</div><div class="cc-txt"><p class="etiqueta">{e(c["sl"])}</p>'
+            f'<h3>{e(c["t"])}</h3><p class="cc-r">{e(c["r"])}</p>{ev}</div></article>')
+
+
+def casos_grid(R, casos, filtro=False):
+    return f'<div class="ccs" style="--n:{len(casos)}">{"".join(caso_card(R, c, filtro) for c in casos)}</div>'
 
 
 def casos_de(sector):
     return [c for c in CASOS if c["sector"] == sector]
 
 
-def pequenas(items, cols=4):
-    """Cartões curtos: título e uma linha. Sem parágrafos."""
-    return cards(items, cols, True)
+def indice(R, items, rotulo):
+    """O que inclui: uma linha por serviço e, ao lado, a imagem ou o vídeo do que está activo (substitui os separadores).
+    No telemóvel a pré-visualização some e cada linha leva a sua miniatura."""
+    vistas, linhas = [], []
+    for i, it in enumerate(items):
+        t, p, (tipo, base, alt) = it[:3]
+        href = it[3] if len(it) > 3 else None
+        if tipo == "vid":
+            mv = f'<video muted playsinline loop preload="none" poster="{R}video/{base}-poster.webp" data-src="{R}video/{base}.mp4"></video>'
+            mini = f'<img src="{R}video/{base}-poster.webp" alt="" loading="lazy" decoding="async">'
+        else:
+            mv = img(R, base, alt, "(min-width: 900px) 1600px, 1px")
+            mini = img(R, base, "", "120px")
+        vistas.append(f'<div class="iv{se(i == 0, " on")}" data-iv>{mv}</div>')
+        h3 = f'<a href="{R}{href}">{e(t)} <span class="fl">→</span></a>' if href else e(t)
+        linhas.append(f'<li class="ix{se(i == 0, " on")}" data-ix><span class="ix-mini ventana" aria-hidden="true">{mini}</span><h3>{h3}</h3><p>{e(p)}</p></li>')
+    return (f'<div class="indice" data-indice><ul class="indice-lista" aria-label="{e(rotulo)}">{"".join(linhas)}</ul>'
+            f'<div class="indice-vista ventana" aria-hidden="true">{"".join(vistas)}</div></div>')
+
+
+def tachado(items):
+    """Onde se perde o dinheiro: uma linha cada, riscada a ouro quando entra no ecrã."""
+    return '<ul class="tachado">' + "".join(f'<li data-tacha style="--i:{i}"><span>{e(t)}</span></li>' for i, t in enumerate(items)) + "</ul>"
+
+
+def flujo(items):
+    """O método numa só linha: palavras ligadas por um traço que se desenha (substitui os cartões 01–05)."""
+    return '<ol class="flujo" data-sube>' + "".join(f'<li style="--i:{i}">{e(t)}</li>' for i, t in enumerate(items)) + "</ol>"
+
+
+def lineas(items):
+    """Capacidades: título grande e meia linha, sem números nem cartões."""
+    return '<ul class="lineas">' + "".join(f'<li data-sube style="--i:{i % 2}"><h3>{e(t)}</h3><p>{e(p)}</p></li>' for i, (t, p) in enumerate(items)) + "</ul>"
 
 
 # ================================================================= QUIÉN SOMOS
@@ -310,94 +314,60 @@ def quien(R):
               ("puerto-club-vela-blanes", "Vista aérea de un puerto deportivo, su dique y la playa contigua", "Náutica", "Club náutico · Costa Brava"),
               ("diamantes-anillos", "Dos anillos de diamantes sobre terciopelo azul oscuro", "Joyería", "Joyería de diamantes · España"),
               ("sm-cardress-funda", "Coupé deportivo cubierto con una funda textil a medida con diseño personalizado", "Automoción", "Producto premium para automoción")]
-    mh = "".join(f'<div class="marca-c"><div class="ventana">{img(R, b, alt, "(min-width: 900px) 30vw, 70vw")}</div><p class="etiqueta">{s}</p><h3>{t}</h3></div>' for b, alt, s, t in marcas)
-    pruebas = [("Construimos nuestras propias marcas", "Lo que proponemos, lo hemos decidido antes en casa."),
-               ("Transformamos la percepción de clientes", "Marcas cuya imagen pasó a estar a su altura."),
-               ("Trabajamos donde no se repite la toma", "Hoteles, yates, puertos y regatas.")]
+    mh = "".join(f'<figure class="marca-c" data-sube style="--i:{i % 3}"><div class="ventana">{img(R, b, alt, "(min-width: 900px) 34vw, 90vw")}</div><figcaption><p class="etiqueta">{s}</p><h3>{t}</h3></figcaption></figure>' for i, (b, alt, s, t) in enumerate(marcas))
     return (ph(R, "Quién somos", L("Llevamos el marketing", "de marcas de referencia", "<em>en su sector.</em>"),
                "El departamento de marketing de TN Autosport y los creadores de Relojes Ferreras.",
                btn(R + DIAG, CTA), img(R, "fernando-ferreras-ceo", "Fernando Ferreras en un puerto deportivo, junto a dos vehículos de alta gama con estuches de reloj expuestos y embarcaciones al fondo", "(min-width: 900px) 40vw, 100vw", lazy=False))
-            + sec(cab("01", "Marcas que llevamos", "Detrás de marcas que su sector <em>ya reconoce.</em>") + f'<div class="marcas">{mh}</div>')
-            + sec(f'{etq("02", "Estándar", "n")}<p class="titulo promessa" data-duas-tintas>El lujo no es una etiqueta. <em>Es un estándar de ejecución.</em></p><p class="lead" data-sube>Pocas empresas, muy de cerca. La dirección entra en cada proyecto y no se delega.</p>')
-            + sec(cab("03", "Autoridad", "Tres pruebas, <em>no tres adjetivos.</em>") + cards(pruebas, 3))
-            + sec(cab("04", "Método", "Cada fase tiene <em>un responsable.</em>") + fases_html())
+            + sec(cab("", "Marcas que llevamos", "Detrás de marcas que su sector <em>ya reconoce.</em>") + f'<div class="marcas">{mh}</div>')
+            + sec(f'<div class="grelha estandar"><figure class="est-foto ventana" data-janela>{img(R, "reloj-detalle-firma", "Esfera de un reloj Ferreras con el logotipo de la casa", "(min-width: 900px) 40vw, 100vw")}</figure>'
+                  f'<div class="est-txt"><p class="titulo promessa" data-duas-tintas>El lujo no es una etiqueta. <em>Es un estándar de ejecución.</em></p><p class="lead" data-sube>Pocas empresas, muy de cerca. La dirección entra en cada proyecto y no se delega.</p></div></div>')
             + banda("¿Qué sistema encaja <em>con su empresa?</em>", "Dos minutos y sabrá por dónde empezar.", btn(R + DIAG, CTA)))
-
 
 pagina("quien-somos/", "Quién somos", "Llevamos el marketing de marcas de referencia en su sector, como TN Autosport en automoción, y somos los creadores de Relojes Ferreras. Departamento de marketing e IA en Barcelona.", quien)
 
 
 # ================================================================= MARKETING
-MKT_TABS = [
-    ("Estrategia a doce meses", "Qué tiene que cambiar en la percepción de su empresa, y en qué orden. Por escrito y revisado cada mes.", ["Análisis del negocio y de su cliente", "Posicionamiento y mensajes", "Calendario editorial a doce meses", "Panel de seguimiento mensual"]),
-    ("Producción audiovisual", "Equipo propio y desplazamientos incluidos. Un producto de alto valor se juzga por cómo se ve.", ["Dron para exteriores y embarcaciones", "Vídeo y fotografía de producto y marca", "Eventos, regatas y entregas", "Postproducción y versiones por canal"]),
-    ("Podcast y entrevistas", "Que se le vea explicando su criterio, no vendiendo su producto.", ["Formato propio de podcast o entrevista", "Guion, grabación, edición y distribución", "Ponencias y apariciones", "Imagen profesional"]),
-    ("Redes y comunidad", "Una línea editorial reconocible, publicada con constancia.", ["Los canales que le convienen", "Contenido para alcance y preferencia", "Conversación y comunidad"]),
-    ("Publicidad", "Objetivo declarado y medición honesta. La inversión se decide con usted.", ["Alcance, captación y recuperación", "Segmentación por público", "Lectura mensual de resultados"]),
-    ("Email y canales de venta", "Recuperar a quien ya le conoce cuesta menos que convencer a quien no.", ["Recuperación y fidelización", "Venta directa frente a comisión", "Presencia donde su cliente decide"]),
-    ("Web, ecommerce y SEO", "Desarrollada por nuestro equipo informático: una web que cualifica.", ["Arquitectura, mensaje y prueba", "Desarrollo a medida", "Ecommerce y catálogo", "SEO técnico y medición"]),
-]
-
+MKT = [("Estrategia a doce meses", "Qué tiene que cambiar en la percepción de su empresa, y en qué orden.", ("img", "reloj-detalle-f", "Detalle de las agujas doradas de un reloj Ferreras")),
+       ("Producción audiovisual", "Dron, cámaras, sonido e iluminación. Equipo y desplazamientos incluidos.", ("vid", "reel-tn-porsche", "Porsche 911 GT3 RS negro en el estudio de TN Autosport")),
+       ("Podcast y entrevistas", "Que se le vea explicando su criterio, no vendiendo su producto.", ("vid", "reel-diamantes", "Un joyero explica una pieza ante la cámara")),
+       ("Redes y comunidad", "Una línea editorial reconocible, publicada con constancia.", ("vid", "reel-ferreras-lifestyle", "Campaña de Relojes Ferreras: coche, gastronomía, música y el reloj")),
+       ("Publicidad", "Objetivo declarado y medición honesta. La inversión se decide con usted.", ("vid", "reel-cardress", "Funda textil a medida retirándose de un Porsche azul")),
+       ("Email y canales de venta", "Recuperar a quien ya le conoce cuesta menos que convencer a quien no.", ("img", "diamantes-riviere", "Macro de una pulsera rivière de diamantes sobre terciopelo azul oscuro")),
+       ("Web, ecommerce y SEO", "Desarrollada por nuestro equipo: una web que cualifica.", ("img", "reloj-ferreras-almirante", "Reloj automático Ferreras Almirante presentado en su estuche"), "web/")]
 
 def marketing(R):
-    problemas = [("Le comparan con quien no debería", "Cuando el cliente no distingue, decide por precio."),
-                 ("Publica, pero no acumula", "Mucha actividad y ninguna autoridad que se quede."),
-                 ("Depende de usted estar delante", "Lo que no está contado no vende por usted."),
-                 ("Las métricas no hablan de dinero", "Sube el alcance; nadie sabe cuántas ventas trae.")]
-    orden = [("Diagnóstico", "Cómo gana dinero y cómo decide su cliente."), ("Estrategia", "Qué cambiamos y en qué orden."), ("Producción", "Rodajes con equipo propio."), ("Distribución", "Constancia en los canales que convienen."), ("Lectura", "Revisión mensual de resultados.")]
-    faqs = [("¿Cuánto tardan en verse resultados?", "Depende del punto de partida, del sector y del alcance. Fijamos objetivos y calendario en el diagnóstico y revisamos contra ellos."),
-            ("¿Quién aparece en los vídeos?", "Quien mejor represente el criterio de la empresa. Existen formatos sin rostro, aunque construyen autoridad más despacio."),
-            ("¿La inversión publicitaria está incluida?", "La gestión sí; el dinero que se entrega a las plataformas, no. Se decide con usted y se paga desde su cuenta.")]
-    ctl, pista = carril(R, TRABAJO[:6], "Trabajos de producción propia")
+    problemas = ["Le comparan con quien no debería", "Publica, pero no acumula", "Depende de usted estar delante", "Las métricas no hablan de dinero"]
     return (ph_media(R, "Departamento de Marketing", L("Que su empresa", "se perciba", "<em>como lo que es.</em>"),
                      "Estrategia, producción audiovisual propia y distribución, dentro de su empresa.",
-                     btn(R + DIAG, CTA) + btn("#produccion", "Ver la producción", "btn-linha btn-vidro", False), filme(R, "showreel"))
-            + sec(f'<div class="prod-cab"><div class="cab">{etq("01", "Producción propia", "n")}<h2 class="titulo t-l" data-linhas>No subcontratamos <em>la cámara.</em></h2></div></div>{pista}<div class="prod-pe">{ctl}<p class="mini">Dron, cámaras, sonido e iluminación. Equipo y desplazamientos incluidos.</p></div>', "prod", ' id="produccion"')
-            + sec(cab("02", "El problema", "El producto está a la altura. <em>La percepción, casi nunca.</em>") + pequenas(problemas))
-            + sec(cab("03", "Qué incluye", "Todo lo que haría <em>un departamento propio.</em>") + tabs("mk", MKT_TABS))
-            + sec(cab("04", "El orden", "Cinco fases. <em>Ninguna se salta.</em>") + passos(orden))
-            + sec(f'<div class="grelha">{faq_cab("05", "Lo que suelen <em>preguntarnos.</em>")}{faq(faqs, "fm")}</div>')
+                     btn(R + DIAG, CTA) + btn("#incluye", "Ver qué incluye", "btn-linha btn-vidro", False), filme(R, "mkt"))
+            + sec(cab("", "El problema", "El producto está a la altura. <em>La percepción, casi nunca.</em>") + tachado(problemas))
+            + sec(cab("", "Qué incluye", "Todo lo que haría <em>un departamento propio.</em>") + indice(R, MKT, "Qué incluye el departamento de marketing"), extra=' id="incluye"')
+            + sec(cab("", "El orden", "Cinco fases. <em>Ninguna se salta.</em>") + flujo(["Diagnóstico", "Estrategia", "Producción", "Distribución", "Lectura"]))
             + banda("¿Cómo se ve hoy su empresa <em>desde fuera?</em>", "Lo analizamos sin compromiso.", btn(R + DIAG, CTA), chips(CONDICIONES, "chips chips-cond")))
-
 
 pagina("marketing/", "Departamento de Marketing", "Un departamento de marketing completo dentro de su empresa: estrategia a doce meses, producción audiovisual propia con dron y equipo, podcast, redes, publicidad, email marketing y web.", marketing)
 
 
 # ================================================================= IA
-IA_TABS = [
-    ("Primero, usted", "Sistemas que le quitan horas a usted antes de tocar la empresa.", ["Asistentes privados con el contexto de su negocio", "Preparación y resumen de reuniones", "Análisis de documentación", "Formación uno a uno"]),
-    ("Agentes de atención", "Teléfono, chat, WhatsApp o email. Responden, consultan y avisan a una persona.", ["Más de veinte idiomas", "Transferencia con el contexto recogido", "Conocimiento de su casa"]),
-    ("Análisis de la empresa", "Dónde se pierde tiempo y dinero, y qué conviene automatizar.", ["Mapa de procesos", "Qué se automatiza y qué no", "Prioridades por retorno"]),
-    ("Integraciones", "Conectado a lo que ya usa, con datos actualizados.", ["CRM, agenda, reservas, PMS y correo", "Solo lectura por defecto", "Entorno de pruebas"]),
-    ("Control y mejora", "Revisamos conversaciones reales y corregimos lo que no responde bien.", ["Permisos, confirmaciones y registro", "Revisión periódica", "Ampliaciones de alcance"]),
-]
-
+IA = [("Primero, usted", "Sistemas que le quitan horas a usted antes de tocar la empresa.", ("img", "ia-portada-esfera", "Esfera de cristal con gráficos de datos sobre un fondo azul oscuro")),
+      ("Agentes de atención", "Teléfono, chat, WhatsApp o email, en más de veinte idiomas.", ("img", "ia-hotel-multiidioma", "Recepción de hotel atendiendo a un grupo de huéspedes, con iconos de idiomas superpuestos"), "ia-hoteles/"),
+      ("Análisis de la empresa", "Dónde se pierde tiempo y dinero, y qué conviene automatizar.", ("img", "ia-hotel-estudio-establecimiento", "Mesa de trabajo con planos y paneles de datos de un hotel")),
+      ("Integraciones", "Conectado a lo que ya usa. Solo lectura por defecto.", ("img", "ia-hotel-capacidades", "Vestíbulo de hotel con paneles de información superpuestos")),
+      ("Control y mejora", "Permisos, registro y revisión de conversaciones reales.", ("img", "ia-hotel-recepcion-equipo", "Recepcionista atendiendo en persona a una huésped mientras un sistema resuelve consultas en paralelo"))]
 
 def ia(R):
-    problemas = [("La consulta fuera de hora", "Cuando alguien la lee, el cliente ya ha resuelto en otro sitio."),
-                 ("Dos cosas a la vez", "Se atiende deprisa al teléfono y mal a quien tiene delante."),
-                 ("El criterio en dos cabezas", "Si no están, la empresa responde peor."),
-                 ("Una tecnología que cambia cada mes", "Estar al día es un trabajo, y no es el suyo.")]
-    pasos = [("Analizamos", "Qué entra por cada canal."), ("Decidimos", "Qué automatizar y qué no."), ("Diseñamos", "Idiomas, permisos y transferencia."), ("Probamos", "Antes de hablar con ningún cliente."), ("Arrancamos", "Con su equipo formado."), ("Optimizamos", "Con conversaciones reales.")]
-    faqs = [("¿Esto es un chatbot?", "No. Un chatbot se contrata; nosotros implantamos un sistema: conocimiento de su empresa, conexiones, permisos, pruebas, supervisión y mejora."),
-            ("¿El agente puede equivocarse?", "Puede. Por eso se define qué está autorizado a hacer, qué requiere confirmación y cuándo avisa a una persona."),
-            ("¿Qué pasa con los datos de nuestros clientes?", "Permisos mínimos y el menor volumen de datos necesario, todo definido por escrito antes de conectar nada."),
-            ("¿Sustituye a una persona del equipo?", "No es el objetivo: las personas dejan lo repetitivo y dedican su tiempo a cerrar, resolver y cuidar al cliente.")]
-    demo = (f'<div class="demo" data-demo><div class="cab" style="margin:0">{etq("02", "Demostración", "n")}<h2 class="titulo t-l" data-linhas>Pruébelo <em>usted mismo.</em></h2>'
+    demo = (f'<div class="demo" data-demo><div class="cab" style="margin:0">{etq("", "Demostración", "n")}<h2 class="titulo t-l" data-linhas>Pruébelo <em>usted mismo.</em></h2>'
             f'<p class="lead" data-sube>Fíjese menos en lo que responde y más en lo que se niega a responder.</p>'
             f'<div class="acoes" data-sube><button type="button" class="btn btn-claro" data-demo-play><span>Probar la demostración</span> <span class="fl">→</span></button></div>'
             f'<p class="mini">{AVISO_DEMO}</p></div>{chat_html()}</div>')
     return (ph_media(R, "Departamento de IA", L("Que su empresa", "atienda siempre.", "<em>También de noche.</em>"),
                      "Agentes de atención en más de veinte idiomas, con supervisión humana.",
                      btn(R + DIAG, CTA) + btn("#demo", "Ver la demostración", "btn-linha btn-vidro", False), fundo_img(R, "yate-noche", "Un yate de noche con las luces del salón encendidas"))
-            + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("01", "Cómo funciona", "n")}<h2 class="titulo t-l" data-linhas>Dónde responde, <em>y dónde deja de hacerlo.</em></h2><p class="lead" data-sube>Lo importante no es que conteste: es el punto exacto en el que calla y avisa a una persona. Ese punto se decide con usted.</p></div></div>', "noche")
+            + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("", "Cómo funciona", "n")}<h2 class="titulo t-l" data-linhas>Dónde responde, <em>y dónde deja de hacerlo.</em></h2><p class="lead" data-sube>El punto exacto en el que calla y avisa a una persona se decide con usted.</p></div></div>', "noche")
+            + sec(cab("", "Qué incluye", "Empezamos por usted. <em>Después, por la empresa.</em>") + indice(R, IA, "Qué incluye el departamento de IA"))
             + sec(demo, extra=' id="demo"')
-            + sec(cab("03", "El problema", "Lo repetitivo se come <em>el tiempo de vender.</em>") + pequenas(problemas))
-            + sec(cab("04", "Qué incluye", "Empezamos por usted. <em>Después, por la empresa.</em>") + tabs("ia", IA_TABS))
-            + sec(cab("05", "El orden", "Seis pasos. <em>El primero no es instalar nada.</em>") + passos(pasos))
-            + sec(f'<div class="grelha">{faq_cab("06", "Lo que suelen <em>preguntarnos.</em>")}{faq(faqs, "fa")}</div>')
-            + banda("¿Qué atiende hoy su equipo <em>que no debería?</em>", "Lo analizamos sin compromiso.", btn(R + DIAG, CTA) + btn(R + "ia-hoteles/", "El caso de hotelería", "btn-linha"), chips(CONDICIONES, "chips chips-cond")))
-
+            + sec(cab("", "El orden", "Seis pasos. <em>El primero no es instalar nada.</em>") + flujo(["Analizamos", "Decidimos", "Diseñamos", "Probamos", "Arrancamos", "Optimizamos"]))
+            + banda("¿Qué atiende hoy su equipo <em>que no debería?</em>", "Lo analizamos sin compromiso.", btn(R + DIAG, CTA) + btn(R + "ia-hoteles/", "El caso de hotelería", "btn-linha")))
 
 pagina("inteligencia-artificial/", "Departamento de IA", "Un departamento de desarrollo de inteligencia artificial dentro de su empresa: agentes de atención en más de veinte idiomas, integraciones con sus sistemas, automatización de procesos y formación a su equipo.", ia)
 
@@ -412,22 +382,16 @@ SECTORES = {
                             ("Las mismas quince preguntas", "Horarios, parking, mascotas, cancelaciones."), ("El canal gana a la reserva directa", "Y la comisión pasa a ser la norma.")],
                     promessa="Que ninguna consulta se quede sin respuesta, <em>y que recepción recupere su tiempo.</em>",
                     entrada=("Asistente IA 24/7 para hoteles", "La integración con PMS depende de la API, los permisos y las pruebas. Los consumos de voz y mensajería se facturan aparte."),
-                    extra_link=("ia-hoteles/", "Cómo trabajamos la atención de un hotel"),
-                    faq=[("¿Se integra con nuestro PMS o Channel Manager?", "Depende de la API, de los permisos y de las pruebas. Se evalúa en el diagnóstico, no se da por hecha."),
-                         ("¿El agente puede confirmar una reserva?", "Solo si se autoriza expresamente, con confirmación y registro. Por defecto, consulta y derivación a recepción."),
-                         ("¿Qué pasa fuera del horario de recepción?", "El agente responde y deja la consulta lista para que recepción la resuelva a primera hora.")]),
+                    extra_link=("ia-hoteles/", "Cómo trabajamos la atención de un hotel")),
     "automocion-lujo": dict(nome="Automoción de lujo", titulo="Marketing para automoción de lujo", desc="Eleve la percepción de su inventario y convierta atención en consultas cualificadas con contenido audiovisual y formatos de autoridad.",
                     h1=("Su inventario merece", "más que una ficha", "<em>con doce fotos.</em>"),
                     lead="Vídeo y formatos de autoridad que convierten atención en consultas cualificadas.",
-                    media=("vid", "loop-gt3", ""),
+                    media=("vid", "auto", ""),
                     margen=[("Se ve, pero no se desea", "Fotos correctas y ningún relato."), ("Alcance sin consultas", "Gusta, se comparte y no vende."),
                             ("La autoridad se la lleva otro", "Quien habla con criterio es la referencia."), ("El producto asociado no se explica", "Se vende en movimiento, no en estático.")],
                     promessa="Elevar la percepción del inventario <em>y convertir la atención en consultas.</em>",
                     entrada=("Autoridad & Demanda", "Estrategia, producción, distribución y panel de KPIs. La inversión publicitaria, aparte."),
-                    extra_link=None,
-                    faq=[("¿Graban en nuestras instalaciones?", "Sí: en su exposición o donde mejor se represente el vehículo."),
-                         ("¿Sirve para vehículo de ocasión premium?", "Sí. Es donde más se nota la diferencia entre una ficha y una pieza bien contada."),
-                         ("¿Necesitamos aparecer en cámara?", "Ayuda mucho en los formatos de autoridad. Hay alternativas sin rostro, más lentas.")]),
+                    extra_link=None),
     "nautica": dict(nome="Náutica, yates y puertos", titulo="Marketing náutico: clubs, astilleros, yates y chárter", desc="Clubs náuticos, astilleros, compraventa de yates y alquiler de barcos. Identidad, producción audiovisual, cobertura de regatas y eventos, y comercialización.",
                     h1=("El mar se vende", "<em>enseñándolo.</em>"),
                     lead="Clubs, astilleros, compraventa y chárter: producción, regatas y comercialización.",
@@ -436,10 +400,7 @@ SECTORES = {
                             ("La regata se evapora", "El mejor material del año, sin uso posterior."), ("La consulta internacional se enfría", "Idioma, horario y respuesta deciden.")],
                     promessa="Que una embarcación se perciba como se vive <em>y llegar a quien aún no le conoce.</em>",
                     entrada=("Producción y comercialización", "Identidad e infraestructura digital por alcance. Viajes y dietas aparte."),
-                    extra_link=None,
-                    faq=[("¿Trabajan la comercialización internacional?", "La producción y la distribución, sí. La operación la mantiene usted o su bróker."),
-                         ("¿Producen con dron?", "Sí, cuando la localización y la normativa lo permiten."),
-                         ("¿Pueden cubrir una regata completa?", "Sí, incluida cobertura en vivo, con la historia decidida antes.")]),
+                    extra_link=None),
     "joyeria-relojeria": dict(nome="Joyería y relojería", titulo="Autoridad de marca para joyería y relojería", desc="La autoridad es lo que sostiene el precio. Construimos la de su casa: criterio reconocido, contenido experto y materiales que venden cuando usted no está delante.",
                     h1=("En joyería no gana el que más enseña.", "<em>Gana el que más autoridad tiene.</em>"),
                     lead="La referencia de su plaza no negocia el precio. Esa autoridad se construye.",
@@ -448,39 +409,31 @@ SECTORES = {
                             ("La confianza está en el ceremonial", "Cómo se entrega pesa como la pieza."), ("Distribuir sin relato propio", "Un artículo más en la vitrina.")],
                     promessa="Que su casa sea la referencia <em>antes de que el cliente decida.</em>",
                     entrada=("Marketing estratégico", "Identidad, book comercial y ceremonial, presupuestados por alcance."),
-                    extra_link=None,
-                    faq=[("¿Trabajan con marcas sin identidad?", "Sí, es el punto de partida más frecuente."),
-                         ("¿Producen fotografía de producto?", "Sí: una pieza mal fotografiada se percibe como de menos valor."),
-                         ("¿Ayudan con la distribución en otras joyerías?", "Construimos los materiales y la estrategia; la relación comercial es suya.")]),
+                    extra_link=None),
 }
 
 
 def sector_pagina(chave, d):
     def corpo(R):
         casos = casos_de(chave) + ([CASO_FERRERAS] if chave == "joyeria-relojeria" else [])
-        casos_h = "".join(caso_html(R, c) for c in casos)
         extra = f'<p class="plano-link">{enlace(R + d["extra_link"][0], d["extra_link"][1])}</p>' if d["extra_link"] else ""
         tipo, base, alt = d["media"]
         media = filme(R, base) if tipo == "vid" else fundo_img(R, base, alt)
         return (ph_media(R, d["nome"], L(*d["h1"]), d["lead"], btn(R + DIAG + "?sector=" + chave, CTA) + btn("#casos", "Ver casos reales", "btn-linha btn-vidro", False), media,
                          migas=[("", "Inicio"), ("sectores/", "Sectores"), (None, d["nome"])])
-                + sec(cab("01", "Lo que cuesta dinero", "Dónde se pierde el margen <em>en su sector.</em>") + pequenas(d["margen"]))
-                + sec(f'{etq("02", "La promesa", "n")}<p class="titulo promessa" data-duas-tintas>{d["promessa"]}</p>')
-                + sec(cab("03", "Experiencia", "Qué hemos hecho ya <em>en este terreno.</em>") + f'<div class="casos">{casos_h}</div>', extra=' id="casos"')
-                + sec(f'<div class="grelha entrada"><div class="entrada-cab">{etq("04", "Punto de entrada", "n")}<h2 class="titulo t-l" data-linhas>Por dónde <em>se empieza.</em></h2></div><div class="plano dest" data-sube><span class="selo">Punto de entrada</span><h3>{d["entrada"][0]}</h3><p class="texto">{d["entrada"][1]}</p><p class="nota">Alcance e importe, por escrito tras el diagnóstico.</p>{extra}</div></div>')
-                + sec(f'<div class="grelha">{faq_cab("05", "Lo que suelen preguntarnos <em>en su sector.</em>")}{faq(d["faq"], "fs")}</div>')
-                + banda("Pida su <em>diagnóstico.</em>", "Con su sector ya seleccionado. Dos minutos.", btn(R + DIAG + "?sector=" + chave, "Empezar el diagnóstico")))
+                + sec(f'{etq("", "Dónde se pierde el margen", "n")}{tachado([t for t, _ in d["margen"]])}<p class="titulo promessa" data-duas-tintas>{d["promessa"]}</p>', "margem")
+                + sec(cab("", "Experiencia", "Qué hemos hecho ya <em>en este terreno.</em>") + casos_grid(R, casos), extra=' id="casos"')
+                + banda(f'{d["entrada"][0]}. <em>Por aquí se empieza.</em>', "Alcance e importe, por escrito tras el diagnóstico.", btn(R + DIAG + "?sector=" + chave, "Empezar el diagnóstico"),
+                        f'<p class="mini">{d["entrada"][1]}</p>{extra}'))
     pagina(f"sectores/{chave}/", d["titulo"], d["desc"], corpo)
-
 
 for k, v in SECTORES.items():
     sector_pagina(k, v)
 
 
 def sectores_idx(R):
-    return (ph(R, "Sectores", L("Cuatro sectores", "que conocemos", "<em>por dentro.</em>"), "Donde cada detalle se nota. El mismo estándar, para cualquier empresa con reputación que defender.")
-            + sec(sect_html(R)) + banda("¿Su sector <em>no está aquí?</em>", "Inmobiliaria premium, servicios profesionales o B2B: el diagnóstico le dice por dónde empezar.", btn(R + DIAG, CTA)))
-
+    return (ph(R, "Sectores", L("Cuatro sectores", "que conocemos", "<em>por dentro.</em>"), "Donde cada detalle se nota.").replace('class="pag-hero"', 'class="pag-hero compacto"')
+            + sec(sect_html(R), "sect-idx") + banda("¿Su sector <em>no está aquí?</em>", "Inmobiliaria premium, servicios profesionales o B2B: el diagnóstico le dice por dónde empezar.", btn(R + DIAG, CTA)))
 
 pagina("sectores/", "Sectores", "Hotelería, automoción de lujo, náutica y joyería: cuatro sectores que conocemos por dentro.", sectores_idx)
 
@@ -492,15 +445,12 @@ def resultados(R):
 
     def bs(tipo, lista):
         return "".join(f'<button type="button" data-f="{tipo}" data-v="{v}" aria-pressed="{str(v == "todos").lower()}">{e(t)}</button>' for v, t in lista)
-    casos_h = "".join(caso_html(R, c, True) for c in CASOS)
-    return (ph_media(R, "Resultados", L("Lo que hicimos", "<em>y qué lo respalda.</em>"), "Problema, intervención, resultado y evidencia. Cifras solo verificadas y autorizadas.",
-                     btn("#casos", "Ver los casos"), fundo_img(R, "regata-jovenes", "Jóvenes navegando en pequeños veleros durante una jornada de vela"))
-            + sec(cab("01", "Todos los casos", "Filtre por sector <em>o por problema.</em>")
-                  + f'<div data-filtros><div class="filtro-linha"><p class="filtro-rot">Sector</p><div class="filtros">{bs("sector", sectores_f)}</div></div><div class="filtro-linha"><p class="filtro-rot">Problema</p><div class="filtros">{bs("problema", problemas_f)}</div></div><p class="conteo" data-conteo>{len(CASOS)} casos</p></div>'
-                  + f'<div class="casos">{casos_h}</div>', extra=' id="casos"')
-            + sec(f'<div class="grelha marca-grid"><div class="marca-fotos"><figure class="f1 ventana" data-janela>{video(R, "reel-ferreras-lifestyle", "Campaña de Relojes Ferreras")}</figure><div class="f2 marca-reloj">{reloj_html(R, "-r")}</div></div><div class="marca-txt">{etq("02", "Nuestra propia marca", "n")}<h2 class="titulo t-l" data-linhas>Tan seguros, que <em>creamos la nuestra.</em></h2><p class="lead" data-sube>Si algo no funciona en Relojes Ferreras, lo pagamos nosotros.</p><p data-sube>{enlace("https://relojes-ferreras.com/", "Ver Relojes Ferreras", True)}</p></div></div>', "claro marca", " data-claro")
+    return (ph_media(R, "Resultados", L("Lo que hicimos", "<em>y qué lo respalda.</em>"), "Cifras solo verificadas y autorizadas.",
+                     btn("#casos", "Ver los casos"), filme(R, "interludio"))
+            + sec(f'<div data-filtros><div class="filtro-linha"><p class="filtro-rot">Sector</p><div class="filtros">{bs("sector", sectores_f)}</div></div><div class="filtro-linha"><p class="filtro-rot">Problema</p><div class="filtros">{bs("problema", problemas_f)}</div></div><p class="conteo" data-conteo>{len(CASOS)} casos</p></div>'
+                  + casos_grid(R, CASOS, True) + '<p class="mini nota-casos">Trabajo dirigido por Ferreras. Las cifras se publican una vez verificadas con el cliente.</p>', extra=' id="casos"')
+            + sec(f'<div class="grelha marca-grid"><div class="marca-fotos"><figure class="f1 ventana" data-janela>{video(R, "reel-ferreras-lifestyle", "Campaña de Relojes Ferreras")}</figure><div class="f2 marca-reloj">{reloj_html(R, "-r")}</div></div><div class="marca-txt">{etq("", "Nuestra propia marca", "n")}<h2 class="titulo t-l" data-linhas>Tan seguros, que <em>creamos la nuestra.</em></h2><p class="lead" data-sube>Si algo no funciona en Relojes Ferreras, lo pagamos nosotros.</p><p data-sube>{enlace("https://relojes-ferreras.com/", "Ver Relojes Ferreras", True)}</p></div></div>', "claro marca", " data-claro")
             + banda("¿Un resultado parecido <em>en su sector?</em>", "El diagnóstico lo compara con trabajos equivalentes.", btn(R + DIAG, CTA)))
-
 
 pagina("resultados/", "Resultados y casos", "Casos con problema, intervención, resultado y tipo de evidencia. Publicamos cifras solo cuando están verificadas y autorizadas.", resultados)
 
@@ -527,15 +477,11 @@ def web(R):
     ph_ = "".join(f'<div class="plano{se(bool(s), " dest")}" data-sube style="--i:{i}">{se(bool(s), "<span class=" + Q + "selo" + Q + ">" + s + "</span>")}<h3>{t}</h3><p class="texto">{p}</p><ul>{"".join("<li>" + e(x) + "</li>" for x in lista)}</ul></div>' for i, (t, p, lista, s) in enumerate(planos))
     pagos = [("50 %", "Al inicio."), ("30 %", "Con el diseño aprobado."), ("20 %", "Antes de publicar.")]
     pg = "".join(f'<div data-sube style="--i:{i}"><b>{a}</b><p>{b}</p></div>' for i, (a, b) in enumerate(pagos))
-    faqs = [("¿Quién escribe los textos?", "Nosotros. Una web sin argumento es una plantilla bonita. Usted valida."),
-            ("¿La web es nuestra?", "Sí: proyecto, accesos y dominio, a su nombre desde el primer día."),
-            ("¿Cuánto dura un proyecto?", "Depende de páginas, contenido e integraciones. Se cierra con hitos en el diseño.")]
     return (ph_media(R, "Web y ecommerce", L("Una web no debería", "explicar su empresa.", "<em>Debería venderla.</em>"), "Ordena su propuesta, demuestra valor y cualifica al cliente.",
                      btn(R + DIAG, CTA) + btn("#planes", "Ver los planes", "btn-linha btn-vidro", False), fundo_img(R, "reloj-ferreras-almirante", "Reloj automático Ferreras Almirante presentado en su estuche"))
-            + sec(cab("01", "La diferencia", "Web informativa frente a <em>infraestructura comercial.</em>") + f'<div class="compara"><div data-sube><h3>Web informativa</h3>{ul(inf)}</div><div class="bom" data-sube style="--i:1"><h3>Infraestructura comercial</h3>{ul(com)}</div></div>')
-            + sec(cab("02", "Ruta del visitante", "De la visita <em>al seguimiento.</em>") + passos(ruta))
-            + sec(cab("03", "Planes", "Tres alcances y uno <em>a medida.</em>", "Desarrollo propio. Alcance y precio por escrito antes de empezar.") + f'<div class="planos">{ph_}</div><p class="nota plano-flag"><b>Digital Flagship.</b> Multidioma, vídeo, motion, configuradores o áreas privadas: no es un paquete, es un proyecto.</p><div class="pagos">{pg}</div>', extra=' id="planes"')
-            + sec(f'<div class="grelha">{faq_cab("04", "Antes de encargar <em>una web.</em>")}{faq(faqs, "fw")}</div>')
+            + sec(cab("", "La diferencia", "Web informativa frente a <em>infraestructura comercial.</em>") + f'<div class="compara"><div data-sube><h3>Web informativa</h3>{ul(inf)}</div><div class="bom" data-sube style="--i:1"><h3>Infraestructura comercial</h3>{ul(com)}</div></div>')
+            + sec(cab("", "Ruta del visitante", "De la visita <em>al seguimiento.</em>") + flujo([a for a, _ in ruta]))
+            + sec(cab("", "Planes", "Tres alcances y uno <em>a medida.</em>", "Desarrollo propio. Alcance y precio por escrito antes de empezar.") + f'<div class="planos">{ph_}</div><p class="nota plano-flag"><b>Digital Flagship.</b> Multidioma, vídeo, motion, configuradores o áreas privadas: no es un paquete, es un proyecto.</p><div class="pagos">{pg}</div>', extra=' id="planes"')
             + banda("¿Qué necesita realmente <em>su web?</em>", "Mensaje, prueba o conversión: el diagnóstico lo distingue.", btn(R + DIAG, CTA)))
 
 
@@ -562,11 +508,11 @@ def ia_hoteles(R):
 </form><div class="form-ok" data-ok hidden><b>Su correo ya tiene el mensaje preparado.</b><p class="texto">Si no se ha abierto: <a href="mailto:{EMAIL}">{EMAIL}</a>.</p></div>'''
     return (ph_media(R, "Agentes de IA para hoteles", L("Su hotel puede atender", "24 horas, en cualquier idioma,", "<em>sin ampliar recepción.</em>"), "Un agente diseñado alrededor de la operativa real de su establecimiento.",
                      btn("#estudio", "Estudiar mi hotel") + btn("#como", "Ver cómo funciona", "btn-linha btn-vidro", False), fundo_img(R, "ia-hotel-atencion-atardecer", "Recepción de un hotel al atardecer, con una huésped atendida en el mostrador"))
-            + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Recepción</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("01", "El día a día", "n")}<h2 class="titulo t-l" data-linhas>El teléfono no suena <em>cuando recepción está libre.</em></h2><div data-sube>{chips(preg)}</div></div></div>', "noche", ' id="como"')
-            + sec(cab("02", "Qué puede hacer", "Lo que puede llegar <em>a resolver.</em>") + pequenas(cap, 3))
-            + sec(cab("03", "Caso real", "Diseñado alrededor <em>de un hotel de verdad.</em>") + f'<div class="casos">{caso_html(R, caso)}</div>')
-            + sec(cab("04", "La otra mitad", "El agente atiende. <em>El marketing llena.</em>") + pequenas(mk))
-            + sec(f'<div class="vias"><div class="cab" style="margin:0">{etq("05", "Solicitar estudio", "n")}<h2 class="titulo t-l" data-linhas>Cuéntenos <em>cómo es su caso.</em></h2><p class="lead" data-sube>Estudiamos su establecimiento antes de proponer nada.</p></div><div class="via">{form}</div></div>', extra=' id="estudio"'))
+            + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Recepción</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("", "El día a día", "n")}<h2 class="titulo t-l" data-linhas>El teléfono no suena <em>cuando recepción está libre.</em></h2><div data-sube>{chips(preg)}</div></div></div>', "noche", ' id="como"')
+            + sec(cab("", "Qué puede hacer", "Lo que puede llegar <em>a resolver.</em>") + lineas(cap))
+            + sec(cab("", "Caso real", "Diseñado alrededor <em>de un hotel de verdad.</em>") + casos_grid(R, [caso]))
+            + sec(cab("", "La otra mitad", "El agente atiende. <em>El marketing llena.</em>") + lineas(mk))
+            + sec(f'<div class="vias"><div class="cab" style="margin:0">{etq("", "Solicitar estudio", "n")}<h2 class="titulo t-l" data-linhas>Cuéntenos <em>cómo es su caso.</em></h2><p class="lead" data-sube>Estudiamos su establecimiento antes de proponer nada.</p></div><div class="via">{form}</div></div>', extra=' id="estudio"'))
 
 
 pagina("ia-hoteles/", "Agentes de IA para hoteles", "Agentes de IA y marketing para hoteles: atención 24 horas en cualquier idioma, imagen audiovisual premium, email marketing y redes.", ia_hoteles)
@@ -594,7 +540,7 @@ def contacto(R):
     pasos3 = [("Leemos su caso", "Una persona, no un mensaje automático."), ("Respondemos en un día", "Con una primera lectura de su caso."), ("Asesoría privada", "Media hora. El presupuesto, después.")]
     return (ph(R, "Contacto", L("Dos formas de empezar.", "<em>Elija la que le ahorre tiempo.</em>"), "Si no sabe qué necesita, el diagnóstico. Si ya lo sabe, escríbanos.").replace('class="pag-hero"', 'class="pag-hero compacto"')
             + sec(f'<div class="vias"><div class="via" data-sube><p class="etiqueta"><span class="n">A</span>No sé qué necesito</p><h2>Diagnóstico de dos minutos</h2><p class="texto">Ocho preguntas y una recomendación concreta.</p><div class="acoes">{btn(R + DIAG, CTA)}</div><address class="nota direccion">IA &amp; Marketing Ferreras<br>Passeig de Gràcia 95, 5º 1ª · 08008 Barcelona<br><a class="enlace" href="mailto:{EMAIL}">{EMAIL}</a></address></div><div class="via" data-sube style="--i:1"><p class="etiqueta"><span class="n">B</span>Ya sé qué necesito</p><h2>Escríbanos</h2>{form}</div></div>')
-            + sec(cab("01", "Qué pasa después", "Tres pasos, ninguno <em>le compromete.</em>") + passos(pasos3)))
+            + sec(cab("", "Qué pasa después", "Tres pasos, ninguno <em>le compromete.</em>") + flujo([a for a, _ in pasos3])))
 
 
 pagina("contacto/", "Contacto", "Dos vías: si ya sabe lo que necesita, un formulario corto. Si no lo tiene claro, un diagnóstico de dos minutos.", contacto)

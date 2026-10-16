@@ -2,33 +2,28 @@
   const { $, $$, reduz } = SITE;
   const EMAIL = 'administracion@marketingferreras.com';
 
-  /* ---------- preguntas frecuentes: una abierta de cada vez, altura por grid (sin medir) ---------- */
-  $$('[data-faq]').forEach((faq) => {
-    const qs = $$('.faq-q', faq);
-    qs.forEach((q) => q.addEventListener('click', () => {
-      const abre = q.getAttribute('aria-expanded') !== 'true';
-      qs.forEach((o) => { o.setAttribute('aria-expanded', 'false'); $('#' + o.getAttribute('aria-controls')).setAttribute('aria-hidden', 'true'); });
-      if (abre) { q.setAttribute('aria-expanded', 'true'); $('#' + q.getAttribute('aria-controls')).setAttribute('aria-hidden', 'false'); }
-      SITE.remede();
-    }));
-  });
-
-  /* ---------- pestañas «qué incluye»: flechas, Inicio y Fin ---------- */
-  $$('[data-tabs]').forEach((box) => {
-    const tabs = $$('[role="tab"]', box);
-    const escolhe = (i, foco) => {
-      tabs.forEach((t, j) => { const on = i === j; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; $('#' + t.getAttribute('aria-controls')).hidden = !on; });
-      if (foco) tabs[i].focus();
-      SITE.remede();
-    };
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => escolhe(i));
-      t.addEventListener('keydown', (e) => {
-        const n = tabs.length - 1;
-        const k = { ArrowDown: i === n ? 0 : i + 1, ArrowRight: i === n ? 0 : i + 1, ArrowUp: i ? i - 1 : n, ArrowLeft: i ? i - 1 : n, Home: 0, End: n }[e.key];
-        if (k === undefined) return; e.preventDefault(); escolhe(k, true);
+  /* ---------- «qué incluye»: la línea activa (ratón encima o, sin ratón, la que cruza el centro de la pantalla)
+     enciende su imagen o su vídeo en la ventana de al lado; sólo el vídeo activo descarga y toca ---------- */
+  $$('[data-indice]').forEach((ind) => {
+    const ixs = $$('[data-ix]', ind), ivs = $$('[data-iv]', ind);
+    let k = 0, dentro = false;
+    const liga = (n) => {
+      k = n;
+      ixs.forEach((x, i) => x.classList.toggle('on', i === n));
+      ivs.forEach((x, i) => {
+        x.classList.toggle('on', i === n);
+        const v = $('video', x); if (!v) return;
+        if (i === n && dentro && !reduz) { if (!v.src) v.src = v.dataset.src; v.muted = true; v.playsInline = true; const p = v.play(); p && p.catch && p.catch(() => {}); }
+        else if (!v.paused) v.pause();
       });
-    });
+    };
+    const fino = matchMedia('(hover:hover) and (pointer:fine)').matches;
+    ixs.forEach((x, i) => { x.addEventListener('pointerenter', () => fino && liga(i)); x.addEventListener('focusin', () => liga(i)); });
+    new IntersectionObserver(([e]) => { dentro = e.isIntersecting; liga(k); }, { threshold: 0.15 }).observe(ind);
+    if (!fino) {
+      const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && liga(ixs.indexOf(e.target))), { rootMargin: '-45% 0px -45% 0px' });
+      ixs.forEach((x) => io.observe(x));
+    }
   });
 
   /* ---------- resultados: filtrar por sector o por problema ---------- */

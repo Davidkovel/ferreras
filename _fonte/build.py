@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "2"
+VERSAO = "3"
 Q = '"'
 CTA = "Pida su diagnóstico"
 
@@ -274,7 +274,8 @@ FEITAS = []
 
 def pagina(rota, titulo, desc, corpo, inicio=False):
     R = "../" * rota.count("/")
-    ab = f'<div class="abertura" data-abertura aria-hidden="true"><div class="caja">{logo_svg(pecas=True)}</div></div>' if inicio else ""
+    ab = (f'<div class="abertura" data-abertura aria-hidden="true"><div class="caja">{logo_svg(pecas=True)}</div>'
+          '<div class="rasto-w"><i class="rasto"></i><i class="rasto-cab"></i></div></div>') if inicio else ""
     s = "".join(f'<script src="{R}js/{n}.js?v={VERSAO}"></script>' for n in SCRIPTS)
     cls = ' class="a-abrir"' if inicio else ' class="interior"'
     doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{corpo(R)}\n</main>\n{rodape(R)}{s}\n</body>\n</html>\n"
@@ -288,7 +289,8 @@ def pagina(rota, titulo, desc, corpo, inicio=False):
 
 # ---------------------------------------------------------------- componentes
 def etq(a, txt, cls="hora"):
-    return f'<p class="etiqueta"><span class="{cls}">{a}</span>{txt}</p>'
+    sp = f'<span class="{cls}">{a}</span>' if a else ""
+    return f'<p class="etiqueta">{sp}{txt}</p>'
 
 
 def L(*ls):
@@ -297,22 +299,6 @@ def L(*ls):
 
 def btn(href, txt, cls="btn-claro", seta=True, extra=""):
     return f'<a class="btn {cls}" href="{href}"{extra}>{txt}{se(seta, " <span class=" + Q + "fl" + Q + ">→</span>")}</a>'
-
-
-def faq(items, pref):
-    out = []
-    for i, (q, a) in enumerate(items):
-        out.append(f'<div class="faq-item"><h3><button class="faq-q" type="button" id="{pref}-q{i}" aria-expanded="false" aria-controls="{pref}-a{i}">{e(q)}<i aria-hidden="true"></i></button></h3>'
-                   f'<div class="faq-a" id="{pref}-a{i}" role="region" aria-labelledby="{pref}-q{i}" aria-hidden="true"><div><p>{e(a)}</p></div></div></div>')
-    return f'<div class="faq" data-faq>{"".join(out)}</div>'
-
-
-def cards(items, cols=2, num=True):
-    out = []
-    for i, (t, p) in enumerate(items):
-        n = f'<span class="num">0{i + 1}</span>' if num else ""
-        out.append(f'<div class="card" data-sube style="--i:{i % cols}">{n}<h3>{e(t)}</h3><p>{e(p)}</p></div>')
-    return f'<div class="cards" style="--cols:{cols}">{"".join(out)}</div>'
 
 
 def cab(num, eti, titulo, lead="", h="h2"):
@@ -326,21 +312,6 @@ def sec(c, cls="", extra=""):
 
 def banda(titulo, txt, botoes, extra=""):
     return sec(f'<div class="banda"><div class="cab" style="margin:0"><h2 class="titulo t-l" data-linhas>{titulo}</h2><p class="lead" data-sube>{txt}</p>{extra}</div><div class="acoes">{botoes}</div></div>')
-
-
-def tabs(pref, items):
-    lista, pan = [], []
-    for i, (t, c, ent) in enumerate(items):
-        on = i == 0
-        lista.append(f'<button role="tab" type="button" id="{pref}-t{i}" aria-controls="{pref}-p{i}" aria-selected="{str(on).lower()}" tabindex="{0 if on else -1}">{e(t)}</button>')
-        li = "".join(f"<li>{e(x)}</li>" for x in ent)
-        pan.append(f'<div class="tab-painel" role="tabpanel" id="{pref}-p{i}" aria-labelledby="{pref}-t{i}" tabindex="0"{se(not on, " hidden")}><h3>{e(t)}</h3><p class="texto">{e(c)}</p><p class="etiqueta">Qué recibe</p><ul>{li}</ul></div>')
-    return f'<div class="tabs" data-tabs><div class="tabs-lista" role="tablist" aria-label="Qué incluye">{"".join(lista)}</div><div>{"".join(pan)}</div></div>'
-
-
-def passos(items):
-    out = "".join(f'<div class="passo" data-sube style="--i:{i}"><span class="num">0{i + 1}</span><h3>{e(a)}</h3><p>{e(b)}</p></div>' for i, (a, b) in enumerate(items))
-    return f'<div class="passos" style="--cols:{len(items)}">{out}</div>'
 
 
 def chips(items, cls="chips"):
