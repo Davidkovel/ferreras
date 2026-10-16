@@ -527,40 +527,11 @@ def sector_capitulo(R, i, chave, d):
             f'{btn(R + DIAG + "?sector=" + chave, f"{n} caso" + ("" if n == 1 else "s") + " · Diagnóstico", "btn-linha", False)}</div></div></article>')
 
 
-def palco_sectores(R):
-    """Sectores como uma cena: um palco fixo de ecrã inteiro onde o scroll troca o sector (imagem ou filme de margem
-    a margem, a palavra em contorno a deslizar, o índice à esquerda). No telemóvel, quatro cartões de ecrã inteiro."""
-    meds = {"hoteles": ("img", "ia-hotel-atencion-atardecer", "Recepción de un hotel al atardecer, con una huésped atendida en el mostrador", "Hotel"),
-            "automocion-lujo": ("vid", "auto", "Porsche 911 GT3 RS negro en el estudio de TN Autosport", "Motor"),
-            "nautica": ("img", "yate-completo", "Yate de lujo fondeado en una cala de aguas turquesa, fotografiado desde el aire", "Mar"),
-            "joyeria-relojeria": ("img", "diamantes-riviere", "Macro de una pulsera rivière de diamantes sobre terciopelo azul oscuro", "Joya")}
-    fundos, textos, indice, palavras = [], [], [], []
-    for k, (chave, d) in enumerate(SECTORES.items()):
-        tipo, base, alt, pal = meds[chave]
-        if tipo == "vid":
-            m = (f'<video muted playsinline loop preload="none" poster="{R}video/{base}-1080-poster.webp" data-src="{R}video/{base}-1080.mp4?v={VERSAO}" '
-                 f'data-video-auto aria-label="{e(alt)}"></video>')
-        else:
-            m = img(R, base, alt, "100vw")
-        on = se(k == 0, " on")
-        fundos.append(f'<div class="pl-m{on}" data-pl-m>{m}</div>')
-        n = len(casos_de(chave)) + (1 if chave == "joyeria-relojeria" else 0)
-        ch = "".join(f"<li>{e(t)}</li>" for t, _ in d["margen"][:3])
-        textos.append(f'<div class="pl-t{on}" data-pl-t><p class="etiqueta">{e(d["nome"])}</p><h2 class="titulo">{" ".join(d["h1"])}</h2>'
-                      f'<p class="lead">{d["lead"]}</p><ul class="pl-l">{ch}</ul>'
-                      f'<div class="acoes">{btn(R + "sectores/" + chave + "/", "Ver el sector")}{btn(R + DIAG + "?sector=" + chave, f"{n} caso" + ("" if n == 1 else "s") + " · Diagnóstico", "btn-linha btn-vidro", False)}</div></div>')
-        indice.append(f'<li class="{se(k == 0, "on")}" data-pl-i><button type="button"><span>{e(d["nome"])}</span><i aria-hidden="true"><b></b></i></button></li>')
-        palavras.append(f'<span class="pl-w{on}" data-pl-w aria-hidden="true">{pal}</span>')
-    return (f'<section class="palco" data-palco style="--n:{len(SECTORES)}"><div class="pl-fixo">'
-            f'<div class="pl-fundos">{"".join(fundos)}</div><div class="pl-velo" aria-hidden="true"></div>'
-            f'<div class="pl-palavras">{"".join(palavras)}</div>'
-            f'<div class="pl-cab"><p class="etiqueta">Sectores</p><p class="pl-h">Cuatro sectores que conocemos <em>por dentro.</em></p></div><ol class="pl-indice" aria-label="Sectores">{"".join(indice)}</ol>'
-            f'<div class="pl-textos">{"".join(textos)}</div></div></section>')
-
-
 def sectores_idx(R):
-    return (palco_sectores(R)
-            + banda("¿Su sector <em>no está aquí?</em>", "Inmobiliaria premium, servicios profesionales o B2B: el diagnóstico le dice por dónde empezar.", btn(R + DIAG, CTA)))
+    caps = "".join(sector_capitulo(R, i, k, v) for i, (k, v) in enumerate(SECTORES.items()))
+    return (ph_media(R, "Sectores", L("Cuatro sectores", "que conocemos", "<em>por dentro.</em>"), "Donde cada detalle se nota: hoteles, automoción, náutica y joyería.",
+                     btn("#capitulos", "Ver los sectores"), filme(R, "auto"))
+            + sec(f'<div class="sxs">{caps}</div>', "sect-caps", ' id="capitulos"') + banda("¿Su sector <em>no está aquí?</em>", "Inmobiliaria premium, servicios profesionales o B2B: el diagnóstico le dice por dónde empezar.", btn(R + DIAG, CTA)))
 
 pagina("sectores/", "Sectores", "Hotelería, automoción de lujo, náutica y joyería: cuatro sectores que conocemos por dentro.", sectores_idx)
 
