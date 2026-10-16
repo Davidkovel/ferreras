@@ -1095,3 +1095,10 @@ main{position:relative}
   .sect-caps{padding-top:3rem}
   .sx-txt{gap:1rem}
 }
+/* IA: la conversación, más compacta */
+#demo{padding-block:clamp(3.5rem,9vh,6rem)}
+.movil{width:min(330px,100%);padding:10px;border-radius:38px}
+.movil .chat{min-height:0;border-radius:30px;padding:1.1rem .9rem .8rem}
+.movil .chat-lista{padding:.6rem .1rem;gap:.55rem}
+.movil .msg{font-size:.86rem;padding:.65rem .85rem}
+@media (max-width:900px){.movil .chat{min-height:0}#demo{padding-block:3rem}}

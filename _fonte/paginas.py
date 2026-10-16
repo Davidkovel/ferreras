@@ -511,7 +511,7 @@ for k, v in SECTORES.items():
 SECT_MEDIA = {"hoteles": ("img", "ia-hotel-atencion-atardecer", "Recepción de un hotel al atardecer, con una huésped atendida en el mostrador", "Hotel"),
               "automocion-lujo": ("vid", "reel-tn-porsche", "Porsche 911 GT3 RS negro en el estudio de TN Autosport", "Motor"),
               "nautica": ("img", "yate-completo", "Yate de lujo fondeado en una cala de aguas turquesa, fotografiado desde el aire", "Mar"),
-              "joyeria-relojeria": ("vid", "reel-diamantes", "Un joyero muestra piedras y anillos ante la cámara", "Joya")}
+              "joyeria-relojeria": ("img", "diamantes-riviere", "Macro de una pulsera rivière de diamantes sobre terciopelo azul oscuro", "Joya")}
 
 
 def sector_capitulo(R, i, chave, d):
