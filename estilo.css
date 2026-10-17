@@ -1688,3 +1688,20 @@ html.mz-aberto{overflow:hidden}
 /* la IA de la portada en la misma gama que el sitio (sin azul ni naranja: sin saltos de color) */
 .mundos .pt-ia{background:radial-gradient(70% 70% at 70% 50%,#2a2017,#0b0907 72%)}
 .mundos .pt-ia .vis-idiomas li{color:rgba(243,230,220,.9)}
+/* ---------- 115 las opciones del diagnóstico en una columna limpia; el proyector en el teléfono ---------- */
+.dj .op{grid-template-columns:18px 1.7rem minmax(0,1fr) auto auto;column-gap:.8rem;align-items:center}
+.dj .com-foto .op{grid-template-columns:18px 1.7rem minmax(0,1fr) auto}
+.dj .op .op-ok{margin:0}
+.dj .op .op-t{min-width:0}
+.dj .op .op-i,.dj .op .op-n{grid-column:4}
+.dj .op .op-eleg{grid-column:-2}
+.pj-prog{display:none}
+@media (max-width:800px){
+  .dj .op{grid-template-columns:18px 1.5rem minmax(0,1fr) auto;column-gap:.6rem}
+  .dj .op .op-eleg{display:none}
+  .pj-tira{display:none}
+  .pj-txt{right:var(--g);bottom:clamp(4rem,12vh,6rem)}
+  .pj-prog{display:flex;position:absolute;z-index:4;left:var(--g);right:var(--g);bottom:clamp(1.6rem,5vh,2.6rem);gap:4px}
+  .pj-prog i{flex:1;height:3px;border-radius:2px;background:rgba(243,230,220,.22);transition:background var(--t-entra) var(--curva)}
+  .pj-prog i.on{background:var(--oro-2)}
+}

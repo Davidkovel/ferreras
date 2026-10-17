@@ -498,7 +498,7 @@ def projector(R, items, medias):
     return (f'<div class="proj" data-proj><div class="pj-palco"><div class="pj-telas">{telas}</div><div class="pj-velo" aria-hidden="true"></div>'
             f'<div class="pj-txt" data-pj-txt aria-live="polite"><p class="etiqueta">Fotograma 1 de 12</p><h3>{e(t0)}</h3><p>{e(d0)}</p></div>'
             f'<div class="pj-tira" aria-hidden="true"><div class="pj-rolo" data-pj-rolo>{fotos}</div><i class="pj-janela"></i></div>'
-            f'<p class="pj-tc" aria-hidden="true"><b></b>REC <span data-pj-tc>00:00:00:00</span></p></div>{ts}<ul class="vh">{lista}</ul></div>')
+            f'<p class="pj-tc" aria-hidden="true"><b></b>REC <span data-pj-tc>00:00:00:00</span></p><div class="pj-prog" aria-hidden="true">{"<i></i>" * len(medias)}</div></div>{ts}<ul class="vh">{lista}</ul></div>')
 
 
 def constelacao(items):

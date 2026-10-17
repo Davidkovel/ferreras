@@ -10,7 +10,7 @@
   /* ---------- el proyector ---------- */
   $$('[data-proj]').forEach((el) => {
     const telas = $$('[data-pj-tela]', el), tpl = $$('[data-pj-t]', el), txt = $('[data-pj-txt]', el), rolo = $('[data-pj-rolo]', el), tc = $('[data-pj-tc]', el);
-    const n = telas.length;
+    const n = telas.length, prog = $$('.pj-prog i', el);
     let k = -1;
     const pinta = (p) => {
       const f = $('.pj-f', rolo), h = f ? f.offsetHeight + parseFloat(getComputedStyle(rolo).rowGap || 0) : 0;
@@ -21,7 +21,7 @@
       const pos = p * (n - 1);
       telas.forEach((t, i) => { const d = Math.abs(pos - i); const o = Math.max(0, 1 - d * 1.6); t.style.opacity = o.toFixed(3); t.style.transform = `scale(${(1 + Math.min(d, 1) * 0.08).toFixed(4)})`; t.style.zIndex = o > 0 ? Math.round(o * 10) : 0; });
       const i = Math.min(n - 1, Math.max(0, Math.round(pos)));
-      if (i !== k) { k = i; troca(txt, tpl[i].innerHTML); }
+      if (i !== k) { k = i; troca(txt, tpl[i].innerHTML); prog.forEach((x, n) => x.classList.toggle('on', n <= i)); }
     };
     ScrollTrigger.create({ trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.5, onUpdate: (s) => pinta(s.progress), onRefresh: (s) => pinta(s.progress) });
     el.classList.add('vivo');
