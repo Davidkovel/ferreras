@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "8"
+VERSAO = "9"
 Q = '"'
 CTA = "Pida su diagnóstico"
 
@@ -295,7 +295,8 @@ def rodape(R):
 '''
 
 
-SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "45-ruta", "70-paginas"]
+SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "45-ruta", "70-paginas", "90-luz"]
+VENDOR = ["gsap.min", "ScrollTrigger.min", "lenis.min"]
 FEITAS = []
 
 
@@ -303,7 +304,7 @@ def pagina(rota, titulo, desc, corpo, inicio=False):
     R = "../" * rota.count("/")
     ab = (f'<div class="abertura" data-abertura aria-hidden="true"><div class="caja">{logo_svg(pecas=True)}</div>'
           '<div class="rasto-w"><i class="rasto"></i><i class="rasto-cab"></i></div></div>') if inicio else ""
-    s = "".join(f'<script src="{R}js/{n}.js?v={VERSAO}"></script>' for n in SCRIPTS)
+    s = "".join(f'<script src="{R}vendor/{n}.js"></script>' for n in VENDOR) + "".join(f'<script src="{R}js/{n}.js?v={VERSAO}"></script>' for n in SCRIPTS)
     cls = ' class="a-abrir"' if inicio else ' class="interior"'
     # a rota do coche (home, computador): estrada em SVG, rasto de luz num canvas, o coche por cima (js/45-ruta.js)
     rt = ('<div class="ruta" data-ruta aria-hidden="true"><svg class="ruta-svg" data-ruta-svg><path class="ruta-p" data-ruta-p d=""/></svg>'

@@ -1116,3 +1116,28 @@ main{position:relative}
 @media (max-width:900px){.placa-c .placa-l>div{grid-template-columns:4.6rem minmax(0,1fr)}.contacto-g{grid-template-columns:minmax(0,1fr)}}
 .chat-ej{font:500 .66rem/1.3 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--oro-2);text-align:center;padding:.2rem 0 .6rem}
 .placa-l>div:not(.pode){cursor:default}
+
+/* ---------- 95 luz (js/90-luz.js: GSAP + ScrollTrigger + Lenis) ---------- */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+.foco{position:fixed;left:0;top:0;z-index:40;width:62vmax;height:62vmax;margin:-31vmax 0 0 -31vmax;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,224,170,.17) 0%,rgba(255,214,150,.07) 28%,transparent 62%);mix-blend-mode:screen;opacity:0;transition:opacity var(--t-cena) var(--curva)}
+.foco.on{opacity:1}
+.foco.sobre-claro{opacity:0}
+.hero-luz{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;mix-blend-mode:screen;--abre:0}
+.hero-luz i{position:absolute;display:block;border-radius:50%;filter:blur(40px)}
+.hero-luz .hl-a{width:46vw;height:46vw;left:58%;top:-18%;background:radial-gradient(circle,rgba(255,196,120,.42),rgba(255,150,70,.12) 45%,transparent 70%);animation:hl-a 16s ease-in-out infinite alternate;opacity:calc(.75 + var(--abre)*.25)}
+.hero-luz .hl-b{width:34vw;height:34vw;left:-8%;bottom:-14%;background:radial-gradient(circle,rgba(120,160,255,.30),transparent 65%);animation:hl-b 21s ease-in-out infinite alternate}
+.hero-luz .hl-raya{left:-30%;right:-30%;top:calc(38% - var(--abre)*10%);height:2px;border-radius:0;filter:blur(1.5px);background:linear-gradient(90deg,transparent,rgba(255,236,205,.0) 20%,rgba(255,236,205,.75) 50%,rgba(255,236,205,0) 80%,transparent);transform:rotate(-4deg);opacity:calc(.35 + var(--abre)*.5);animation:hl-raya 9s ease-in-out infinite}
+@keyframes hl-a{to{transform:translate3d(-14vw,10vh,0) scale(1.15)}}
+@keyframes hl-b{to{transform:translate3d(18vw,-8vh,0) scale(.9)}}
+@keyframes hl-raya{0%,100%{translate:-12% 0}50%{translate:12% 0}}
+.reloj .destello{position:absolute;inset:-10%;z-index:4;pointer-events:none;background:linear-gradient(112deg,transparent 38%,rgba(255,255,255,.08) 44%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.08) 56%,transparent 62%);mix-blend-mode:screen}
+img.prof{scale:1.16;translate:0 var(--py,0)}
+.titulo em.reflejo{background:linear-gradient(100deg,var(--acento-2) 0%,var(--acento-2) 42%,#fff4dc 50%,var(--acento-2) 58%,var(--acento-2) 100%) 100% 0/260% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;padding-right:.08em}
+.titulo em.reflejo.brilla{animation:reflejo 2.2s var(--curva) .25s both}
+@keyframes reflejo{from{background-position:100% 0}to{background-position:0 0}}
+.btn{position:relative;overflow:hidden;isolation:isolate}
+.btn::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);translate:-110% 0;transition:translate .9s var(--curva);pointer-events:none}
+.btn:hover::after{translate:110% 0}
