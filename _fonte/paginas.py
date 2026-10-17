@@ -531,6 +531,27 @@ def indice_casos(R):
             f'<p class="mini nota-casos">Trabajo dirigido por Ferreras. Las cifras se publican una vez verificadas con el cliente.</p></section>')
 
 
+
+def mosaico(R):
+    """Os casos num só ecrã: oito fotografias em mosaico. Tocar uma abre-a a partir do seu sítio até ao ecrã inteiro,
+    com a história do caso ao lado; setas para o anterior e o seguinte; × ou Esc devolve-a ao mosaico. js/99-mosaico.js."""
+    ts, hs = [], []
+    for i, c in enumerate(CASOS):
+        foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 50vw, 100vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
+        ts.append(f'<li class="mz-t mz-t{i}"><button type="button" class="mz-b" data-mz-i="{i}" aria-haspopup="dialog">{foto}<span class="mz-l"><span class="mz-s">{e(c["sl"])}</span>'
+                  f'<span class="mz-n">{e(c["t"])}</span><span class="mz-v" aria-hidden="true">Ver el caso +</span></span></button></li>')
+        ev = "".join(f"<li>{e(x)}</li>" for x in c["ev"])
+        ev = f"<ul>{ev}</ul>" if ev else ""
+        hs.append(f'<template data-mz-h="{i}"><p class="etiqueta">{e(c["sl"])} · {i + 1} de {len(CASOS)}</p><h2 class="titulo t-l">{e(c["t"])}</h2>'
+                  f'<dl><div><dt>El punto de partida</dt><dd>{e(c["p"])}</dd></div><div><dt>Lo que hicimos</dt><dd>{e(c["i"])}</dd></div><div><dt>El resultado</dt><dd>{e(c["r"])}</dd></div></dl>{ev}</template>')
+    return (f'<section class="sec mosaico" id="casos"><ul class="mz" data-mz>{"".join(ts)}</ul>{"".join(hs)}'
+            f'<div class="mz-ab" data-mz-ab role="dialog" aria-modal="true" aria-label="Caso" hidden data-lenis-prevent>'
+            f'<div class="mz-ab-f" data-mz-f></div><div class="mz-ab-t"><div data-mz-txt></div>'
+            f'<div class="mz-ab-nav"><button type="button" class="enlace" data-mz-ant>← Anterior</button><button type="button" class="enlace" data-mz-prox>Siguiente →</button></div></div>'
+            f'<button type="button" class="mz-x" data-mz-x aria-label="Cerrar el caso">×</button></div>'
+            f'<p class="mini nota-casos">Toque una imagen para abrir el caso. Trabajo dirigido por Ferreras; las cifras se publican una vez verificadas con el cliente.</p></section>')
+
+
 def caso_card(R, c, filtro=False):
     """Um caso num cartão de fotografia: sector, título e o resultado numa linha. Nada se abre nem se expande."""
     foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 56vw, 120vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
@@ -773,7 +794,7 @@ def resultados(R):
         return "".join(f'<button type="button" data-f="{tipo}" data-v="{v}" aria-pressed="{str(v == "todos").lower()}">{e(t)}</button>' for v, t in lista)
     return (ph_media(R, "Casos", L("Lo que hicimos,", "<em>caso a caso.</em>"), "Cifras solo verificadas y autorizadas.",
                      btn("#casos", "Ver los casos"), filme(R, "interludio"))
-            + indice_casos(R)
+            + mosaico(R)
             + sec(f'<div class="grelha marca-grid"><div class="marca-fotos"><figure class="f1 ventana" data-janela>{video(R, "reel-ferreras-lifestyle", "Campaña de Relojes Ferreras")}</figure><div class="f2 marca-reloj">{reloj_html(R, "-r")}</div></div><div class="marca-txt">{etq("", "Nuestra propia marca", "n")}<h2 class="titulo t-l" data-linhas>Lo probamos primero <em>con lo nuestro.</em></h2><p class="lead" data-sube>Cada método que le proponemos lo hemos aplicado antes a nuestra propia marca de relojes.</p><p data-sube>{enlace("https://relojes-ferreras.com/", "Ver Relojes Ferreras", True)}</p></div></div>', "claro marca", " data-claro")
             + banda("¿Algo parecido <em>en su sector?</em>", "Las ocho preguntas lo comparan con trabajos equivalentes.", btn(R + DIAG, CTA)))
 
