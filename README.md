@@ -1,9 +1,13 @@
-# IA & Marketing Ferreras: propuesta de rediseño (v5, «Hoja de contactos»)
+# IA & Marketing Ferreras · propuesta de rediseño
 
-Sitio estático (HTML + CSS + JS sin build) generado por `python -I _fonte/v5.py`. GitHub Pages: https://davidkovel.github.io/ferreras/
+Concepto: **«Las 24 horas»**. Un reloj Ferreras (la esfera real de la marca) acompaña la página y sus agujas avanzan
+con el scroll: de día el marketing que atrae (oro), de noche la IA que atiende (la señal azul del logotipo). A las
+23:40 entra una consulta en alemán y el agente la pasa a recepción; veinticuatro horas después, el diagnóstico.
 
-- Cinco salas: Inicio, Trabajo, Servicios, La casa, Hablemos (+ legal). Las direcciones de la web antigua redirigen a la sala nueva.
-- Tipografía única: Archivo variable (`fonts/`), condensada en títulos. Papel de aluminio, tinta negra, el azul del logotipo como único acento.
-- Firma: una hoja de contactos de fotógrafo; el lápis azul marca un fotograma y el scroll lo agranda hasta ser el filme.
-- Formularios: mismo formato y destino que la web original (`/api/leads`, no-cors). No enviar leads de prueba reales.
-- La versión anterior rechazada está en la etiqueta `v4-rechazada`.
+Sitio estático (HTML, CSS y JavaScript sin dependencias), publicado en GitHub Pages con `noindex`: es una propuesta,
+no el sitio oficial. Todos los textos, fotografías, vídeos y casos proceden de marketingferreras.com y de sus redes.
+
+- `index.html` y una carpeta por página; `estilo.css`; `js/` (un archivo por sección); `img/`, `video/`, `fonts/`.
+- `_fonte/build.py` escribe todas las páginas a partir del contenido (`_fonte/paginas.py`): `python -I _fonte/build.py`.
+- Los formularios no envían datos a ningún servidor: abren el correo con el mensaje ya escrito para
+  administracion@marketingferreras.com.
