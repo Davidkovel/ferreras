@@ -1719,3 +1719,21 @@ html.mz-aberto{overflow:hidden}
 .claro .mini3d-r{color:var(--tinta)}
 @media (max-width:800px){.mini3d canvas{width:76px;height:76px}.mini3d-r{font-size:.9rem}}
 .mini3d-r{padding:.45rem .8rem;border-radius:999px;background:rgba(11,9,7,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-shadow:none}.claro .mini3d-r{color:var(--marfil)}
+/* ---------- 117 Marketing en el teléfono: proyector con el fotograma entero, pilares en columna, final sin solapes ---------- */
+@media (max-width:800px){
+  .pj-palco{background:#0b0907}
+  .pj-telas{top:calc(var(--topo) + 3rem);bottom:auto;left:var(--g);right:var(--g);height:calc((100vw - 2 * var(--g)) * .5625);border-radius:6px;overflow:hidden}
+  .pj-tela>img{object-fit:cover}
+  .pj-velo{display:none}
+  .pj-tc{top:calc(var(--topo) + .9rem)}
+  .pj-txt{top:calc(var(--topo) + 3rem + (100vw - 2 * var(--g)) * .5625 + 1.6rem);bottom:auto;left:var(--g);right:var(--g);width:auto}
+  .pj-txt h3{font-size:clamp(2rem,9vw,2.8rem)}
+  .pilares{display:grid;grid-template-columns:1fr;overflow:visible;margin-inline:0;padding-inline:0;gap:1.6rem}
+  .pilares .pilar{width:auto!important;min-width:0}
+  body[data-pagina="marketing"] .banda::before{width:92vw}
+  body[data-pagina="marketing"] .banda::after{display:none}
+}
+@media (max-width:800px){
+  .pj-telas{height:calc((100vw - 2 * var(--g)) * .78)}
+  .pj-txt{top:calc(var(--topo) + 3rem + (100vw - 2 * var(--g)) * .78 + 1.6rem)}
+}
