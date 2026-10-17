@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "13"
+VERSAO = "15"
 Q = '"'
 CTA = "Hablemos de su marca"
 
@@ -352,17 +352,24 @@ def chips(items, cls="chips"):
     return f'<ul class="{cls}">' + "".join(f"<li>{e(x)}</li>" for x in items) + "</ul>"
 
 
-def ph(R, eti, h1, lead, botoes="", foto=None, chips_=None, migas=None):
+def arco(R, eti, h1, lead, botoes="", media=None, chips_=None, migas=None, extra="", sobre=""):
+    """Cabeça das páginas interiores: título ao centro e, por baixo, a imagem dentro de um arco (o nicho da vitrina).
+    Com o scroll o arco abre-se até à largura do ecrã (90-luz.js). Sem imagem fica só o título, mais compacto."""
     m = ""
     if migas:
         partes = [f'<a href="{R}{h}">{e(t)}</a>' if h is not None else e(t) for h, t in migas]
         m = '<p class="migas">' + ' <span aria-hidden="true">/</span> '.join(partes) + "</p>"
     ch = '<ul class="ph-chips">' + "".join(f"<li>{e(c)}</li>" for c in chips_) + "</ul>" if chips_ else ""
-    f = f'<figure class="ph-foto ventana" data-janela>{foto}</figure>' if foto else ""
     ac = f'<div class="acoes" data-sube>{botoes}</div>' if botoes else ""
     et = etq("", eti, "n") if eti else ""
-    cls = "pag-hero com-foto" if foto else "pag-hero"
-    return f'<section class="{cls}"><div class="ph-txt">{m}{et}<h1 class="titulo t-xl" data-linhas>{h1}</h1><p class="lead" data-sube>{lead}</p>{ac}{ch}</div>{f}</section>'
+    med = f'<div class="ah-arco" data-arco><div class="ah-m">{media}</div>{sobre}</div>' if media else ""
+    cls = "pag-hero arco-hero" + ("" if media else " sem-media")
+    return (f'<section class="{cls}"><div class="ah-cab">{m}{et}<h1 class="titulo t-xl" data-linhas>{h1}</h1></div>{med}'
+            f'<div class="ah-pe"><p class="lead" data-sube>{lead}</p>{ac}{ch}{extra}</div></section>')
+
+
+def ph(R, eti, h1, lead, botoes="", foto=None, chips_=None, migas=None, extra="", sobre=""):
+    return arco(R, eti, h1, lead, botoes, foto, chips_, migas, extra, sobre)
 
 
 CONDICIONES = ["Alcance cerrado por escrito", "Sin permanencia obligatoria", "El proyecto y los accesos son suyos", "Trato uno a uno"]

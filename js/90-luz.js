@@ -70,6 +70,15 @@
   /* ---------- las cifras en contorno (24 h, 100, BCN) derivan despacio: van por detrás de todo ---------- */
   $$('.contorno').forEach((c, i) => gsap.fromTo(c, { '--dx': (i % 2 ? -6 : 6) + 'vw' }, { '--dx': (i % 2 ? 6 : -6) + 'vw', ease: 'none', scrollTrigger: { trigger: c.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } }));
 
+  /* ---------- páginas interiores: el arco se abre con el scroll hasta la anchura de la pantalla (como el nicho de la vitrina) ---------- */
+  $$('[data-arco]').forEach((arco) => {
+    const m = $('.ah-m', arco);
+    const ini = () => Math.min(arco.clientWidth * (innerWidth <= 800 ? 0.39 : 0.23), innerWidth <= 800 ? 9999 : 340);
+    gsap.timeline({ scrollTrigger: { trigger: arco, start: 'top 85%', end: 'top 10%', scrub: 0.8, invalidateOnRefresh: true } })
+      .fromTo(arco, { '--aw': () => ini() + 'px', '--ar': () => ini() + 'px' }, { '--aw': () => arco.clientWidth / 2 + 'px', '--ar': '0px', ease: 'power2.inOut' }, 0)
+      .fromTo(m, { scale: 1.18 }, { scale: 1, ease: 'none' }, 0);
+  });
+
   /* ---------- títulos: la palabra en oro recibe un reflejo cuando entra ---------- */
   $$('.titulo em').forEach((em) => {
     em.classList.add('reflejo');
