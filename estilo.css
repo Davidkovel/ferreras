@@ -1748,3 +1748,7 @@ html.mz-aberto{overflow:hidden}
   .pj-m h3{margin:0;font:400 1.7rem/1.05 var(--serif)}
   .pj-m p:not(.etiqueta){margin:0;color:var(--texto)}
 }
+/* ---------- 119 portada: ao carregar só o relógio; o título entra quando ele chega ao seu sítio ---------- */
+.hero-reloj.com-3d:not(.texto-on) .hero-grid,.hero-reloj.com-3d:not(.texto-on) .hero-pista{opacity:0;transform:translateY(24px)}
+.hero-reloj .hero-grid,.hero-reloj .hero-pista{transition:opacity var(--t-cena) var(--curva),transform var(--t-cena) var(--curva)}
+html.espera-3d .hero-reloj:not(.texto-on) .hero-grid,html.espera-3d .hero-reloj:not(.texto-on) .hero-pista{opacity:0;transform:translateY(24px)}

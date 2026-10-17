@@ -167,20 +167,20 @@ async function arranca(modo) {
   const aro = new THREE.Mesh(new THREE.LatheGeometry(perfil, 160), oro.clone()); aro.material.side = THREE.DoubleSide; aro.rotation.x = Math.PI / 2; caixa.add(aro);
   [[-0.36, 1], [0.36, 1], [-0.36, -1], [0.36, -1]].forEach(([x, s]) => { const a = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.22, 0.07, 2, 2, 2), oro); a.position.set(x, s * 1.05, -0.035); caixa.add(a); });
   const coroa = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.14, 40), oro); coroa.rotation.z = Math.PI / 2; coroa.position.set(1.13, 0, -0.02); caixa.add(coroa);
-  // o bracelete: elos de aço com o elo central dourado, presos às asas e a fechar-se para trás, como num expositor
-  const eloAco = new THREE.BoxGeometry(0.26, 0.15, 0.07, 1, 1, 1), eloOro = new THREE.BoxGeometry(0.24, 0.15, 0.075);
+  // o bracelete inteiro e fechado: elos de aço com o central dourado, das asas de cima às de baixo pela parte de trás,
+  // como um relógio pousado no seu expositor (elipse: altura das asas × fundo do pulso)
+  const eloAco = new THREE.BoxGeometry(0.22, 0.13, 0.06), eloOro = new THREE.BoxGeometry(0.2, 0.13, 0.065);
   const bracelete = new THREE.Group();
-  [1, -1].forEach((sgn) => {
-    for (let k = 0; k < 12; k++) {
-      const a = 0.12 + k * 0.205, Rb = 0.95;
-      const elo = new THREE.Group();
-      elo.position.set(0, sgn * (1.18 + Rb * Math.sin(a)), -0.035 - Rb * (1 - Math.cos(a)));
-      elo.rotation.x = -sgn * a;
-      [-0.26, 0.26].forEach((x) => { const m = new THREE.Mesh(eloAco, acero); m.position.x = x; elo.add(m); });
-      const c = new THREE.Mesh(eloOro, oro); elo.add(c);
-      bracelete.add(elo);
-    }
-  });
+  const NE = 24, AY = 1.1, DZ = 1.15;
+  for (let k = 0; k < NE; k++) {
+    const t = 0.06 + (k / (NE - 1)) * (Math.PI - 0.12);
+    const elo = new THREE.Group();
+    elo.position.set(0, AY * Math.cos(t), -0.04 - DZ * Math.sin(t));
+    elo.rotation.x = Math.atan2(-DZ * Math.cos(t), -AY * Math.sin(t));
+    [-0.22, 0.22].forEach((x) => { const m = new THREE.Mesh(eloAco, acero); m.position.x = x; elo.add(m); });
+    elo.add(new THREE.Mesh(eloOro, oro));
+    bracelete.add(elo);
+  }
   caixa.add(bracelete);
 
   const esfera = peca(0.012, 0.5);
@@ -292,20 +292,21 @@ async function arranca(modo) {
       const k = 1 - Math.exp(-dt / 110);
       if (!arrasta) {
         rot.ay += rot.vy * (dt / 16); rot.vy *= Math.pow(0.93, dt / 16);           // inércia ao largar
-        if (agora - tocado > 2600 && agora - ti > 5200) rot.ay += dt * 0.00018;    // sozinho, gira devagar
+        if (agora - tocado > 2600 && agora - ti > 3200) rot.ay += dt * 0.00018;    // sozinho, gira devagar
       }
       rot.y += (rot.ay - rot.y) * k; rot.x += (rot.ax - rot.x) * k;
       const g = !movil();
       // a entrada: 0–45 % desmonta-se e monta-se ao centro, a girar sobre si; 45–100 % vai para o seu sítio
-      const pi = intro ? Math.max(0, Math.min(1, (agora - ti) / 4600)) : 1;
+      const pi = intro ? Math.max(0, Math.min(1, (agora - ti) / 2200)) : 1;
+      if (pi > 0.82 && !heroSec.classList.contains('texto-on')) heroSec.classList.add('texto-on');
       const suave = (x) => x * x * (3 - 2 * x);
       const monta = suave(Math.min(1, pi / 0.5)), vai = suave(Math.max(0, (pi - 0.45) / 0.55));
       pecas.forEach((pc) => { pc.position.z = pc.userData.montado + (pc.userData.separado - pc.userData.montado) * 0.55 * (1 - monta); });
-      const giro = (1 - suave(Math.min(1, pi / 0.85))) * Math.PI * 3;
+      const giro = (1 - suave(Math.min(1, pi / 0.85))) * Math.PI * 2;
       const q = Math.min(1, scrollY / Math.max(1, heroSec.offsetHeight));
       const final = (g ? Math.min(0.64 * H, 0.42 * W) : 0.7 * W);
       const dpx = (final + (Math.min(0.78 * H, 0.6 * W) - final) * (1 - vai)) * (1 - 0.28 * q);
-      const dist = (2.4 * H) / (2 * tg * dpx);
+      const dist = (2.9 * H) / (2 * tg * dpx);
       const cx = W / 2 + ((g ? W * 0.7 : W / 2) - W / 2) * vai, cy = H / 2 + ((g ? H * 0.45 : H * 0.3) - H / 2) * vai - q * H * 0.18;
       const ppx = (2 * dist * tg) / H;
       relogio.position.set((cx - W / 2) * ppx, -(cy - H / 2) * ppx, 0);
