@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "16"
+VERSAO = "17"
 Q = '"'
 CTA = "Hablemos de su marca"
 
@@ -315,7 +315,7 @@ def pagina(rota, titulo, desc, corpo, inicio=False):
     # a entrada própria de cada página interior (js/95-entrada.js); a cortina já está no HTML para não haver clarão
     _seg = [x for x in rota.split("/") if x]
     ent = (f'<div class="entrada" data-entrada data-pagina="{_seg[0] if _seg else ""}" data-sector="{_seg[1] if len(_seg) > 1 else ""}" aria-hidden="true"></div>') if not inicio else ""
-    doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ent}{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{rt}{corpo(R)}\n</main>\n{rodape(R)}{s}{m3}\n</body>\n</html>\n"
+    doc = head(R, titulo, desc, rota) + f"<body{cls} data-pagina=\"{_seg[0] if _seg else 'inicio'}\">\n{ent}{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{rt}{corpo(R)}\n</main>\n{rodape(R)}{s}{m3}\n</body>\n</html>\n"
     if rota in ("diagnostico/", "contacto/"):
         doc = doc.replace('<div class="barra-dx" data-barra>', '<div class="barra-dx" data-barra hidden>')
     destino = RAIZ / rota / "index.html"
