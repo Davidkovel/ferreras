@@ -1684,3 +1684,7 @@ html.mz-aberto{overflow:hidden}
   .mz-ab-t{padding:1.5rem var(--g) 2rem;align-content:start}
 }
 .mz-t6{grid-row:span 2}@media (max-width:800px){.mz-t6{grid-row:span 1}}
+
+/* la IA de la portada en la misma gama que el sitio (sin azul ni naranja: sin saltos de color) */
+.mundos .pt-ia{background:radial-gradient(70% 70% at 70% 50%,#2a2017,#0b0907 72%)}
+.mundos .pt-ia .vis-idiomas li{color:rgba(243,230,220,.9)}
