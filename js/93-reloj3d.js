@@ -16,22 +16,32 @@ const temGL = (() => { try { return !!document.createElement('canvas').getContex
 
 if (!reduz && temGL) {
   if (heroSec) arranca('hero').catch(() => {});
+  // o relógio pequeno que acompanha a leitura da portada: só depois de o hero acabar de entrar
+  if (heroSec) setTimeout(() => arranca('mini').catch(() => {}), 2500);
   if (sec && R3) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); arranca('vitrina').catch(() => {}); } }, { rootMargin: '160% 0px' }).observe(sec);
 }
 
 async function arranca(modo) {
-  const hero = modo === 'hero';
+  const hero = modo === 'hero', mini = modo === 'mini';
+  let caixaMini = null;
+  if (mini) {
+    caixaMini = document.createElement('div');
+    caixaMini.className = 'mini3d'; caixaMini.setAttribute('aria-hidden', 'true');
+    caixaMini.innerHTML = '<span class="mini3d-r" data-mini-r></span>';
+    document.body.append(caixaMini);
+  }
   const THREE = await import('three');
   const { RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js');
   await document.fonts.ready;
-  const palco = hero ? heroSec : sec.querySelector('.al-palco');
+  const palco = mini ? caixaMini : hero ? heroSec : sec.querySelector('.al-palco');
   const movil = () => innerWidth <= 800;
   const raiz = (window.FERRERAS && window.FERRERAS.raiz) || '';
 
   const canvas = document.createElement('canvas');
-  canvas.className = hero ? 'hero-3d' : 'al-3d';
+  canvas.className = mini ? 'mini3d-c' : hero ? 'hero-3d' : 'al-3d';
   canvas.setAttribute('aria-hidden', 'true');
-  if (hero) heroSec.querySelector('.hero-grid').before(canvas);
+  if (mini) caixaMini.prepend(canvas);
+  else if (hero) heroSec.querySelector('.hero-grid').before(canvas);
   else sec.querySelector('[data-al-polvo]').before(canvas);
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -182,7 +192,7 @@ async function arranca(modo) {
   // ---------------------------------------------------------------- composição: o mesmo sítio e tamanho que o reloj dibujado
   let W = 1, H = 1;
   const mede = () => {
-    W = palco.clientWidth; H = palco.clientHeight;
+    W = mini ? (canvas.clientWidth || 108) : palco.clientWidth; H = mini ? (canvas.clientHeight || 108) : palco.clientHeight;
     renderer.setPixelRatio(Math.min(devicePixelRatio, movil() ? 1.5 : 1.75));
     renderer.setSize(W, H, false);
     camera.aspect = W / H; camera.updateProjectionMatrix();
@@ -212,6 +222,32 @@ async function arranca(modo) {
     hora.rotation.z = -(((s / 3600) % 12) / 12) * Math.PI * 2;
   };
 
+  if (mini) {
+    // ------------------------------------------------ o relógio pequeno: gira com o scroll e diz em que parte da portada está
+    pecas.forEach((p) => (p.position.z = p.userData.montado));
+    const rot = caixaMini.querySelector('[data-mini-r]');
+    addEventListener('ferreras:secao', (e) => { rot.textContent = e.detail || ''; caixaMini.classList.toggle('com-r', !!e.detail); });
+    let ry = 0;
+    const al = document.querySelector('[data-alcoba]');
+    const passo = (agora) => {
+      requestAnimationFrame(passo);
+      const dt = Math.min(64, agora - ultimo); ultimo = agora;
+      const r = al ? al.getBoundingClientRect() : null;
+      const on = scrollY > innerHeight * 0.85 && !(r && r.top < innerHeight * 0.5 && r.bottom > innerHeight * 0.5);   // some-se enquanto a vitrina ocupa o ecrã
+      caixaMini.classList.toggle('on', on);
+      if (!on || document.hidden) return;
+      ry += (scrollY * 0.006 - ry) * (1 - Math.exp(-dt / 120));
+      const s = Math.min(W, H), dist = 2.5 / (2 * tg) * (H / s);
+      camera.position.set(0, 0, dist); camera.lookAt(0, 0, 0);
+      relogio.position.set(0, 0, 0);
+      relogio.rotation.set(0.32 + Math.sin(agora / 1600) * 0.05, ry, 0);
+      rotorMalla.rotation.z = agora / 900;
+      trabalha(agora);
+      renderer.render(scene, camera);
+    };
+    requestAnimationFrame(passo);
+    return;
+  }
   if (hero) {
     // ------------------------------------------------ portada: girar arrastrando, con inercia (awwwards-3d, patrón 21)
     pecas.forEach((p) => (p.position.z = p.userData.montado));

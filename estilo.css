@@ -1706,3 +1706,16 @@ html.mz-aberto{overflow:hidden}
   .pj-prog i.on{background:var(--oro-2)}
 }
 .entrada.capitulo{background:radial-gradient(80% 70% at 50% 40%,rgba(30,24,18,.97),rgba(11,9,7,.98) 75%)}
+/* ---------- 116 la cabecera que guía la portada y el reloj pequeño que gira con el scroll ---------- */
+.topo-lado a{position:relative;transition:color var(--t-toque) linear}
+.topo-lado a.agora{color:var(--oro-2)}
+.topo-lado a::after{content:'';position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--oro-2);transform:scaleX(0);transform-origin:left;transition:transform var(--t-entra) var(--curva)}
+.topo-lado a.agora::after{transform:scaleX(1)}
+.mini3d{position:fixed;left:clamp(12px,2vw,28px);bottom:clamp(12px,3vh,28px);z-index:45;display:flex;align-items:center;gap:.8rem;pointer-events:none;opacity:0;transform:translateY(16px) scale(.9);transition:opacity var(--t-entra) var(--curva),transform var(--t-entra) var(--curva)}
+.mini3d.on{opacity:1;transform:none}
+.mini3d canvas{width:108px;height:108px;display:block;filter:drop-shadow(0 12px 22px rgba(0,0,0,.55))}
+.mini3d-r{font:400 1.05rem/1.1 var(--serif);color:var(--marfil);text-shadow:0 2px 14px rgba(0,0,0,.8);opacity:0;transform:translateX(-8px);transition:opacity var(--t-entra) var(--curva),transform var(--t-entra) var(--curva)}
+.mini3d.com-r .mini3d-r{opacity:1;transform:none}
+.claro .mini3d-r{color:var(--tinta)}
+@media (max-width:800px){.mini3d canvas{width:76px;height:76px}.mini3d-r{font-size:.9rem}}
+.mini3d-r{padding:.45rem .8rem;border-radius:999px;background:rgba(11,9,7,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-shadow:none}.claro .mini3d-r{color:var(--marfil)}
