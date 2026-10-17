@@ -1,4 +1,7 @@
-/* Ferreras: el reloj en 3D (módulo ES, sólo en la portada). Sustituye al reloj dibujado de la vitrina cuando hay WebGL2:
+/* Ferreras: el reloj en 3D (módulo ES, sólo en la portada). Dos escenas con el mismo reloj:
+   · la portada: el reloj entero a la derecha del título; se gira arrastrando con el ratón o el dedo (como Cartier W&W),
+     con inercia, y cuando nadie lo toca gira despacio solo; por detrás se lee el fondo grabado;
+   · la vitrina: sustituye al reloj dibujado cuando hay WebGL2:
    fondo de acero grabado, rotor, platina con perlage y puentes, ruedas y volante en relieve, caja con asas y corona,
    la esfera verdadera como textura (el corazón abierto deja ver el volante), agujas a la hora de Barcelona y un cristal
    de zafiro con refracción. Three.js r170 de vendor/, entorno RoomEnvironment, tono ACES, color sRGB (awwwards-3d).
@@ -6,26 +9,30 @@
    el scroll, y lo persigue con un amortiguado independiente de los fps. Sin WebGL2 o con «reducir movimiento» no se
    carga nada y queda el reloj dibujado. */
 const sec = document.querySelector('[data-alcoba]');
+const heroSec = document.querySelector('[data-hero-3d]');
 const R3 = window.FERRERAS_3D;
 const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const temGL = (() => { try { return !!document.createElement('canvas').getContext('webgl2'); } catch (e) { return false; } })();
 
-if (sec && R3 && !reduz && temGL) {
-  new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); arranca().catch(() => {}); } }, { rootMargin: '160% 0px' }).observe(sec);
+if (!reduz && temGL) {
+  if (heroSec) arranca('hero').catch(() => {});
+  if (sec && R3) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); arranca('vitrina').catch(() => {}); } }, { rootMargin: '160% 0px' }).observe(sec);
 }
 
-async function arranca() {
+async function arranca(modo) {
+  const hero = modo === 'hero';
   const THREE = await import('three');
   const { RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js');
   await document.fonts.ready;
-  const palco = sec.querySelector('.al-palco');
+  const palco = hero ? heroSec : sec.querySelector('.al-palco');
   const movil = () => innerWidth <= 800;
   const raiz = (window.FERRERAS && window.FERRERAS.raiz) || '';
 
   const canvas = document.createElement('canvas');
-  canvas.className = 'al-3d';
+  canvas.className = hero ? 'hero-3d' : 'al-3d';
   canvas.setAttribute('aria-hidden', 'true');
-  sec.querySelector('[data-al-polvo]').before(canvas);
+  if (hero) heroSec.querySelector('.hero-grid').before(canvas);
+  else sec.querySelector('[data-al-polvo]').before(canvas);
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setClearColor(0x000000, 0);
@@ -124,7 +131,9 @@ async function arranca() {
   const peca = (montado, separado) => { const g = new THREE.Group(); g.userData = { montado, separado }; relogio.add(g); pecas.push(g); return g; };
 
   const fondo = peca(-0.11, -1.55);
-  fondo.add(disco(0.99, 0.04, [acero, new THREE.MeshStandardMaterial({ map: fondoTex, metalness: 0.9, roughness: 0.34 }), acero]));
+  const fondoMat = new THREE.MeshStandardMaterial({ map: fondoTex, metalness: 0.9, roughness: 0.34 });
+  fondo.add(disco(0.99, 0.04, [acero, fondoMat, acero]));
+  const costas = new THREE.Mesh(new THREE.CircleGeometry(0.985, 128), fondoMat); costas.rotation.y = Math.PI; costas.position.z = -0.022; fondo.add(costas);
 
   const rotor = peca(-0.07, -1.05);
   const rs = new THREE.Shape(); rs.absarc(0, 0, 0.86, 0, Math.PI, false); rs.absarc(0, 0, 0.13, Math.PI, 0, true);
@@ -171,7 +180,6 @@ async function arranca() {
   scene.add(relogio);
 
   // ---------------------------------------------------------------- composição: o mesmo sítio e tamanho que o reloj dibujado
-  const atual = { entra: 0, tiltX: 62, tiltZ: -28, rotor: 0, lado: 0, zoom: 0, mx: 0, my: 0, p0: 1, p1: 1, p2: 1, p3: 1, p4: 1, p5: 1, p6: 1 };
   let W = 1, H = 1;
   const mede = () => {
     W = palco.clientWidth; H = palco.clientHeight;
@@ -191,7 +199,68 @@ async function arranca() {
 
   // ---------------------------------------------------------------- laço: só desenha com a vitrina à vista e a aba ativa
   let visivel = false, ultimo = performance.now();
-  new IntersectionObserver(([e]) => { visivel = e.isIntersecting; }, { rootMargin: '10% 0px' }).observe(sec);
+  new IntersectionObserver(([e]) => { visivel = e.isIntersecting; }, { rootMargin: '10% 0px' }).observe(hero ? heroSec : sec);
+  const t0 = performance.now();
+  const trabalha = (agora) => {
+    // o calibre trabalha: rodas a girar e o volante a oscilar a 4 Hz; as agulhas na hora de Barcelona
+    const t = agora / 1000;
+    rodas.forEach((r, i) => (r.rotation.z = t * (i % 2 ? -0.6 : 0.45) * (1 + i * 0.3)));
+    volante.rotation.z = Math.sin(t * Math.PI * 2 * 4) * 2.4;
+    const s = base + (agora - lida) / 1000;
+    segundo.rotation.z = -((s % 60) / 60) * Math.PI * 2;
+    minuto.rotation.z = -(((s / 60) % 60) / 60) * Math.PI * 2;
+    hora.rotation.z = -(((s / 3600) % 12) / 12) * Math.PI * 2;
+  };
+
+  if (hero) {
+    // ------------------------------------------------ portada: girar arrastrando, con inercia (awwwards-3d, patrón 21)
+    pecas.forEach((p) => (p.position.z = p.userData.montado));
+    const rot = { y: -3.1, x: 0.5, ay: -0.38, ax: 0.14, vy: 0 };   // entra de espaldas y se vuelve hacia usted
+    let arrasta = false, lx = 0, ly = 0, tocado = 0, mx = 0, my = 0;
+    heroSec.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('a, button')) return;
+      arrasta = true; lx = e.clientX; ly = e.clientY; rot.vy = 0; tocado = performance.now(); heroSec.classList.add('a-girar');
+    });
+    addEventListener('pointermove', (e) => {
+      mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5;
+      if (!arrasta) return;
+      const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
+      rot.ay += dx * 0.009; rot.vy = dx * 0.009;
+      rot.ax = Math.max(-0.7, Math.min(0.9, rot.ax + dy * 0.006));
+      tocado = performance.now();
+    }, { passive: true });
+    const solta = () => { arrasta = false; heroSec.classList.remove('a-girar'); };
+    addEventListener('pointerup', solta); addEventListener('pointercancel', solta);
+    const passo = (agora) => {
+      requestAnimationFrame(passo);
+      const dt = Math.min(64, agora - ultimo); ultimo = agora;
+      if (!visivel || document.hidden) return;
+      const k = 1 - Math.exp(-dt / 110);
+      if (!arrasta) {
+        rot.ay += rot.vy * (dt / 16); rot.vy *= Math.pow(0.93, dt / 16);           // inércia ao largar
+        if (agora - tocado > 2600 && agora - t0 > 3200) rot.ay += dt * 0.00018;    // sozinho, gira devagar
+      }
+      rot.y += (rot.ay - rot.y) * k; rot.x += (rot.ax - rot.x) * k;
+      const g = !movil();
+      const entra = Math.min(1, (agora - t0) / 2600), e3 = 1 - Math.pow(1 - entra, 3);
+      const q = Math.min(1, scrollY / Math.max(1, heroSec.offsetHeight));
+      const dpx = (g ? Math.min(0.64 * H, 0.42 * W) : 0.7 * W) * (0.7 + 0.3 * e3) * (1 - 0.28 * q);
+      const dist = (2.4 * H) / (2 * tg * dpx);
+      const cx = g ? W * 0.7 : W / 2, cy = (g ? H * 0.45 : H * 0.3) - q * H * 0.18;
+      const ppx = (2 * dist * tg) / H;
+      relogio.position.set((cx - W / 2) * ppx, -(cy - H / 2) * ppx, 0);
+      camera.position.set(0, 0, dist); camera.lookAt(0, 0, 0);
+      relogio.rotation.set(rot.x + my * 0.12, rot.y + mx * 0.2, 0);
+      const op = (1 - Math.max(0, q - 0.35) * 1.8).toFixed(3); if (op !== canvas.style.opacity) canvas.style.opacity = op;
+      rotorMalla.rotation.z = agora / 900;
+      trabalha(agora);
+      renderer.render(scene, camera);
+    };
+    requestAnimationFrame(passo);
+    heroSec.classList.add('com-3d');
+    return;
+  }
+  const atual = { entra: 0, tiltX: 62, tiltZ: -28, rotor: 0, lado: 0, zoom: 0, mx: 0, my: 0, p0: 1, p1: 1, p2: 1, p3: 1, p4: 1, p5: 1, p6: 1 };
   const passo = (agora) => {
     requestAnimationFrame(passo);
     const dt = Math.min(64, agora - ultimo); ultimo = agora;
@@ -213,14 +282,7 @@ async function arranca() {
     relogio.rotation.set(-THREE.MathUtils.degToRad(atual.tiltX) - atual.my * 0.25, atual.mx * 0.32, THREE.MathUtils.degToRad(-atual.tiltZ));
     pecas.forEach((p, i) => { const s = atual['p' + i]; p.position.z = p.userData.montado + (p.userData.separado - p.userData.montado) * s; });
     rotorMalla.rotation.z = atual.rotor;
-    // o calibre trabalha: rodas a girar e o volante a oscilar a 4 Hz
-    const t = agora / 1000;
-    rodas.forEach((r, i) => (r.rotation.z = t * (i % 2 ? -0.6 : 0.45) * (1 + i * 0.3)));
-    volante.rotation.z = Math.sin(t * Math.PI * 2 * 4) * 2.4;
-    const s = base + (agora - lida) / 1000;
-    segundo.rotation.z = -((s % 60) / 60) * Math.PI * 2;
-    minuto.rotation.z = -(((s / 60) % 60) / 60) * Math.PI * 2;
-    hora.rotation.z = -(((s / 3600) % 12) / 12) * Math.PI * 2;
+    trabalha(agora);
     renderer.render(scene, camera);
   };
   requestAnimationFrame(passo);

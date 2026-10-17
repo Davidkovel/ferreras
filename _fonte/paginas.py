@@ -143,7 +143,7 @@ def estado_envio(titulo_ok):
 def placa_html(R, linhas, pe="Passeig de Gràcia 95, 5º 1ª · 08008 Barcelona"):
     """A placa da casa: fotografia, marca e as linhas que o formulário vai preenchendo."""
     ls = "".join(f'<div data-pl-l="{k}"><dt>{t}</dt><dd class="vazio" data-pl="{k}">Elegir</dd></div>' for k, t in linhas)
-    return (f'<aside class="placa" data-placa><div class="placa-foto">{img(R, "reloj-muneca", "Un reloj Ferreras en la muñeca", "(min-width: 900px) 30vw, 90vw")}'
+    return (f'<aside class="placa" data-placa><div class="placa-foto">{img(R, "reloj-terciopelo", "Reloj Ferreras de corazón abierto sobre terciopelo rojo", "(min-width: 900px) 30vw, 90vw")}'
             f'<div class="placa-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg><span>Barcelona</span></div></div>'
             f'<dl class="placa-l">{ls}</dl><p class="placa-pe">{pe}</p><div class="selo" data-selo hidden><b>Recibido</b><span data-selo-t></span></div></aside>')
 
@@ -170,8 +170,8 @@ exec((RAIZ / "_fonte/despiece.py").read_text(encoding="utf-8"))
 def inicio(R):
     ctl, pista = carril(R, TRABAJO, "Trabajos de producción propia")
     return f'''
-<section class="hero" data-hero data-hora="07:30" data-momento="Abre su empresa">
-  {filme(R, 'hero', 'hero-filme')}
+<section class="hero hero-reloj" data-hero data-hero-3d data-hora="07:30" data-momento="Abre su empresa">
+  <figure class="hero-foto" aria-hidden="true">{img(R, 'reloj-terciopelo', '', '(min-width: 900px) 40vw, 80vw', lazy=False)}</figure>
   <div class="hero-velo" aria-hidden="true"></div>
   <div class="hero-grid">
     <div class="hero-tit"><p class="etiqueta" style="--i:0"><span class="hora">07:30</span>Desde Barcelona</p>
@@ -179,7 +179,7 @@ def inicio(R):
     <div class="hero-lado"><p class="lead" style="--i:1">Marketing de lujo mientras le miran. Inteligencia artificial mientras le escriben.</p>
       <div class="acoes" style="--i:2">{btn('#diagnostico', CTA, extra=' data-vai')}{btn('#que-hacemos', 'Ver el día', 'btn-linha btn-vidro', False)}</div></div>
   </div>
-  <p class="hero-pista" aria-hidden="true"><i></i>Baje: el coche le acompaña</p>
+  <p class="hero-pista" aria-hidden="true"><i></i>Arrastre el reloj para girarlo</p>
 </section>
 
 <section class="sec p-que" id="que-hacemos" data-hora="08:30" data-momento="Qué hacemos">

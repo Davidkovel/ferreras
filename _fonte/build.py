@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "15"
+VERSAO = "16"
 Q = '"'
 CTA = "Hablemos de su marca"
 
@@ -295,7 +295,7 @@ def rodape(R):
 '''
 
 
-SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "45-ruta", "70-paginas", "90-luz", "92-alcoba"]
+SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "45-ruta", "70-paginas", "90-luz", "92-alcoba", "95-entrada"]
 VENDOR = ["gsap.min", "ScrollTrigger.min", "lenis.min"]
 FEITAS = []
 
@@ -312,7 +312,10 @@ def pagina(rota, titulo, desc, corpo, inicio=False):
     # o reloj 3D da vitrina (só na portada): mapa de importação para o Three.js de vendor/ e o módulo, que carrega tarde
     m3 = (f'<script type="importmap">{{"imports":{{"three":"./{R}vendor/three/three.module.min.js","three/addons/":"./{R}vendor/three/addons/"}}}}</script>'
           f'<script type="module" src="{R}js/93-reloj3d.js?v={VERSAO}"></script>') if inicio else ""
-    doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{rt}{corpo(R)}\n</main>\n{rodape(R)}{s}{m3}\n</body>\n</html>\n"
+    # a entrada própria de cada página interior (js/95-entrada.js); a cortina já está no HTML para não haver clarão
+    _seg = [x for x in rota.split("/") if x]
+    ent = (f'<div class="entrada" data-entrada data-pagina="{_seg[0] if _seg else ""}" data-sector="{_seg[1] if len(_seg) > 1 else ""}" aria-hidden="true"></div>') if not inicio else ""
+    doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ent}{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{rt}{corpo(R)}\n</main>\n{rodape(R)}{s}{m3}\n</body>\n</html>\n"
     if rota in ("diagnostico/", "contacto/"):
         doc = doc.replace('<div class="barra-dx" data-barra>', '<div class="barra-dx" data-barra hidden>')
     destino = RAIZ / rota / "index.html"
