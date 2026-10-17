@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "21"
+VERSAO = "22"
 Q = '"'
 CTA = "Hablemos de su marca"
 
@@ -295,7 +295,7 @@ def rodape(R):
 '''
 
 
-SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "45-ruta", "70-paginas", "90-luz", "92-alcoba", "95-entrada", "96-produto", "97-tunel", "98-portal", "99-salas"]
+SCRIPTS = ["00-nucleo", "10-abertura", "20-comuns", "30-reloj", "40-escenas", "45-ruta", "70-paginas", "90-luz", "92-alcoba", "95-entrada", "96-produto", "97-tunel", "98-portal", "99-salas", "99-mapa"]
 VENDOR = ["gsap.min", "ScrollTrigger.min", "lenis.min"]
 FEITAS = []
 

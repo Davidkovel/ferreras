@@ -269,6 +269,7 @@ def gama():
 
 
 exec((RAIZ / "_fonte/despiece.py").read_text(encoding="utf-8"))
+exec((RAIZ / "_fonte/mapa.py").read_text(encoding="utf-8"))
 
 
 def inicio(R):
@@ -286,22 +287,18 @@ def inicio(R):
   <p class="hero-pista" aria-hidden="true"><i></i>Arrastre el reloj para girarlo</p>
 </section>
 
-<section class="portal" id="que-hacemos" data-portal data-hora="08:30" data-momento="Qué hacemos">
-  <div class="pt-palco">
-    <div class="pt-mundo pt-ia" data-pt-ia>
-      <div class="pt-ia-fundo" aria-hidden="true">{vis("idiomas")}</div>
-      <div class="pt-txt pt-txt-d"><p class="etiqueta">Inteligencia artificial</p><h2 class="titulo t-xl">Respuesta <em>a cualquier hora.</em></h2>
-        <p class="lead">Teléfono, WhatsApp, chat y email, en más de veinte idiomas. Una persona entra cuando hace falta.</p>{enlace(R + 'inteligencia-artificial/', 'Entrar en IA')}</div>
-    </div>
-    <div class="pt-esfera pt-e2" data-pt-e2 aria-hidden="true"><img src="{R}img/dial-ferreras-2400.webp" alt="" width="2400" height="2400" loading="lazy" decoding="async"></div>
+<section class="mundos" id="que-hacemos" data-mundos data-hora="08:30" data-momento="Qué hacemos">
+  <div class="mn-cab">{etq('08:30', 'El día empieza')}<h2 class="titulo t-l" data-linhas>{L('Dos equipos.', '<em>Un mismo reloj.</em>')}</h2></div>
     <div class="pt-mundo pt-mkt" data-pt-mkt>
       {filme(R, 'mkt', 'pt-filme lazy')}
       <div class="pt-txt"><p class="etiqueta">Marketing</p><h2 class="titulo t-xl">Rodaje, redes <em>y estrategia.</em></h2>
         <p class="lead">Un plan de doce meses por escrito. Equipo de rodaje propio: dron, cámaras y sonido. Redes, publicidad y email.</p>{enlace(R + 'marketing/', 'Entrar en Marketing')}</div>
     </div>
-    <div class="pt-esfera pt-e1" data-pt-e1 aria-hidden="true"><img src="{R}img/dial-ferreras-2400.webp" alt="" width="2400" height="2400" loading="lazy" decoding="async"></div>
-    <div class="pt-intro" data-pt-intro>{etq('08:30', 'El día empieza')}<h2 class="titulo t-l">{L('Dos equipos.', '<em>Un mismo reloj.</em>')}</h2><p class="lead">Baje: se entra por el corazón del reloj.</p></div>
-  </div>
+    <div class="pt-mundo pt-ia" data-pt-ia>
+      <div class="pt-ia-fundo" aria-hidden="true">{vis("idiomas")}</div>
+      <div class="pt-txt pt-txt-d"><p class="etiqueta">Inteligencia artificial</p><h2 class="titulo t-xl">Respuesta <em>a cualquier hora.</em></h2>
+        <p class="lead">Teléfono, WhatsApp, chat y email, en más de veinte idiomas. Una persona entra cuando hace falta.</p>{enlace(R + 'inteligencia-artificial/', 'Entrar en IA')}</div>
+    </div>
 </section>
 
 <section class="sec prod p-prod" id="trabajo" data-hora="10:30" data-momento="Rodaje en el puerto">
@@ -472,6 +469,7 @@ def tunel(R):
 
 ANEL_MKT = [("img", "mecanismo-macro"), ("img", "sector-mar-puerto"), ("poster", "reel-diamantes"), ("img", "joya-morganita"), ("poster", "reel-ferreras-lifestyle"), ("img", "cardress-audi"),
             ("img", "reloj-terciopelo"), ("img", "stand-ferreras"), ("vis", "control"), ("img", "evento-terraza"), ("img", "relojero-lupa"), ("vis", "horas")]
+PROJ_MKT = ["pj-estrategia", "pj-dron", "pj-podcast", "pj-producto", "pj-redes", "pj-publicidad", "pj-email", "pj-web", "pj-seo", "pj-eventos", "pj-imagen", "pj-analitica"]
 ANEL_IA = [("vis", "avisa"), ("vis", "consulta"), ("vis", "idiomas"), ("vis", "integra"), ("vis", "usted"), ("vis", "horas"),
            ("vis", "usted"), ("vis", "control"), ("vis", "control"), ("vis", "idiomas"), ("vis", "consulta"), ("vis", "horas")]
 
@@ -492,8 +490,8 @@ def anel(R, items, medias, rotulo):
 def projector(R, items, medias):
     """Doze serviços como fotogramas de uma película: à direita corre a tira com o scroll; o fotograma que passa pela
     janela do projector abre-se no ecrã inteiro com o seu nome. js/99-salas.js."""
-    telas = "".join(f'<figure class="pj-tela" data-pj-tela>{media_produto(R, m)}</figure>' for m in medias).replace(' loading="lazy"', '')
-    fotos = "".join(f'<span class="pj-f"><span>{media_produto(R, m)}</span><b>{ROMANOS[i]}</b></span>' for i, m in enumerate(medias))
+    telas = "".join(f'<figure class="pj-tela" data-pj-tela>{img(R, b, "", "100vw", lazy=(i > 1))}</figure>' for i, b in enumerate(medias))
+    fotos = "".join(f'<span class="pj-f"><span>{img(R, b, "", "190px")}</span><b>{ROMANOS[i]}</b></span>' for i, b in enumerate(medias))
     ts = "".join(f'<template data-pj-t="{i}"><p class="etiqueta">Fotograma {i + 1} de 12</p><h3>{e(t)}</h3><p>{e(d)}</p></template>' for i, (t, d) in enumerate(items))
     t0, d0 = items[0]
     lista = "".join(f"<li><b>{e(t)}</b> {e(d)}</li>" for t, d in items)
@@ -618,7 +616,7 @@ def marketing(R):
                      "Estrategia, producción audiovisual propia y distribución, dentro de su empresa.",
                      btn(R + DIAG, CTA) + btn("#hacemos", "Qué hacemos", "btn-linha btn-vidro", False), filme(R, "mkt"))
             + sec(cab("", "Qué hacemos", "Del plan <em>al plano.</em>") + f'<div class="pilares">{ph_}</div>', "p-pilares", ' id="hacemos"')
-            + sec(cab("", "Qué incluye", "Doce servicios, <em>doce horas.</em>", "Elija una hora. El alcance se decide en el diagnóstico y se cierra por escrito.") + projector(R, DOCE_MKT, ANEL_MKT), "p-sala")
+            + sec(cab("", "Qué incluye", "Doce servicios, <em>doce horas.</em>", "Elija una hora. El alcance se decide en el diagnóstico y se cierra por escrito.") + projector(R, DOCE_MKT, PROJ_MKT), "p-sala")
             + sec(f'<div class="grelha antes"><div class="antes-txt">{etq("", "La diferencia", "n")}<h2 class="titulo t-l" data-linhas>El mismo coche. <em>Contado por nosotros.</em></h2>'
                   f'<p class="lead" data-sube>Deslice la línea: de una ficha con doce fotos a una pieza que la gente comparte.</p><dl class="cifras-m">{ch}</dl></div>{rx}</div>')
             + banda("¿Cómo se ve su marca <em>desde fuera?</em>", "Lo vemos con usted en dos minutos, sin compromiso.", btn(R + DIAG, CTA), chips(CONDICIONES, "chips chips-cond")))
@@ -740,6 +738,8 @@ def sectores_idx(R):
     caps = "".join(sector_capitulo(R, i, k, v) for i, (k, v) in enumerate(SECTORES.items()))
     return (ph_media(R, "Sectores", L("Cuatro sectores,", "<em>vistos por dentro.</em>"), "Donde cada detalle se nota: hoteles, automoción, náutica y joyería.",
                      btn("#capitulos", "Ver los sectores"), filme(R, "auto"))
+            + sec(f'<div class="mapa" data-mapa><div class="mp-txt">{etq("", "Dónde trabajamos", "n")}<h2 class="titulo t-l" data-linhas>{L("Desde Barcelona,", "<em>hasta donde esté el cliente.</em>")}</h2>'
+                  f'<p class="lead" data-sube>La casa está en el Passeig de Gràcia. El equipo y los desplazamientos van incluidos: rodamos donde está su negocio.</p></div><figure class="mp-fig">{mapa_svg()}</figure></div>', "p-mapa")
             + sec(f'<div class="sxs">{caps}</div>', "sect-caps", ' id="capitulos"') + banda("¿Su sector <em>es otro?</em>", "Inmobiliaria premium, servicios profesionales o B2B: las ocho preguntas le dicen por dónde empezar.", btn(R + DIAG, CTA)))
 
 pagina("sectores/", "Sectores", "Hotelería, automoción de lujo, náutica y joyería: cuatro sectores que conocemos por dentro.", sectores_idx)

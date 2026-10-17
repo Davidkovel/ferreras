@@ -1568,3 +1568,28 @@ body[data-pagina="web"] .banda::after{display:none}
 .const:not(.vivo){height:auto}.const:not(.vivo) .ct-palco{position:relative;height:auto;padding:4rem var(--g)}.const:not(.vivo) .ct-txt{position:static;translate:none;width:auto}.const:not(.vivo) .ct-nos,.const:not(.vivo) .ct-linhas{display:none}
 @media (max-width:800px){.ct-txt{top:auto;bottom:clamp(2rem,8vh,4rem);translate:none;width:auto;right:var(--g)}.ct-no b{display:none}.ct-no.frente b{display:inline}}
 .pj-telas{z-index:0}
+/* ---------- 109 los dos mundos de la portada (en lugar del portal por el reloj) ---------- */
+.mundos{position:relative}
+.mn-cab{padding:clamp(5rem,14vh,9rem) var(--g) clamp(2rem,6vh,4rem);display:grid;justify-items:center;text-align:center;gap:1rem}
+.mundos .pt-mundo{position:relative;height:100svh;min-height:600px;overflow:hidden;isolation:isolate}
+.mundos .pt-mundo+.pt-mundo{margin-top:2px}
+.mundos .filme{position:absolute;inset:0}
+.mundos .pt-ia-fundo{z-index:0}
+/* ---------- 110 el mapa de los sectores (js/99-mapa.js) ---------- */
+.mapa{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:var(--g);align-items:center}
+.mp-txt{display:grid;gap:1.2rem}
+.mp-fig{margin:0;position:relative}
+.mapa-svg{width:100%;height:auto;overflow:hidden}
+.mp-p{fill:#17120d;stroke:rgba(214,188,134,.22);stroke-width:.8}
+.mp-p.mp-d{fill:#231b13;stroke:rgba(214,188,134,.45)}
+.mp-mar{font:italic 400 22px var(--serif);fill:rgba(214,188,134,.35);letter-spacing:.06em}
+.mp-rota{fill:none;stroke:var(--oro-2);stroke-width:1.6;stroke-dasharray:1;stroke-linecap:round}
+.mp-c{fill:var(--oro-2)}
+.mp-casa .mp-c{fill:#fff;stroke:var(--oro-2);stroke-width:3}
+.mp-onda{fill:none;stroke:var(--oro-2);stroke-width:1.2;opacity:0;transform-box:fill-box;transform-origin:center}
+.mapa.aceso .mp-onda{animation:mp-onda 2.6s var(--curva) infinite;animation-delay:calc(var(--i)*.5s)}
+@keyframes mp-onda{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(3.4)}}
+.mp-t{font:400 22px var(--serif);fill:var(--marfil)}
+.mp-s{font:500 12px var(--sans);letter-spacing:.08em;fill:rgba(243,230,220,.65)}
+@media (max-width:900px){.mapa{grid-template-columns:1fr}.mp-t{font-size:30px}.mp-s{font-size:17px}}
+.mp-fig{overflow:hidden;border-radius:6px;background:radial-gradient(80% 80% at 70% 60%,rgba(0,34,241,.06),transparent)}
