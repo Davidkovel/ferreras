@@ -429,6 +429,62 @@ CASO_FERRERAS = dict(id="ferreras", sector="joyeria-relojeria", sl="Marca propia
                      r="Un banco de pruebas permanente: lo que recomendamos lo hemos aplicado antes en casa.", ev=[])
 
 
+
+# ================================================================= O PRODUTO EM 3D: O TÚNEL DOS CASOS E O ANEL DOS SERVIÇOS
+def media_produto(R, m):
+    tipo, base = m
+    if tipo == "vis":
+        return vis(base)
+    if tipo == "poster":
+        return f'<img src="{R}video/{base}-poster.webp" alt="" loading="lazy" decoding="async">'
+    return img(R, base, "", "(min-width: 900px) 30vw, 60vw")
+
+
+SECTOR_NOME = {"automocion-lujo": "Automoción", "joyeria-relojeria": "Joyería", "hoteles": "Hoteles", "nautica": "Náutica", "b2b": "B2B"}
+
+
+def tunel(R):
+    """Os casos num túnel: a câmara avança com o scroll e cada caso vem do fundo, alternando os lados; o mais próximo
+    conta-se no painel. À direita, os sectores: tocar leva a câmara ao primeiro caso desse sector. js/97-tunel.js."""
+    n = len(CASOS)
+    cs, ts, pal = [], [], []
+    for i, c in enumerate(CASOS):
+        foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 46vw, 90vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
+        cs.append(f'<figure class="tn-caso" data-tn-caso data-sector="{c["sector"]}" style="--i:{i};--lado:{1 if i % 2 else -1}">{foto}</figure>')
+        pal.append(f'<p class="tn-pal" style="--i:{i};--lado:{-1 if i % 2 else 1}" aria-hidden="true">{e(SECTOR_NOME[c["sector"]])}</p>')
+        ev = "".join(f"<li>{e(x)}</li>" for x in c["ev"])
+        ts.append(f'<template data-tn-t="{i}"><p class="etiqueta">{e(c["sl"])}</p><h3>{e(c["t"])}</h3><p class="tn-r">{e(c["r"])}</p>{"<ul>" + ev + "</ul>" if ev else ""}</template>')
+    primeiro = {}
+    for i, c in enumerate(CASOS):
+        primeiro.setdefault(c["sector"], i)
+    rail = "".join(f'<li><button type="button" data-tn-ir="{i}">{e(SECTOR_NOME[k])}</button></li>' for k, i in primeiro.items())
+    c0 = CASOS[0]
+    ev0 = "".join(f"<li>{e(x)}</li>" for x in c0["ev"])
+    lista = "".join(f'<li><b>{e(c["sl"])}</b> {e(c["t"])}. {e(c["r"])}</li>' for c in CASOS)
+    return (f'<section class="tunel" id="casos" data-tunel style="--n:{n}"><div class="tn-palco"><div class="tn-cam" data-tn-cam><div class="tn-mundo" data-tn-mundo>{"".join(pal)}{"".join(cs)}</div></div>'
+            f'<div class="tn-info" data-tn-info aria-live="polite"><p class="etiqueta">{e(c0["sl"])}</p><h3>{e(c0["t"])}</h3><p class="tn-r">{e(c0["r"])}</p>{"<ul>" + ev0 + "</ul>" if ev0 else ""}</div>'
+            f'<nav class="tn-rail" aria-label="Ir a un sector"><ul>{rail}</ul><p class="tn-cont"><b data-tn-n>1</b> / {n}</p></nav></div>'
+            f'{"".join(ts)}<ul class="vh">{lista}</ul></section>')
+
+
+ANEL_MKT = [("img", "mecanismo-macro"), ("img", "sector-mar-puerto"), ("poster", "reel-diamantes"), ("img", "joya-morganita"), ("poster", "reel-ferreras-lifestyle"), ("img", "cardress-audi"),
+            ("img", "reloj-terciopelo"), ("img", "stand-ferreras"), ("vis", "control"), ("img", "evento-terraza"), ("img", "relojero-lupa"), ("vis", "horas")]
+ANEL_IA = [("vis", "avisa"), ("vis", "consulta"), ("vis", "idiomas"), ("vis", "integra"), ("vis", "usted"), ("vis", "horas"),
+           ("vis", "usted"), ("vis", "control"), ("vis", "control"), ("vis", "idiomas"), ("vis", "consulta"), ("vis", "horas")]
+
+
+def anel(R, items, medias, rotulo):
+    """Os doze serviços num anel 3D, como a luneta de um relógio: o scroll gira-o e o da frente conta-se por baixo.
+    js/97-tunel.js. Sem movimento fica uma lista legível."""
+    cs = "".join(f'<figure class="an-c" style="--i:{i}"><div class="an-m">{media_produto(R, m)}</div><figcaption><b>{ROMANOS[i]}</b><span>{e(t)}</span></figcaption></figure>'
+                 for i, ((t, _), m) in enumerate(zip(items, medias)))
+    ts = "".join(f'<template data-an-t="{i}"><p class="etiqueta">{ROMANOS[i]} · {i + 1} de 12</p><h3>{e(t)}</h3><p>{e(d)}</p></template>' for i, (t, d) in enumerate(items))
+    t0, d0 = items[0]
+    lista = "".join(f"<li><b>{e(t)}</b> {e(d)}</li>" for t, d in items)
+    return (f'<div class="anel" data-anel role="group" aria-label="{e(rotulo)}"><div class="an-palco"><div class="an-cena"><div class="an-roda" data-an-roda>{cs}</div></div>'
+            f'<div class="an-info" data-an-info aria-live="polite"><p class="etiqueta">XII · 1 de 12</p><h3>{e(t0)}</h3><p>{e(d0)}</p></div></div>{ts}<ul class="vh">{lista}</ul></div>')
+
+
 def caso_card(R, c, filtro=False):
     """Um caso num cartão de fotografia: sector, título e o resultado numa linha. Nada se abre nem se expande."""
     foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 56vw, 120vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
@@ -533,7 +589,7 @@ def marketing(R):
                      "Estrategia, producción audiovisual propia y distribución, dentro de su empresa.",
                      btn(R + DIAG, CTA) + btn("#hacemos", "Qué hacemos", "btn-linha btn-vidro", False), filme(R, "mkt"))
             + sec(cab("", "Qué hacemos", "Del plan <em>al plano.</em>") + f'<div class="pilares">{ph_}</div>', "p-pilares", ' id="hacemos"')
-            + sec(cab("", "Qué incluye", "Doce servicios, <em>doce horas.</em>", "Elija una hora. El alcance se decide en el diagnóstico y se cierra por escrito.") + doce(DOCE_MKT, "Los doce servicios de marketing"), "p-doce")
+            + sec(cab("", "Qué incluye", "Doce servicios, <em>doce horas.</em>", "Elija una hora. El alcance se decide en el diagnóstico y se cierra por escrito.") + anel(R, DOCE_MKT, ANEL_MKT, "Los doce servicios de marketing"), "p-anel")
             + sec(f'<div class="grelha antes"><div class="antes-txt">{etq("", "La diferencia", "n")}<h2 class="titulo t-l" data-linhas>El mismo coche. <em>Contado por nosotros.</em></h2>'
                   f'<p class="lead" data-sube>Deslice la línea: de una ficha con doce fotos a una pieza que la gente comparte.</p><dl class="cifras-m">{ch}</dl></div>{rx}</div>')
             + banda("¿Cómo se ve su marca <em>desde fuera?</em>", "Lo vemos con usted en dos minutos, sin compromiso.", btn(R + DIAG, CTA), chips(CONDICIONES, "chips chips-cond")))
@@ -565,7 +621,7 @@ def ia(R):
                      btn(R + DIAG, CTA) + btn("#hace", "Qué hace", "btn-linha btn-vidro", False), fundo_img(R, "yate-noche", "Un yate de noche con las luces del salón encendidas"),
                      sobre=f'<ul class="feed" data-feed aria-label="Ilustración: consultas que entran de noche">{fd}</ul>')
             + sec(cab("", "Qué hace", "Responde, consulta <em>y avisa.</em>") + f'<div class="pilares">{hh}</div>', "p-pilares", ' id="hace"')
-            + sec(cab("", "Qué incluye", "Doce piezas <em>de un mismo sistema.</em>", "Elija una hora. Qué se activa en su caso se decide después del análisis, no antes.") + doce(DOCE_IA, "Las doce piezas de inteligencia artificial"), "p-doce")
+            + sec(cab("", "Qué incluye", "Doce piezas <em>de un mismo sistema.</em>", "Elija una hora. Qué se activa en su caso se decide después del análisis, no antes.") + anel(R, DOCE_IA, ANEL_IA, "Las doce piezas de inteligencia artificial"), "p-anel")
             + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("", "Las 24 horas", "n")}<h2 class="titulo t-l" data-linhas>La consulta de las 23:40 <em>no es una consulta perdida.</em></h2><p class="lead" data-sube>Su equipo atiende de día. El agente, cuando la recepción está cerrada.</p></div></div>', "noche")
             + sec(demo, extra=' id="demo"')
             + banda("¿Qué hace hoy su equipo <em>que podría hacer un agente?</em>", "Lo vemos con usted en dos minutos, sin compromiso.", btn(R + DIAG, CTA) + btn(R + "ia-hoteles/", "El caso de hotelería", "btn-linha")))
@@ -669,8 +725,7 @@ def resultados(R):
         return "".join(f'<button type="button" data-f="{tipo}" data-v="{v}" aria-pressed="{str(v == "todos").lower()}">{e(t)}</button>' for v, t in lista)
     return (ph_media(R, "Casos", L("Lo que hicimos,", "<em>caso a caso.</em>"), "Cifras solo verificadas y autorizadas.",
                      btn("#casos", "Ver los casos"), filme(R, "interludio"))
-            + sec(f'<div data-filtros><div class="filtro-linha"><p class="filtro-rot">Sector</p><div class="filtros">{bs("sector", sectores_f)}</div></div><div class="filtro-linha"><p class="filtro-rot">Problema</p><div class="filtros">{bs("problema", problemas_f)}</div></div><p class="conteo" data-conteo>{len(CASOS)} casos</p></div>'
-                  + casos_grid(R, CASOS, True) + '<p class="mini nota-casos">Trabajo dirigido por Ferreras. Las cifras se publican una vez verificadas con el cliente.</p>', extra=' id="casos"')
+            + tunel(R)
             + sec(f'<div class="grelha marca-grid"><div class="marca-fotos"><figure class="f1 ventana" data-janela>{video(R, "reel-ferreras-lifestyle", "Campaña de Relojes Ferreras")}</figure><div class="f2 marca-reloj">{reloj_html(R, "-r")}</div></div><div class="marca-txt">{etq("", "Nuestra propia marca", "n")}<h2 class="titulo t-l" data-linhas>Lo probamos primero <em>con lo nuestro.</em></h2><p class="lead" data-sube>Cada método que le proponemos lo hemos aplicado antes a nuestra propia marca de relojes.</p><p data-sube>{enlace("https://relojes-ferreras.com/", "Ver Relojes Ferreras", True)}</p></div></div>', "claro marca", " data-claro")
             + banda("¿Algo parecido <em>en su sector?</em>", "Las ocho preguntas lo comparan con trabajos equivalentes.", btn(R + DIAG, CTA)))
 
