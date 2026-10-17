@@ -164,115 +164,6 @@ def diag_html(R):
 # Composição à maneira do De Antonio, adaptada aos blocos da Ferreras: âncoras alternadas à esquerda e à direita,
 # título e frase lado a lado, media fora do eixo ou a sair da margem, ar entre blocos, dois momentos de ecrã inteiro,
 # números enormes só em contorno por trás das imagens. Os percentuais são guia de ritmo, não regra.
-exec((RAIZ / "_fonte/despiece.py").read_text(encoding="utf-8"))
-
-
-def inicio(R):
-    ctl, pista = carril(R, TRABAJO, "Trabajos de producción propia")
-    return f'''
-<section class="hero hero-reloj" data-hero data-hero-3d data-hora="07:30" data-momento="Abre su empresa">
-  <figure class="hero-foto" aria-hidden="true">{img(R, 'reloj-terciopelo', '', '(min-width: 900px) 40vw, 80vw', lazy=False)}</figure>
-  <div class="hero-velo" aria-hidden="true"></div>
-  <div class="hero-grid">
-    <div class="hero-tit"><p class="etiqueta" style="--i:0"><span class="hora">07:30</span>Desde Barcelona</p>
-      <h1 class="titulo t-xxl" data-linhas>{L('Veinticuatro horas', 'a la altura', '<em>de su marca.</em>')}</h1></div>
-    <div class="hero-lado"><p class="lead" style="--i:1">Marketing de lujo mientras le miran. Inteligencia artificial mientras le escriben.</p>
-      <div class="acoes" style="--i:2">{btn('#diagnostico', CTA, extra=' data-vai')}{btn('#que-hacemos', 'Ver el día', 'btn-linha btn-vidro', False)}</div></div>
-  </div>
-  <p class="hero-pista" aria-hidden="true"><i></i>Arrastre el reloj para girarlo</p>
-</section>
-
-<section class="sec p-que" id="que-hacemos" data-hora="08:30" data-momento="Qué hacemos">
-  <div class="grelha p-que-cab">
-    <div class="p-que-tit" data-ruta-ini>{etq('08:30', 'El día empieza')}<h2 class="titulo t-l" data-linhas>{L('Dos equipos.', '<em>Un mismo reloj.</em>')}</h2></div>
-    <p class="lead p-que-lead" data-sube>Uno trabaja para que su marca se vea; el otro, para que ninguna consulta se quede sin contestar. Los dos, dentro de su empresa y con un solo plan.</p>
-  </div>
-  <div class="puertas">
-    <a class="puerta" href="{R}marketing/" data-sube><div class="ventana pu-media">{video(R, 'reel-tn-porsche', 'Porsche 911 GT3 RS negro en el estudio de TN Autosport')}</div>
-      <div class="pu-txt"><p class="etiqueta">Marketing</p><h3>Rodaje, redes <em>y estrategia.</em></h3>
-      <ul><li>Un plan de doce meses, por escrito</li><li>Equipo de rodaje propio: dron, cámaras y sonido</li><li>Redes, publicidad y email</li></ul><span class="enlace">Ver el departamento <span class="fl">→</span></span></div></a>
-    <a class="puerta" href="{R}inteligencia-artificial/" data-sube style="--i:1"><div class="ventana pu-media pu-dia"><figure class="dia24" data-dia24 aria-label="Las consultas de un día, hora a hora">{dia24_svg()}</figure></div>
-      <div class="pu-txt"><p class="etiqueta">Inteligencia artificial</p><h3>Respuesta <em>a cualquier hora.</em></h3>
-      <ul><li>Teléfono, WhatsApp, chat y email</li><li>Más de veinte idiomas</li><li>Una persona entra cuando hace falta</li></ul><span class="enlace">Ver el departamento <span class="fl">→</span></span></div></a>
-  </div>
-</section>
-
-<section class="sec prod p-prod" id="trabajo" data-hora="10:30" data-momento="Rodaje en el puerto">
-  <div class="grelha p-cab">
-    <div class="p-tit">{etq('10:30', 'Rodaje')}<h2 class="titulo t-l" data-linhas>{L('Lo rodamos nosotros.', '<em>Y se nota.</em>')}</h2></div>
-    <p class="lead p-lead" data-sube>Dron, cámaras, sonido e iluminación propios. El equipo viaja con cada proyecto.</p>
-  </div>
-  {pista}
-  <div class="grelha p-pe"><div class="prod-dado" data-sube><b><span data-conta="20000">20.000</span>–<span data-conta="300000">300.000</span></b><span>visitas de media por pieza en la línea editorial de un negocio de automoción deportiva</span></div>{ctl}</div>
-</section>
-
-<section class="interludio" data-ruta-tunel data-hora="12:00" data-momento="Lo que no se puede repetir">
-  {filme(R, 'interludio', 'lazy')}
-  <div class="int-velo" aria-hidden="true"></div>
-  <h2 class="titulo t-xl int-h" data-linhas>{L('Un buen plano', '<em>no se improvisa.</em>')}</h2>
-</section>
-
-<section class="sec mitades p-mit" data-hora="13:00" data-momento="El mismo barco, de día y de noche">
-  <div class="grelha p-mit-cab">
-    <p class="contorno mit-24" aria-hidden="true">24 h</p>
-    <div class="p-mit-tit">{etq('13:00', 'Mediodía')}<h2 class="titulo t-xl" data-linhas>{L('Cuando le miran, marketing.', '<em>Cuando le escriben, IA.</em>')}</h2><p class="lead" data-sube>Mueva la línea: el mismo barco, a pleno sol y de noche.</p></div>
-  </div>
-  <div class="rx rx-total" data-rx data-ruta-tunel role="slider" tabindex="0" aria-label="Del día a la noche: marketing e inteligencia artificial" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-    <div class="rx-capa rx-dia">{img(R, 'yate-completo', 'Yate de lujo fondeado en una cala de aguas turquesa, de día')}</div>
-    <div class="rx-capa rx-noche">{img(R, 'yate-noche', 'El mismo yate de noche, con las luces del salón encendidas')}</div>
-    <div class="rx-linha" aria-hidden="true"></div><div class="rx-pega" aria-hidden="true">↔</div>
-    <a class="rx-rot d" href="{R}marketing/"><b>Sol · Marketing</b><span>Que se le vea como es</span></a>
-    <a class="rx-rot n" href="{R}inteligencia-artificial/"><b>Noche · IA</b><span>Que siempre haya respuesta</span></a>
-  </div>
-</section>
-
-<section class="sec p-sect" data-hora="15:30" data-momento="Cuatro sectores">
-  <div class="cab p-sect-cab">{etq('15:30', 'Sectores')}<h2 class="titulo t-l" data-linhas>{L('Hoteles, motor, mar <em>y joyas.</em>')}</h2></div>
-  {sect_html(R)}
-</section>
-
-<section class="alcoba" data-alcoba data-ruta-tunel data-hora="16:45" data-momento="El reloj, en su vitrina" aria-label="Relojes Ferreras en su vitrina">
-  <div class="al-palco">
-    <div class="al-fondo" aria-hidden="true"></div>
-    <div class="al-nicho" data-al-nicho aria-hidden="true"><i></i></div>
-    <div class="al-cono" data-al-cono aria-hidden="true"></div>
-    <p class="al-grande" aria-hidden="true"><span data-al-grande>Ferreras</span></p>
-    <div class="al-reloj" data-al-reloj><div class="al-tilt" data-al-tilt>{despiece_html(R)}{reloj_html(R, "-a")}</div><div class="al-sombra" aria-hidden="true"></div></div>
-    <div class="al-polvo" data-al-polvo aria-hidden="true">{"".join(f"<i style='--x:{(i * 37) % 100}%;--y:{(i * 53 + 11) % 100}%;--s:{4 + (i * 7) % 9}px;--d:{(i % 5) * 0.12 + 0.45:.2f}'></i>" for i in range(16))}</div>
-    {lista_html()}
-    <div class="al-txt" data-al-txt>
-      <p class="etiqueta"><span class="hora">16:45</span>Relojes Ferreras</p>
-      <h2 class="titulo t-xl"><span class="al-l"><span>Diseño propio.</span></span><span class="al-l"><span>Mecanismo suizo.</span></span><span class="al-l"><span><em>Ensamblado en Barcelona.</em></span></span></h2>
-      <p class="lead al-l"><span>Una edición limitada a 100 piezas, nacida dentro de esta agencia.</span></p>
-    </div>
-    <div class="al-vela" data-al-vela aria-hidden="true"></div>
-  </div>
-</section>
-
-<section class="sec claro p-marca" data-claro data-hora="17:30" data-momento="Relojes Ferreras, nuestra marca">
-  <div class="grelha p-marca-cab"><div class="p-marca-tit">{etq('17:30', 'Marca propia')}<h2 class="titulo t-xl" data-linhas>{L('Una marca de relojes', '<em>nacida en esta agencia.</em>')}</h2></div></div>
-  <div class="grelha trofeus">
-    <figure class="trofeu t1"><span class="contorno" aria-hidden="true">100</span><div class="ventana" data-janela>{video(R, 'hero-ferreras-lifestyle', 'Campaña de Relojes Ferreras: un Aston Martin en una carretera de montaña nevada', 720, 1280)}</div><figcaption class="pie"><b>Edición limitada</b>A 100 piezas</figcaption></figure>
-    <figure class="trofeu t2"><span class="contorno" aria-hidden="true">BCN</span><div class="tr-reloj">{reloj_html(R, '-m')}</div><figcaption class="pie"><b>Ensamblaje en Barcelona</b>Diseño propio y mecanismo suizo</figcaption></figure>
-  </div>
-  <div class="grelha p-marca-pe"><p data-sube>{enlace('https://relojes-ferreras.com/', 'Conocer Relojes Ferreras', True)}</p><p class="marca-nota" data-sube>{mini_reloj()}El reloj que le acompaña en esta página es el nuestro.</p></div>
-</section>
-
-<section class="sec claro final p-final" id="diagnostico" data-claro data-hora="07:30" data-momento="Veinticuatro horas después">
-  <div class="grelha final-cab">
-    <div class="final-txt">{etq('07:30', 'Al día siguiente')}<h2 class="titulo t-xl" data-linhas>{L('Ocho preguntas.', '<em>Una recomendación.</em>')}</h2></div>
-    <p class="lead final-lead" data-sube>Dos minutos para saber por dónde empezar y qué dejar para después. Sin compromiso.</p>
-  </div>
-  {diag_html(R)}
-</section>
-'''
-
-pagina("", "IA & Marketing Ferreras · Veinticuatro horas a la altura de su marca",
-       "Un departamento de marketing y otro de inteligencia artificial montados dentro de su empresa, con un solo plan. Agencia de marketing de lujo en Barcelona: hotelería, automoción, náutica y joyería.",
-       inicio, inicio=True)
-
-
-
 # ================================================================= VISUAIS DA IA
 # A web antiga ilustrava a IA com imagens geradas de recepções de hotel. Aqui a IA mostra-se com o que faz: idiomas,
 # uma pergunta e a sua resposta (do guião de demonstração da própria web antiga), o aviso a uma pessoa, as horas que
@@ -375,6 +266,118 @@ def gama():
     return (f'<div class="gama" data-gama><div class="gm-linha" role="tablist" aria-label="Planes de web, a escala">{"".join(bts)}</div>'
             f'<div class="gm-fichas">{"".join(fichas)}</div>'
             f'<div class="gm-care"><p class="etiqueta">Ferreras Care</p><p>Una web publicada no es una web terminada. El mantenimiento es opcional y los accesos y el dominio son suyos desde el primer día.</p><ul>{care}</ul></div></div>')
+
+
+exec((RAIZ / "_fonte/despiece.py").read_text(encoding="utf-8"))
+
+
+def inicio(R):
+    ctl, pista = carril(R, TRABAJO, "Trabajos de producción propia")
+    return f'''
+<section class="hero hero-reloj" data-hero data-hero-3d data-hora="07:30" data-momento="Abre su empresa">
+  <figure class="hero-foto" aria-hidden="true">{img(R, 'reloj-terciopelo', '', '(min-width: 900px) 40vw, 80vw', lazy=False)}</figure>
+  <div class="hero-velo" aria-hidden="true"></div>
+  <div class="hero-grid">
+    <div class="hero-tit"><p class="etiqueta" style="--i:0"><span class="hora">07:30</span>Desde Barcelona</p>
+      <h1 class="titulo t-xxl" data-linhas>{L('Veinticuatro horas', 'a la altura', '<em>de su marca.</em>')}</h1></div>
+    <div class="hero-lado"><p class="lead" style="--i:1">Marketing de lujo mientras le miran. Inteligencia artificial mientras le escriben.</p>
+      <div class="acoes" style="--i:2">{btn('#diagnostico', CTA, extra=' data-vai')}{btn('#que-hacemos', 'Ver el día', 'btn-linha btn-vidro', False)}</div></div>
+  </div>
+  <p class="hero-pista" aria-hidden="true"><i></i>Arrastre el reloj para girarlo</p>
+</section>
+
+<section class="portal" id="que-hacemos" data-portal data-hora="08:30" data-momento="Qué hacemos">
+  <div class="pt-palco">
+    <div class="pt-mundo pt-ia" data-pt-ia>
+      <div class="pt-ia-fundo" aria-hidden="true">{vis("idiomas")}</div>
+      <div class="pt-txt pt-txt-d"><p class="etiqueta">Inteligencia artificial</p><h2 class="titulo t-xl">Respuesta <em>a cualquier hora.</em></h2>
+        <p class="lead">Teléfono, WhatsApp, chat y email, en más de veinte idiomas. Una persona entra cuando hace falta.</p>{enlace(R + 'inteligencia-artificial/', 'Entrar en IA')}</div>
+    </div>
+    <div class="pt-esfera pt-e2" data-pt-e2 aria-hidden="true"><img src="{R}img/dial-ferreras-2400.webp" alt="" width="2400" height="2400" loading="lazy" decoding="async"></div>
+    <div class="pt-mundo pt-mkt" data-pt-mkt>
+      {filme(R, 'mkt', 'pt-filme lazy')}
+      <div class="pt-txt"><p class="etiqueta">Marketing</p><h2 class="titulo t-xl">Rodaje, redes <em>y estrategia.</em></h2>
+        <p class="lead">Un plan de doce meses por escrito. Equipo de rodaje propio: dron, cámaras y sonido. Redes, publicidad y email.</p>{enlace(R + 'marketing/', 'Entrar en Marketing')}</div>
+    </div>
+    <div class="pt-esfera pt-e1" data-pt-e1 aria-hidden="true"><img src="{R}img/dial-ferreras-2400.webp" alt="" width="2400" height="2400" loading="lazy" decoding="async"></div>
+    <div class="pt-intro" data-pt-intro>{etq('08:30', 'El día empieza')}<h2 class="titulo t-l">{L('Dos equipos.', '<em>Un mismo reloj.</em>')}</h2><p class="lead">Baje: se entra por el corazón del reloj.</p></div>
+  </div>
+</section>
+
+<section class="sec prod p-prod" id="trabajo" data-hora="10:30" data-momento="Rodaje en el puerto">
+  <div class="grelha p-cab">
+    <div class="p-tit">{etq('10:30', 'Rodaje')}<h2 class="titulo t-l" data-linhas>{L('Lo rodamos nosotros.', '<em>Y se nota.</em>')}</h2></div>
+    <p class="lead p-lead" data-sube>Dron, cámaras, sonido e iluminación propios. El equipo viaja con cada proyecto.</p>
+  </div>
+  {pista}
+  <div class="grelha p-pe"><div class="prod-dado" data-sube><b><span data-conta="20000">20.000</span>–<span data-conta="300000">300.000</span></b><span>visitas de media por pieza en la línea editorial de un negocio de automoción deportiva</span></div>{ctl}</div>
+</section>
+
+<section class="interludio" data-ruta-tunel data-hora="12:00" data-momento="Lo que no se puede repetir">
+  {filme(R, 'interludio', 'lazy')}
+  <div class="int-velo" aria-hidden="true"></div>
+  <h2 class="titulo t-xl int-h" data-linhas>{L('Un buen plano', '<em>no se improvisa.</em>')}</h2>
+</section>
+
+<section class="sec mitades p-mit" data-hora="13:00" data-momento="El mismo barco, de día y de noche">
+  <div class="grelha p-mit-cab">
+    <p class="contorno mit-24" aria-hidden="true">24 h</p>
+    <div class="p-mit-tit">{etq('13:00', 'Mediodía')}<h2 class="titulo t-xl" data-linhas>{L('Cuando le miran, marketing.', '<em>Cuando le escriben, IA.</em>')}</h2><p class="lead" data-sube>Mueva la línea: el mismo barco, a pleno sol y de noche.</p></div>
+  </div>
+  <div class="rx rx-total" data-rx data-ruta-tunel role="slider" tabindex="0" aria-label="Del día a la noche: marketing e inteligencia artificial" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+    <div class="rx-capa rx-dia">{img(R, 'yate-completo', 'Yate de lujo fondeado en una cala de aguas turquesa, de día')}</div>
+    <div class="rx-capa rx-noche">{img(R, 'yate-noche', 'El mismo yate de noche, con las luces del salón encendidas')}</div>
+    <div class="rx-linha" aria-hidden="true"></div><div class="rx-pega" aria-hidden="true">↔</div>
+    <a class="rx-rot d" href="{R}marketing/"><b>Sol · Marketing</b><span>Que se le vea como es</span></a>
+    <a class="rx-rot n" href="{R}inteligencia-artificial/"><b>Noche · IA</b><span>Que siempre haya respuesta</span></a>
+  </div>
+</section>
+
+<section class="sec p-sect" data-hora="15:30" data-momento="Cuatro sectores">
+  <div class="cab p-sect-cab">{etq('15:30', 'Sectores')}<h2 class="titulo t-l" data-linhas>{L('Hoteles, motor, mar <em>y joyas.</em>')}</h2></div>
+  {sect_html(R)}
+</section>
+
+<section class="alcoba" data-alcoba data-ruta-tunel data-hora="16:45" data-momento="El reloj, en su vitrina" aria-label="Relojes Ferreras en su vitrina">
+  <div class="al-palco">
+    <div class="al-fondo" aria-hidden="true"></div>
+    <div class="al-nicho" data-al-nicho aria-hidden="true"><i></i></div>
+    <div class="al-cono" data-al-cono aria-hidden="true"></div>
+    <p class="al-grande" aria-hidden="true"><span data-al-grande>Ferreras</span></p>
+    <div class="al-reloj" data-al-reloj><div class="al-tilt" data-al-tilt>{despiece_html(R)}{reloj_html(R, "-a")}</div><div class="al-sombra" aria-hidden="true"></div></div>
+    <div class="al-polvo" data-al-polvo aria-hidden="true">{"".join(f"<i style='--x:{(i * 37) % 100}%;--y:{(i * 53 + 11) % 100}%;--s:{4 + (i * 7) % 9}px;--d:{(i % 5) * 0.12 + 0.45:.2f}'></i>" for i in range(16))}</div>
+    {lista_html()}
+    <div class="al-txt" data-al-txt>
+      <p class="etiqueta"><span class="hora">16:45</span>Relojes Ferreras</p>
+      <h2 class="titulo t-xl"><span class="al-l"><span>Diseño propio.</span></span><span class="al-l"><span>Mecanismo suizo.</span></span><span class="al-l"><span><em>Ensamblado en Barcelona.</em></span></span></h2>
+      <p class="lead al-l"><span>Una edición limitada a 100 piezas, nacida dentro de esta agencia.</span></p>
+    </div>
+    <div class="al-vela" data-al-vela aria-hidden="true"></div>
+  </div>
+</section>
+
+<section class="sec claro p-marca" data-claro data-hora="17:30" data-momento="Relojes Ferreras, nuestra marca">
+  <div class="grelha p-marca-cab"><div class="p-marca-tit">{etq('17:30', 'Marca propia')}<h2 class="titulo t-xl" data-linhas>{L('Una marca de relojes', '<em>nacida en esta agencia.</em>')}</h2></div></div>
+  <div class="grelha trofeus">
+    <figure class="trofeu t1"><span class="contorno" aria-hidden="true">100</span><div class="ventana" data-janela>{video(R, 'hero-ferreras-lifestyle', 'Campaña de Relojes Ferreras: un Aston Martin en una carretera de montaña nevada', 720, 1280)}</div><figcaption class="pie"><b>Edición limitada</b>A 100 piezas</figcaption></figure>
+    <figure class="trofeu t2"><span class="contorno" aria-hidden="true">BCN</span><div class="tr-reloj">{reloj_html(R, '-m')}</div><figcaption class="pie"><b>Ensamblaje en Barcelona</b>Diseño propio y mecanismo suizo</figcaption></figure>
+  </div>
+  <div class="grelha p-marca-pe"><p data-sube>{enlace('https://relojes-ferreras.com/', 'Conocer Relojes Ferreras', True)}</p><p class="marca-nota" data-sube>{mini_reloj()}El reloj que le acompaña en esta página es el nuestro.</p></div>
+</section>
+
+<section class="sec claro final p-final" id="diagnostico" data-claro data-hora="07:30" data-momento="Veinticuatro horas después">
+  <div class="grelha final-cab">
+    <div class="final-txt">{etq('07:30', 'Al día siguiente')}<h2 class="titulo t-xl" data-linhas>{L('Ocho preguntas.', '<em>Una recomendación.</em>')}</h2></div>
+    <p class="lead final-lead" data-sube>Dos minutos para saber por dónde empezar y qué dejar para después. Sin compromiso.</p>
+  </div>
+  {diag_html(R)}
+</section>
+'''
+
+pagina("", "IA & Marketing Ferreras · Veinticuatro horas a la altura de su marca",
+       "Un departamento de marketing y otro de inteligencia artificial montados dentro de su empresa, con un solo plan. Agencia de marketing de lujo en Barcelona: hotelería, automoción, náutica y joyería.",
+       inicio, inicio=True)
+
 
 
 # ================================================================= CASOS (dados partilhados)
@@ -485,6 +488,32 @@ def anel(R, items, medias, rotulo):
             f'<div class="an-info" data-an-info aria-live="polite"><p class="etiqueta">XII · 1 de 12</p><h3>{e(t0)}</h3><p>{e(d0)}</p></div></div>{ts}<ul class="vh">{lista}</ul></div>')
 
 
+
+def projector(R, items, medias):
+    """Doze serviços como fotogramas de uma película: à direita corre a tira com o scroll; o fotograma que passa pela
+    janela do projector abre-se no ecrã inteiro com o seu nome. js/99-salas.js."""
+    telas = "".join(f'<figure class="pj-tela" data-pj-tela>{media_produto(R, m)}</figure>' for m in medias).replace(' loading="lazy"', '')
+    fotos = "".join(f'<span class="pj-f"><span>{media_produto(R, m)}</span><b>{ROMANOS[i]}</b></span>' for i, m in enumerate(medias))
+    ts = "".join(f'<template data-pj-t="{i}"><p class="etiqueta">Fotograma {i + 1} de 12</p><h3>{e(t)}</h3><p>{e(d)}</p></template>' for i, (t, d) in enumerate(items))
+    t0, d0 = items[0]
+    lista = "".join(f"<li><b>{e(t)}</b> {e(d)}</li>" for t, d in items)
+    return (f'<div class="proj" data-proj><div class="pj-palco"><div class="pj-telas">{telas}</div><div class="pj-velo" aria-hidden="true"></div>'
+            f'<div class="pj-txt" data-pj-txt aria-live="polite"><p class="etiqueta">Fotograma 1 de 12</p><h3>{e(t0)}</h3><p>{e(d0)}</p></div>'
+            f'<div class="pj-tira" aria-hidden="true"><div class="pj-rolo" data-pj-rolo>{fotos}</div><i class="pj-janela"></i></div>'
+            f'<p class="pj-tc" aria-hidden="true"><b></b>REC <span data-pj-tc>00:00:00:00</span></p></div>{ts}<ul class="vh">{lista}</ul></div>')
+
+
+def constelacao(items):
+    """Doze pontos numa esfera, ligados como uma constelação; o scroll gira-a e o ponto que chega à frente acende-se e
+    conta-se ao lado. Posições projectadas em js/99-salas.js (só transform e opacity)."""
+    nos = "".join(f'<span class="ct-no" data-ct-no><i></i><b>{e(t)}</b></span>' for t, _ in items)
+    ts = "".join(f'<template data-ct-t="{i}"><p class="etiqueta">{ROMANOS[i]} · {i + 1} de 12</p><h3>{e(t)}</h3><p>{e(d)}</p></template>' for i, (t, d) in enumerate(items))
+    t0, d0 = items[0]
+    lista = "".join(f"<li><b>{e(t)}</b> {e(d)}</li>" for t, d in items)
+    return (f'<div class="const" data-const><div class="ct-palco"><svg class="ct-linhas" data-ct-linhas aria-hidden="true"></svg><div class="ct-nos">{nos}</div>'
+            f'<div class="ct-txt" data-ct-txt aria-live="polite"><p class="etiqueta">XII · 1 de 12</p><h3>{e(t0)}</h3><p>{e(d0)}</p></div></div>{ts}<ul class="vh">{lista}</ul></div>')
+
+
 def caso_card(R, c, filtro=False):
     """Um caso num cartão de fotografia: sector, título e o resultado numa linha. Nada se abre nem se expande."""
     foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 56vw, 120vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
@@ -589,7 +618,7 @@ def marketing(R):
                      "Estrategia, producción audiovisual propia y distribución, dentro de su empresa.",
                      btn(R + DIAG, CTA) + btn("#hacemos", "Qué hacemos", "btn-linha btn-vidro", False), filme(R, "mkt"))
             + sec(cab("", "Qué hacemos", "Del plan <em>al plano.</em>") + f'<div class="pilares">{ph_}</div>', "p-pilares", ' id="hacemos"')
-            + sec(cab("", "Qué incluye", "Doce servicios, <em>doce horas.</em>", "Elija una hora. El alcance se decide en el diagnóstico y se cierra por escrito.") + anel(R, DOCE_MKT, ANEL_MKT, "Los doce servicios de marketing"), "p-anel")
+            + sec(cab("", "Qué incluye", "Doce servicios, <em>doce horas.</em>", "Elija una hora. El alcance se decide en el diagnóstico y se cierra por escrito.") + projector(R, DOCE_MKT, ANEL_MKT), "p-sala")
             + sec(f'<div class="grelha antes"><div class="antes-txt">{etq("", "La diferencia", "n")}<h2 class="titulo t-l" data-linhas>El mismo coche. <em>Contado por nosotros.</em></h2>'
                   f'<p class="lead" data-sube>Deslice la línea: de una ficha con doce fotos a una pieza que la gente comparte.</p><dl class="cifras-m">{ch}</dl></div>{rx}</div>')
             + banda("¿Cómo se ve su marca <em>desde fuera?</em>", "Lo vemos con usted en dos minutos, sin compromiso.", btn(R + DIAG, CTA), chips(CONDICIONES, "chips chips-cond")))
@@ -621,7 +650,7 @@ def ia(R):
                      btn(R + DIAG, CTA) + btn("#hace", "Qué hace", "btn-linha btn-vidro", False), fundo_img(R, "yate-noche", "Un yate de noche con las luces del salón encendidas"),
                      sobre=f'<ul class="feed" data-feed aria-label="Ilustración: consultas que entran de noche">{fd}</ul>')
             + sec(cab("", "Qué hace", "Responde, consulta <em>y avisa.</em>") + f'<div class="pilares">{hh}</div>', "p-pilares", ' id="hace"')
-            + sec(cab("", "Qué incluye", "Doce piezas <em>de un mismo sistema.</em>", "Elija una hora. Qué se activa en su caso se decide después del análisis, no antes.") + anel(R, DOCE_IA, ANEL_IA, "Las doce piezas de inteligencia artificial"), "p-anel")
+            + sec(cab("", "Qué incluye", "Doce piezas <em>de un mismo sistema.</em>", "Elija una hora. Qué se activa en su caso se decide después del análisis, no antes.") + constelacao(DOCE_IA), "p-sala")
             + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("", "Las 24 horas", "n")}<h2 class="titulo t-l" data-linhas>La consulta de las 23:40 <em>no es una consulta perdida.</em></h2><p class="lead" data-sube>Su equipo atiende de día. El agente, cuando la recepción está cerrada.</p></div></div>', "noche")
             + sec(demo, extra=' id="demo"')
             + banda("¿Qué hace hoy su equipo <em>que podría hacer un agente?</em>", "Lo vemos con usted en dos minutos, sin compromiso.", btn(R + DIAG, CTA) + btn(R + "ia-hoteles/", "El caso de hotelería", "btn-linha")))
