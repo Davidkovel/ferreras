@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "12"
+VERSAO = "13"
 Q = '"'
 CTA = "Hablemos de su marca"
 
@@ -309,7 +309,10 @@ def pagina(rota, titulo, desc, corpo, inicio=False):
     # a rota do coche (home, computador): estrada em SVG, rasto de luz num canvas, o coche por cima (js/45-ruta.js)
     rt = ('<div class="ruta" data-ruta aria-hidden="true"><svg class="ruta-svg" data-ruta-svg><path class="ruta-p" data-ruta-p d=""/></svg>'
           f'<div class="coche-w" data-coche><span class="feixe"></span>{coche_svg("-r")}</div></div><canvas class="ruta-luz" data-ruta-luz aria-hidden="true"></canvas>') if inicio else ""
-    doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{rt}{corpo(R)}\n</main>\n{rodape(R)}{s}\n</body>\n</html>\n"
+    # o reloj 3D da vitrina (só na portada): mapa de importação para o Three.js de vendor/ e o módulo, que carrega tarde
+    m3 = (f'<script type="importmap">{{"imports":{{"three":"./{R}vendor/three/three.module.min.js","three/addons/":"./{R}vendor/three/addons/"}}}}</script>'
+          f'<script type="module" src="{R}js/93-reloj3d.js?v={VERSAO}"></script>') if inicio else ""
+    doc = head(R, titulo, desc, rota) + f"<body{cls}>\n{ab}{cabecera(R, rota)}<main id=\"contenido\">\n{rt}{corpo(R)}\n</main>\n{rodape(R)}{s}{m3}\n</body>\n</html>\n"
     if rota in ("diagnostico/", "contacto/"):
         doc = doc.replace('<div class="barra-dx" data-barra>', '<div class="barra-dx" data-barra hidden>')
     destino = RAIZ / rota / "index.html"

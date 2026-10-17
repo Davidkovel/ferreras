@@ -87,6 +87,26 @@
     b.addEventListener('pointerleave', () => { gsap.to(b, { x: 0, y: 0, duration: 0.9, ease: 'elastic.out(1, 0.45)' }); });
   });
 
+  /* ---------- cursor: un aro que sigue al ratón con retardo, crece sobre lo que se pulsa y dice qué hace
+     (awwwards-3d, patrón 18). Es un añadido: el cursor del sistema sigue ahí y en pantallas táctiles no existe ---------- */
+  if (raton) {
+    const cur = document.createElement('div');
+    cur.className = 'cursor'; cur.setAttribute('aria-hidden', 'true'); cur.innerHTML = '<span></span>';
+    document.body.append(cur);
+    const rot = cur.firstChild;
+    const cx = gsap.quickTo(cur, 'x', { duration: 0.35, ease: 'power3' }), cy = gsap.quickTo(cur, 'y', { duration: 0.35, ease: 'power3' });
+    addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; cx(e.clientX); cy(e.clientY); cur.classList.add('on'); }, { passive: true });
+    document.addEventListener('pointerleave', () => cur.classList.remove('on'));
+    const diz = (el) => (el.closest('.carril') ? 'Arrastrar' : el.closest('[data-rx]') ? 'Deslizar' : el.closest('.sect a, .cc, .puerta, .marca-c, .pilar') ? 'Ver' : '');
+    document.addEventListener('pointerover', (e) => {
+      const alvo = e.target.closest('a, button, [data-rx], .carril, label, input, textarea');
+      const t = alvo ? diz(e.target) : '';
+      cur.classList.toggle('sobre', !!alvo);
+      cur.classList.toggle('com-rotulo', !!t);
+      if (t && rot.textContent !== t) rot.textContent = t;
+    });
+  }
+
   // cuando el núcleo vuelve a medir (imágenes, fuentes), los disparadores también
   addEventListener('load', () => ScrollTrigger.refresh());
 })();

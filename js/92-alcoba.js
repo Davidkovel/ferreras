@@ -17,6 +17,8 @@
   const capa = (c) => capas.find((x) => x.classList.contains(c));
   const rotor = $('svg', capa('dz-rotor'));
   // orden de montaje: [capas que bajan juntas, paso de la lista que se enciende]
+  // o estado que o reloj 3D (93-reloj3d.js) persegue: a mesma linha de tempo move o desenho e o 3D
+  const R3 = (window.FERRERAS_3D = { entra: 0, tiltX: 62, tiltZ: -28, rotor: 0, lado: 0, zoom: 0, mx: 0, my: 0, p0: 1, p1: 1, p2: 1, p3: 1, p4: 1, p5: 1, p6: 1 });
   const MONTA = [[['dz-fondo', 'dz-rotor'], 0], [['dz-calibre'], 1], [['dz-caixa', 'dz-esfera'], 2], [['dz-agujas'], 3], [['dz-cristal'], 4]];
 
   gsap.matchMedia().add({ g: '(min-width: 801px)', m: '(max-width: 800px)' }, ({ conditions: { g } }) => {
@@ -30,13 +32,17 @@
       .fromTo(lista, { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.9 }, 1.3)
       .fromTo(grande, { xPercent: 12, opacity: 0 }, { xPercent: -12, opacity: 1, duration: 14 }, 0)
       .fromTo(polvo, { yPercent: 12 }, { yPercent: -26, duration: 14 }, 0)
-      .fromTo(rotor, { rotation: 0 }, { rotation: 720, transformOrigin: '50% 50%', duration: 7 }, 0);
+      .fromTo(rotor, { rotation: 0 }, { rotation: 720, transformOrigin: '50% 50%', duration: 7 }, 0)
+      .fromTo(R3, { entra: 0 }, { entra: 1, duration: 2.2, ease: 'power3.out' }, 0.3)
+      .fromTo(R3, { tiltX: 62, tiltZ: -28 }, { tiltX: 0, tiltZ: 0, duration: 4.6, ease: 'power1.inOut' }, 2.4)
+      .fromTo(R3, { rotor: 0 }, { rotor: Math.PI * 4, duration: 7 }, 0);
     capas.forEach((c) => gsap.set(c, { z: +c.dataset.z * (g ? 1 : 0.7) }));
     gsap.set(vivo, { opacity: 0 });
     // 2. pieza a pieza: cada capa baja a su sitio y la lista marca la que se ha colocado
     MONTA.forEach(([cls, k], i) => {
       const t = 2.6 + i * 0.85;
       tl.to(cls.map(capa), { z: (j, el) => capas.indexOf(el) * 0.6, duration: 1, ease: 'power3.inOut' }, t)
+        .to(R3, Object.fromEntries(cls.map((c) => ['p' + capas.indexOf(capa(c)), 0]).concat([['duration', 1], ['ease', 'power3.inOut']])), t)
         .to(pasos[k], { opacity: 1, duration: 0.4 }, t + 0.5);
     });
     tl.fromTo(pe, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6 }, 7)
@@ -46,11 +52,13 @@
       .to(lista, { opacity: 0, x: -24, duration: 0.7 }, 7.9)
       // 4. el reloj se aparta y el texto entra línea a línea
       .to(reloj, { xPercent: g ? 64 : 0, yPercent: g ? 0 : -24, scale: g ? 0.96 : 0.7, duration: 1.8, ease: 'power2.inOut' }, 8.2)
+      .fromTo(R3, { lado: 0 }, { lado: 1, duration: 1.8, ease: 'power2.inOut' }, 8.2)
       .fromTo(etq, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.8 }, 8.7)
       .fromTo(linhas, { yPercent: 112 }, { yPercent: 0, duration: 1, stagger: 0.32, ease: 'power3.out' }, 8.9)
       // 5. (pausa para leer) la cámara entra en la esfera y todo se funde en marfil
       .to(txt, { opacity: 0, y: -40, duration: 1 }, 10.9)
       .to(reloj, { xPercent: 0, yPercent: 0, scale: g ? 4.4 : 3.8, duration: 2.4, ease: 'power2.in' }, 11.1)
+      .to(R3, { lado: 0, zoom: 1, duration: 2.4, ease: 'power2.in' }, 11.1)
       .to([nicho, grande], { scale: 1.5, opacity: 0, duration: 2, ease: 'power2.in' }, 11.3)
       .to(cono, { opacity: 0, duration: 1.3 }, 11.5)
       .to(vela, { opacity: 1, duration: 1.1 }, 13)
@@ -70,7 +78,8 @@
     sec.addEventListener('pointermove', (e) => {
       const nx = e.clientX / innerWidth - 0.5, ny = e.clientY / innerHeight - 0.5;
       ry(nx * 18); rx(-ny * 14); px(nx * -60); py(ny * -40); gx(nx * 36); fx(nx * -16); fy(ny * -10);
+      if (window.FERRERAS_3D) { FERRERAS_3D.mx = nx; FERRERAS_3D.my = ny; }
     }, { passive: true });
-    sec.addEventListener('pointerleave', () => { ry(0); rx(0); px(0); py(0); gx(0); fx(0); fy(0); });
+    sec.addEventListener('pointerleave', () => { ry(0); rx(0); px(0); py(0); gx(0); fx(0); fy(0); if (window.FERRERAS_3D) FERRERAS_3D.mx = FERRERAS_3D.my = 0; });
   }
 })();

@@ -1206,3 +1206,16 @@ img.prof{scale:1.16;translate:0 var(--py,0)}
 .pu-dia{display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#221b14,#0d0b09 70%)}
 .pu-dia .dia24{grid-column:auto;width:78%;margin:0}
 html,body{overflow-x:clip}
+/* ---------- 98 el reloj 3D (js/93-reloj3d.js) ocupa el sitio del dibujado cuando hay WebGL2 ---------- */
+.al-3d{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;opacity:0;transition:opacity var(--t-cena) var(--curva)}
+.com-3d .al-3d{opacity:1}
+.com-3d .al-reloj{visibility:hidden}
+/* ---------- 99 cursor con rótulo y grano de película (awwwards-3d: patrón 18 y pase de grano, aquí en CSS) ---------- */
+.cursor{position:fixed;left:0;top:0;z-index:90;width:0;height:0;pointer-events:none;opacity:0;transition:opacity var(--t-toque) linear}
+.cursor.on{opacity:1}
+.cursor span{position:absolute;left:-34px;top:-34px;width:68px;height:68px;border-radius:50%;border:1.5px solid rgba(214,188,134,.95);display:grid;place-items:center;font:500 .66rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:transparent;transform:scale(.2);transition:transform var(--t-entra) var(--curva),background var(--t-toque) linear,color var(--t-toque) linear,border-color var(--t-toque) linear}
+.cursor.sobre span{transform:scale(.62)}
+.cursor.com-rotulo span{transform:scale(1);background:rgba(214,188,134,.94);border-color:transparent;color:#16110b}
+body::after{content:'';position:fixed;inset:-50%;z-index:89;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grano 1s steps(5) infinite}
+@keyframes grano{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
+@media (prefers-reduced-motion:reduce){body::after{animation:none}}
