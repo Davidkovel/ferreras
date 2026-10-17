@@ -234,6 +234,23 @@ def inicio(R):
   {sect_html(R)}
 </section>
 
+<section class="alcoba" data-alcoba data-ruta-tunel data-hora="16:45" data-momento="El reloj, en su vitrina" aria-label="Relojes Ferreras en su vitrina">
+  <div class="al-palco">
+    <div class="al-fondo" aria-hidden="true"></div>
+    <div class="al-nicho" data-al-nicho aria-hidden="true"><i></i></div>
+    <div class="al-cono" data-al-cono aria-hidden="true"></div>
+    <p class="al-grande" aria-hidden="true"><span data-al-grande>Ferreras</span></p>
+    <div class="al-reloj" data-al-reloj><div class="al-tilt" data-al-tilt>{reloj_html(R, "-a")}</div><div class="al-sombra" aria-hidden="true"></div></div>
+    <div class="al-polvo" data-al-polvo aria-hidden="true">{"".join(f"<i style='--x:{(i * 37) % 100}%;--y:{(i * 53 + 11) % 100}%;--s:{4 + (i * 7) % 9}px;--d:{(i % 5) * 0.12 + 0.45:.2f}'></i>" for i in range(16))}</div>
+    <div class="al-txt" data-al-txt>
+      <p class="etiqueta"><span class="hora">16:45</span>Relojes Ferreras</p>
+      <h2 class="titulo t-xl"><span class="al-l"><span>Diseño propio.</span></span><span class="al-l"><span>Mecanismo suizo.</span></span><span class="al-l"><span><em>Ensamblado en Barcelona.</em></span></span></h2>
+      <p class="lead al-l"><span>Una edición limitada a 100 piezas, nacida dentro de esta agencia.</span></p>
+    </div>
+    <div class="al-vela" data-al-vela aria-hidden="true"></div>
+  </div>
+</section>
+
 <section class="sec claro p-marca" data-claro data-hora="17:30" data-momento="Relojes Ferreras, nuestra marca">
   <div class="grelha p-marca-cab"><div class="p-marca-tit">{etq('17:30', 'Marca propia')}<h2 class="titulo t-xl" data-linhas>{L('Sabemos crear una marca.', '<em>Por eso tenemos la nuestra.</em>')}</h2></div></div>
   <div class="grelha trofeus">

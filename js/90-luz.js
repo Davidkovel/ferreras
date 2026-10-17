@@ -54,7 +54,7 @@
   }
 
   /* ---------- el reflejo que cruza el cristal del reloj grande con el scroll ---------- */
-  $$('.marca-reloj .reloj, .trofeu .reloj').forEach((r) => {
+  $$('.marca-reloj .reloj, .trofeu .reloj, .al-reloj .reloj').forEach((r) => {
     const d = document.createElement('div');
     d.className = 'destello'; d.setAttribute('aria-hidden', 'true');
     r.append(d);
@@ -66,6 +66,9 @@
     im.classList.add('prof');
     gsap.fromTo(im, { '--py': '-7%' }, { '--py': '7%', ease: 'none', scrollTrigger: { trigger: im.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
+
+  /* ---------- las cifras en contorno (24 h, 100, BCN) derivan despacio: van por detrás de todo ---------- */
+  $$('.contorno').forEach((c, i) => gsap.fromTo(c, { '--dx': (i % 2 ? -6 : 6) + 'vw' }, { '--dx': (i % 2 ? 6 : -6) + 'vw', ease: 'none', scrollTrigger: { trigger: c.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } }));
 
   /* ---------- títulos: la palabra en oro recibe un reflejo cuando entra ---------- */
   $$('.titulo em').forEach((em) => {
