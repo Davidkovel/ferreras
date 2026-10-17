@@ -3,8 +3,6 @@
    (93-reloj3d.js, modo «mini») recibe su nombre por el evento «ferreras:secao». */
 (() => {
   const { $, $$, reduz } = SITE;
-  // segurança: se o relógio 3D não chegar, o título aparece na mesma
-  setTimeout(() => { const h = $('[data-hero]'); if (h) h.classList.add('texto-on'); }, 4500);
   if (!$('[data-hero]') || !window.gsap) return;
   const links = $$('.topo-lado a');
   const link = (h) => links.find((a) => (a.getAttribute('href') || '').replace(/^\.\//, '') === h);

@@ -20,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "37"
+VERSAO = "36"
 Q = '"'
 CTA = "Hablemos de su marca"
 
@@ -245,7 +245,7 @@ def head(R, titulo, desc, rota):
 <link rel="preload" href="{R}fonts/bodoni.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{R}fonts/jost.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{R}estilo.css?v={VERSAO}">
-<script>document.documentElement.classList.add('js');try{{if(sessionStorage.getItem('ferreras.abertura')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches||!!document.createElement('canvas').getContext('webgl2'))document.documentElement.classList.add('sem-abertura');if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!!document.createElement('canvas').getContext('webgl2'))document.documentElement.classList.add('espera-3d')}}catch(e){{}}</script>
+<script>document.documentElement.classList.add('js');try{{if(sessionStorage.getItem('ferreras.abertura')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('sem-abertura')}}catch(e){{}}</script>
 <script type="application/ld+json">{json.dumps(org, ensure_ascii=False)}</script>
 </head>
 '''
