@@ -167,6 +167,21 @@ async function arranca(modo) {
   const aro = new THREE.Mesh(new THREE.LatheGeometry(perfil, 160), oro.clone()); aro.material.side = THREE.DoubleSide; aro.rotation.x = Math.PI / 2; caixa.add(aro);
   [[-0.36, 1], [0.36, 1], [-0.36, -1], [0.36, -1]].forEach(([x, s]) => { const a = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.22, 0.07, 2, 2, 2), oro); a.position.set(x, s * 1.05, -0.035); caixa.add(a); });
   const coroa = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.14, 40), oro); coroa.rotation.z = Math.PI / 2; coroa.position.set(1.13, 0, -0.02); caixa.add(coroa);
+  // o bracelete: elos de aço com o elo central dourado, presos às asas e a fechar-se para trás, como num expositor
+  const eloAco = new THREE.BoxGeometry(0.26, 0.15, 0.07, 1, 1, 1), eloOro = new THREE.BoxGeometry(0.24, 0.15, 0.075);
+  const bracelete = new THREE.Group();
+  [1, -1].forEach((sgn) => {
+    for (let k = 0; k < 12; k++) {
+      const a = 0.12 + k * 0.205, Rb = 0.95;
+      const elo = new THREE.Group();
+      elo.position.set(0, sgn * (1.18 + Rb * Math.sin(a)), -0.035 - Rb * (1 - Math.cos(a)));
+      elo.rotation.x = -sgn * a;
+      [-0.26, 0.26].forEach((x) => { const m = new THREE.Mesh(eloAco, acero); m.position.x = x; elo.add(m); });
+      const c = new THREE.Mesh(eloOro, oro); elo.add(c);
+      bracelete.add(elo);
+    }
+  });
+  caixa.add(bracelete);
 
   const esfera = peca(0.012, 0.5);
   const esferaMalla = new THREE.Mesh(new THREE.CircleGeometry(0.93, 160), new THREE.MeshStandardMaterial({ map: esferaTex, alphaTest: 0.5, metalness: 0.15, roughness: 0.42, envMapIntensity: 0.55 }));
@@ -251,7 +266,10 @@ async function arranca(modo) {
   if (hero) {
     // ------------------------------------------------ portada: girar arrastrando, con inercia (awwwards-3d, patrón 21)
     pecas.forEach((p) => (p.position.z = p.userData.montado));
-    const rot = { y: -3.1, x: 0.5, ay: -0.38, ax: 0.14, vy: 0 };   // entra de espaldas y se vuelve hacia usted
+    const rot = { y: -0.38, x: 0.14, ay: -0.38, ax: 0.14, vy: 0 };
+    const intro = scrollY < 40;   // a entrada só ao abrir a página no topo
+    let ti = performance.now();   // começa quando a abertura (o rasto de luz e o logótipo) acabar
+    if (window.SITE && SITE.abertura) SITE.abertura.then(() => { ti = performance.now(); });
     let arrasta = false, lx = 0, ly = 0, tocado = 0, mx = 0, my = 0;
     heroSec.addEventListener('pointerdown', (e) => {
       if (e.target.closest('a, button')) return;
@@ -274,19 +292,25 @@ async function arranca(modo) {
       const k = 1 - Math.exp(-dt / 110);
       if (!arrasta) {
         rot.ay += rot.vy * (dt / 16); rot.vy *= Math.pow(0.93, dt / 16);           // inércia ao largar
-        if (agora - tocado > 2600 && agora - t0 > 3200) rot.ay += dt * 0.00018;    // sozinho, gira devagar
+        if (agora - tocado > 2600 && agora - ti > 5200) rot.ay += dt * 0.00018;    // sozinho, gira devagar
       }
       rot.y += (rot.ay - rot.y) * k; rot.x += (rot.ax - rot.x) * k;
       const g = !movil();
-      const entra = Math.min(1, (agora - t0) / 2600), e3 = 1 - Math.pow(1 - entra, 3);
+      // a entrada: 0–45 % desmonta-se e monta-se ao centro, a girar sobre si; 45–100 % vai para o seu sítio
+      const pi = intro ? Math.max(0, Math.min(1, (agora - ti) / 4600)) : 1;
+      const suave = (x) => x * x * (3 - 2 * x);
+      const monta = suave(Math.min(1, pi / 0.5)), vai = suave(Math.max(0, (pi - 0.45) / 0.55));
+      pecas.forEach((pc) => { pc.position.z = pc.userData.montado + (pc.userData.separado - pc.userData.montado) * 0.55 * (1 - monta); });
+      const giro = (1 - suave(Math.min(1, pi / 0.85))) * Math.PI * 3;
       const q = Math.min(1, scrollY / Math.max(1, heroSec.offsetHeight));
-      const dpx = (g ? Math.min(0.64 * H, 0.42 * W) : 0.7 * W) * (0.7 + 0.3 * e3) * (1 - 0.28 * q);
+      const final = (g ? Math.min(0.64 * H, 0.42 * W) : 0.7 * W);
+      const dpx = (final + (Math.min(0.78 * H, 0.6 * W) - final) * (1 - vai)) * (1 - 0.28 * q);
       const dist = (2.4 * H) / (2 * tg * dpx);
-      const cx = g ? W * 0.7 : W / 2, cy = (g ? H * 0.45 : H * 0.3) - q * H * 0.18;
+      const cx = W / 2 + ((g ? W * 0.7 : W / 2) - W / 2) * vai, cy = H / 2 + ((g ? H * 0.45 : H * 0.3) - H / 2) * vai - q * H * 0.18;
       const ppx = (2 * dist * tg) / H;
       relogio.position.set((cx - W / 2) * ppx, -(cy - H / 2) * ppx, 0);
       camera.position.set(0, 0, dist); camera.lookAt(0, 0, 0);
-      relogio.rotation.set(rot.x + my * 0.12, rot.y + mx * 0.2, 0);
+      relogio.rotation.set(rot.x + my * 0.12 + 0.55 * (1 - monta), rot.y + mx * 0.2 + giro, 0);
       const op = (1 - Math.max(0, q - 0.35) * 1.8).toFixed(3); if (op !== canvas.style.opacity) canvas.style.opacity = op;
       rotorMalla.rotation.z = agora / 900;
       trabalha(agora);
