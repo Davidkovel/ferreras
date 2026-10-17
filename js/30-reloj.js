@@ -11,7 +11,7 @@
   if (!voo || !hud || !dock) return;
   const relojes = $$('.reloj').map((r) => ({ h: $('.ag-h', r), m: $('.ag-m', r), d: $('.ag-d', r), s: $('.ag-s', r) }));
   const horaEl = $('[data-hud-hora]'), momEl = $('[data-hud-mom]'), anel = $('[data-hud-anillo] circle.v');
-  const ceuD = $('.cielo-dia'), ceuN = $('.cielo-noche');
+  const ceuD = $('.cielo-dia'), ceuN = $('.cielo-noche'), ceuA = $('.cielo-alba'), ceuT = $('.cielo-tarde');
 
   const aMin = (s) => { const [h, m] = s.split(':').map(Number); return h * 60 + (m || 0); };
   const marcas = $$('[data-hora]').map((el) => ({ el, m: aMin(el.dataset.hora), txt: el.dataset.momento || '' }));
@@ -38,6 +38,12 @@
     if (m < 1140) return 0;
     if (m < 1320) return (m - 1140) / 180;
     return 1;
+  };
+  // amanecer y atardecer (como el cambio de hora de Spyker): una luz que sube y baja alrededor de su pico
+  const rampa = (m, a, p, b) => {
+    m = ((m % 1440) + 1440) % 1440;
+    const t = m <= a || m >= b ? 0 : m < p ? (m - a) / (p - a) : 1 - (m - p) / (b - p);
+    return t * t * (3 - 2 * t);
   };
   const dois = (n) => String(n).padStart(2, '0');
 
@@ -98,6 +104,8 @@
     // día y noche: sólo la opacidad de dos capas fijas; el acento cambia una vez, por clase
     const n = noite(alvo), ns = n.toFixed(3);   // a cor do dia segue a hora da história, não a volta dos ponteiros
     if (ns !== ult.n) { ult.n = ns; ceuN.style.opacity = ns; ceuD.style.opacity = (1 - n).toFixed(3); }
+    const lz = rampa(alvo, 330, 450, 600).toFixed(3) + '|' + rampa(alvo, 900, 1065, 1260).toFixed(3);
+    if (lz !== ult.lz && ceuA) { ult.lz = lz; const [a, t] = lz.split('|'); ceuA.style.opacity = a; ceuT.style.opacity = t; }
     const esNoite = n > 0.5;
     if (esNoite !== ult.noite) { ult.noite = esNoite; document.body.classList.toggle('es-noche', esNoite); horaEl.lastChild.textContent = esNoite ? 'IA' : 'MKT'; }
     if (anel) {

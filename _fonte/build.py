@@ -20,9 +20,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 RAIZ = Path(__file__).resolve().parents[1]
 URL = "https://davidkovel.github.io/ferreras/"
 EMAIL = "administracion@marketingferreras.com"
-VERSAO = "10"
+VERSAO = "12"
 Q = '"'
-CTA = "Pida su diagnóstico"
+CTA = "Hablemos de su marca"
 
 
 def e(s):
@@ -210,7 +210,7 @@ def coche_svg(sfx=""):
 
 
 # ---------------------------------------------------------------- shell
-NAV = [("quien-somos/", "Quién somos"), ("marketing/", "Marketing"), ("inteligencia-artificial/", "IA"), ("sectores/", "Sectores"), ("resultados/", "Resultados")]
+NAV = [("la-casa/", "La casa"), ("marketing/", "Marketing"), ("inteligencia-artificial/", "IA"), ("sectores/", "Sectores"), ("casos/", "Casos")]
 SECT = [("sectores/hoteles/", "Hoteles"), ("sectores/automocion-lujo/", "Automoción de lujo"), ("sectores/nautica/", "Náutica, yates y puertos"), ("sectores/joyeria-relojeria/", "Joyería y relojería")]
 
 
@@ -229,7 +229,7 @@ def head(R, titulo, desc, rota):
 <meta name="description" content="{e(desc)}">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="{URL}{rota}">
-<meta name="theme-color" content="#00101f">
+<meta name="theme-color" content="#0d0b09">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="IA &amp; Marketing Ferreras">
 <meta property="og:locale" content="es_ES">
@@ -238,12 +238,12 @@ def head(R, titulo, desc, rota):
 <meta property="og:url" content="{URL}{rota}">
 <meta property="og:image" content="{URL}og/inicio.jpg">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="La esfera del reloj Ferreras sobre azul noche junto al logotipo y la frase Su departamento de marketing e IA. Todo incluido.">
+<meta property="og:image:alt" content="Las manecillas doradas de un reloj Ferreras sobre negro, junto al logotipo y la frase Veinticuatro horas a la altura de su marca">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="{URL}og/inicio.jpg">
 <link rel="icon" href="{R}favicon.svg" type="image/svg+xml">
-<link rel="preload" href="{R}fonts/newsreader-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="{R}fonts/geist-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{R}fonts/bodoni.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{R}fonts/jost.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{R}estilo.css?v={VERSAO}">
 <script>document.documentElement.classList.add('js');try{{if(sessionStorage.getItem('ferreras.abertura')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('sem-abertura')}}catch(e){{}}</script>
 <script type="application/ld+json">{json.dumps(org, ensure_ascii=False)}</script>
@@ -258,7 +258,7 @@ def cabecera(R, atual):
     sub = "".join(f'<a href="{R}{h}">{e(t)}</a>' for h, t in SECT)
     inicio = R or "./"
     return f'''<a class="saltar" href="#contenido">Saltar al contenido</a>
-<div class="cielo" aria-hidden="true"><div class="cielo-dia"></div><div class="cielo-noche"></div></div>
+<div class="cielo" aria-hidden="true"><div class="cielo-dia"></div><div class="cielo-alba"></div><div class="cielo-tarde"></div><div class="cielo-noche"></div></div>
 <header class="topo" data-topo>
   <nav class="topo-lado" aria-label="Principal">{nav}</nav>
   <a class="topo-marca" href="{inicio}" data-logo-alvo aria-label="IA &amp; Marketing Ferreras, inicio">{logo_svg()}</a>
@@ -276,8 +276,8 @@ def cabecera(R, atual):
 
 
 def rodape(R):
-    sis = [("marketing/", "Departamento de Marketing"), ("inteligencia-artificial/", "Departamento de IA"), ("web/", "Web y ecommerce"), ("ia-hoteles/", "IA para hoteles")]
-    fir = [("resultados/", "Resultados"), ("casos/", "Casos"), ("quien-somos/", "Quién somos"), ("contacto/", "Contacto"), ("diagnostico/", "Diagnóstico")]
+    sis = [("marketing/", "Marketing"), ("inteligencia-artificial/", "Inteligencia artificial"), ("web/", "Web y ecommerce"), ("ia-hoteles/", "IA para hoteles")]
+    fir = [("casos/", "Casos"), ("la-casa/", "La casa"), ("contacto/", "Hablemos"), ("diagnostico/", "Ocho preguntas")]
 
     def col(t, lista):
         li = "".join(f'<li><a href="{R}{h}">{e(x)}</a></li>' for h, x in lista)
