@@ -307,6 +307,76 @@ def vis(kind):
     raise KeyError(kind)
 
 
+# ================================================================= O PRODUTO: DOZE HORAS E A GAMA À ESCALA
+ROMANOS = ["XII", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"]
+DOCE_MKT = [("Estrategia a doce meses", "Qué tiene que cambiar en la percepción de su empresa, y en qué orden. Por escrito."),
+            ("Rodaje con dron", "Exteriores, instalaciones y embarcaciones, con nuestro propio equipo."),
+            ("Podcast y entrevistas", "Que se le vea explicando su criterio, no vendiendo su producto."),
+            ("Fotografía de producto", "Para catálogo, web y redes, con la luz que pide cada pieza."),
+            ("Redes y comunidad", "Una línea editorial reconocible, publicada con constancia."),
+            ("Publicidad medida", "Objetivo declarado y medición honesta. La inversión se decide con usted."),
+            ("Email marketing", "Recuperar a quien ya le conoce cuesta menos que convencer a quien no."),
+            ("Web y ecommerce", "Desarrollada por nuestro equipo informático, no por un proveedor externo."),
+            ("SEO técnico", "Contenidos y datos estructurados para que le encuentre quien ya le busca."),
+            ("Cobertura de eventos", "Regatas, presentaciones y entregas, contadas mientras suceden."),
+            ("Imagen de marca personal", "La dirección también es marca: se le ve, se le escucha, se le recuerda."),
+            ("Analítica y paneles", "Qué funciona y qué no, en un panel que se revisa cada mes.")]
+DOCE_IA = [("Agentes de voz", "Una conversación real por teléfono, no un menú de opciones."),
+           ("WhatsApp y chat", "Donde ya le escriben sus clientes, a cualquier hora."),
+           ("Más de 20 idiomas", "El mismo criterio en cada idioma."),
+           ("Integración con su CRM", "Cada conversación queda donde su equipo ya trabaja."),
+           ("Reservas y agenda", "Consulta disponibilidad y propone, según API y permisos."),
+           ("Automatización de procesos", "Lo repetitivo se automatiza; lo que exige criterio sigue siendo humano."),
+           ("Asistentes privados", "Sistemas que le quitan horas a usted antes de tocar la empresa."),
+           ("Entorno de pruebas", "Ningún cliente habla con el sistema hasta que se ha probado."),
+           ("Permisos mínimos", "Solo lectura por defecto. Lo demás, autorizado por escrito."),
+           ("Formación al equipo", "Para que lo que se implanta se use, y se use bien."),
+           ("Revisión de conversaciones", "Conversaciones reales revisadas para mejorar cada semana."),
+           ("Análisis de procesos", "Dónde se pierde tiempo y dinero, antes de decidir qué automatizar.")]
+
+
+def doce(items, rotulo):
+    """Doze serviços nas doze horas: botões à volta da esfera (numeral e nome), a agulha aponta o escolhido e o centro
+    mostra-o. js/96-produto.js: clique, teclado (setas) e avanço sozinho enquanto ninguém toca."""
+    hs = "".join(f'<li style="--i:{i}"><button type="button" data-h="{i}" aria-pressed="{str(i == 0).lower()}" aria-controls="dc-c"><b>{ROMANOS[i]}</b><span>{e(t)}</span></button></li>' for i, (t, _) in enumerate(items))
+    dados = "".join(f'<template data-hora-t="{i}"><p class="etiqueta">{ROMANOS[i]} · {i + 1} de 12</p><h3>{e(t)}</h3><p>{e(d)}</p></template>' for i, (t, d) in enumerate(items))
+    t0, d0 = items[0]
+    return (f'<div class="doce" data-doce role="group" aria-label="{e(rotulo)}"><div class="doce-esfera"><ol class="doce-h">{hs}</ol>'
+            f'<i class="doce-ag" aria-hidden="true"></i><div class="doce-c" id="dc-c" aria-live="polite"><p class="etiqueta">XII · 1 de 12</p><h3>{e(t0)}</h3><p>{e(d0)}</p></div></div>{dados}'
+            f'<div class="doce-nav"><button type="button" class="enlace" data-doce-ant aria-label="Servicio anterior">←</button><span>Elija una hora</span><button type="button" class="enlace" data-doce-prox aria-label="Servicio siguiente">→</button></div></div>')
+
+
+GAMA = [("Web Signature", 36, "", "Una presencia ordenada, sobria y coherente con el nivel real del negocio.",
+         ["Estrategia, arquitectura y diseño personalizado", "Hasta 5 páginas o plantillas principales", "Copy comercial, responsive y SEO técnico básico", "Formularios, analítica y formación"]),
+        ("Web de Captación", 40, "Bestseller de su categoría", "Una infraestructura que cualifica al visitante y produce oportunidades medibles.",
+         ["Investigación de público, oferta y competencia", "Hasta 10–12 páginas o plantillas estratégicas", "Casos de éxito y sistema de prueba", "Configurador o funnel de cualificación", "Integración con CRM, email y medición de conversión", "Una landing sectorial reutilizable"]),
+        ("Ecommerce", 43, "", "Catálogo, arquitectura de conversión y operativa de venta conectada.",
+         ["Diseño, catálogo inicial y arquitectura de conversión", "Pagos, envíos, emails transaccionales y analítica", "SEO base, formación y lanzamiento", "Alcance final según productos, mercados e integraciones"]),
+        ("Digital Flagship", 46, "A medida", "No es un paquete, es un proyecto: multidioma, vídeo, motion, configuradores o áreas privadas.",
+         ["Alcance definido a partir del diagnóstico", "Equipo informático propio, sin proveedor externo", "Integraciones con CRM, reservas y gestión", "Precio y plazos cerrados por escrito antes de empezar"])]
+CARE = [("Care Esencial", "Mantenimiento técnico, seguridad, copias de seguridad y analítica."),
+        ("Care Evolución", "Todo lo anterior más una mejora mensual y trabajo continuado de CRO."),
+        ("Care Prioritario", "Soporte ecommerce o evolución prioritaria con tiempos de respuesta acordados.")]
+
+
+def gama():
+    """Os planos à escala: quatro relógios na mesma linha, maiores quanto maior o alcance. Tocar escolhe e a ficha abre ao
+    lado (separadores acessíveis). js/96-produto.js."""
+    bts, fichas = [], []
+    for i, (n, mm, selo, d, inc) in enumerate(GAMA):
+        on = i == 1
+        bts.append(f'<button type="button" role="tab" id="gm-t{i}" aria-controls="gm-f{i}" aria-selected="{str(on).lower()}" tabindex="{0 if on else -1}" style="--mm:{mm}" data-gama-t>'
+                   f'<span class="gm-reloj" aria-hidden="true"><i class="h"></i><i class="m"></i></span><span class="gm-n">{e(n)}</span><span class="gm-mm">Alcance {i + 1} de 4</span></button>')
+        sel = f'<span class="selo">{e(selo)}</span>' if selo else ""
+        li = "".join(f"<li>{e(x)}</li>" for x in inc)
+        fichas.append(f'<article class="gm-ficha" role="tabpanel" id="gm-f{i}" aria-labelledby="gm-t{i}"{"" if on else " hidden"}>{sel}<p class="etiqueta">Plan {i + 1} de 4</p>'
+                      f'<h3 class="gm-tit">{e(n)}</h3><p class="lead">{e(d)}</p><ul>{li}</ul></article>')
+    care = "".join(f'<li><b>{e(t)}</b><span>{e(d)}</span></li>' for t, d in CARE)
+    return (f'<div class="gama" data-gama><div class="gm-linha" role="tablist" aria-label="Planes de web, a escala">{"".join(bts)}</div>'
+            f'<div class="gm-fichas">{"".join(fichas)}</div>'
+            f'<div class="gm-care"><p class="etiqueta">Ferreras Care</p><p>Una web publicada no es una web terminada. El mantenimiento es opcional y los accesos y el dominio son suyos desde el primer día.</p><ul>{care}</ul></div></div>')
+
+
 # ================================================================= CASOS (dados partilhados)
 CASOS = [
     dict(id="auto-voz", sector="automocion-lujo", sl="Automoción de lujo", prob="percepcion demanda", foto=("tn-gt3rs-frente", "Porsche 911 GT3 RS negro en el estudio de TN Autosport"),
@@ -463,6 +533,7 @@ def marketing(R):
                      "Estrategia, producción audiovisual propia y distribución, dentro de su empresa.",
                      btn(R + DIAG, CTA) + btn("#hacemos", "Qué hacemos", "btn-linha btn-vidro", False), filme(R, "mkt"))
             + sec(cab("", "Qué hacemos", "Del plan <em>al plano.</em>") + f'<div class="pilares">{ph_}</div>', "p-pilares", ' id="hacemos"')
+            + sec(cab("", "Qué incluye", "Doce servicios, <em>doce horas.</em>", "Elija una hora. El alcance se decide en el diagnóstico y se cierra por escrito.") + doce(DOCE_MKT, "Los doce servicios de marketing"), "p-doce")
             + sec(f'<div class="grelha antes"><div class="antes-txt">{etq("", "La diferencia", "n")}<h2 class="titulo t-l" data-linhas>El mismo coche. <em>Contado por nosotros.</em></h2>'
                   f'<p class="lead" data-sube>Deslice la línea: de una ficha con doce fotos a una pieza que la gente comparte.</p><dl class="cifras-m">{ch}</dl></div>{rx}</div>')
             + banda("¿Cómo se ve su marca <em>desde fuera?</em>", "Lo vemos con usted en dos minutos, sin compromiso.", btn(R + DIAG, CTA), chips(CONDICIONES, "chips chips-cond")))
@@ -494,6 +565,7 @@ def ia(R):
                      btn(R + DIAG, CTA) + btn("#hace", "Qué hace", "btn-linha btn-vidro", False), fundo_img(R, "yate-noche", "Un yate de noche con las luces del salón encendidas"),
                      sobre=f'<ul class="feed" data-feed aria-label="Ilustración: consultas que entran de noche">{fd}</ul>')
             + sec(cab("", "Qué hace", "Responde, consulta <em>y avisa.</em>") + f'<div class="pilares">{hh}</div>', "p-pilares", ' id="hace"')
+            + sec(cab("", "Qué incluye", "Doce piezas <em>de un mismo sistema.</em>", "Elija una hora. Qué se activa en su caso se decide después del análisis, no antes.") + doce(DOCE_IA, "Las doce piezas de inteligencia artificial"), "p-doce")
             + sec(f'<div class="grelha noche-g"><figure class="dia24" data-dia24>{dia24_svg()}<figcaption class="dia24-ley"><span><i class="eq"></i>Su equipo</span><span><i class="ag"></i>El agente, con la recepción cerrada</span><small>Ilustración: consultas de un día cualquiera.</small></figcaption></figure><div class="noche-txt">{etq("", "Las 24 horas", "n")}<h2 class="titulo t-l" data-linhas>La consulta de las 23:40 <em>no es una consulta perdida.</em></h2><p class="lead" data-sube>Su equipo atiende de día. El agente, cuando la recepción está cerrada.</p></div></div>', "noche")
             + sec(demo, extra=' id="demo"')
             + banda("¿Qué hace hoy su equipo <em>que podría hacer un agente?</em>", "Lo vemos con usted en dos minutos, sin compromiso.", btn(R + DIAG, CTA) + btn(R + "ia-hoteles/", "El caso de hotelería", "btn-linha")))
@@ -625,7 +697,7 @@ def web(R):
                      btn(R + DIAG, CTA) + btn("#planes", "Ver los planes", "btn-linha btn-vidro", False), fundo_img(R, "reloj-terciopelo", "Reloj Ferreras de corazón abierto sobre terciopelo rojo"))
             + sec(cab("", "La diferencia", "Folleto <em>o comercial.</em>") + f'<div class="compara"><div data-sube><h3>Web informativa</h3>{ul(inf)}</div><div class="bom" data-sube style="--i:1"><h3>Infraestructura comercial</h3>{ul(com)}</div></div>')
             + sec(cab("", "Ruta del visitante", "De la primera visita <em>a la llamada.</em>") + flujo([a for a, _ in ruta]))
-            + sec(cab("", "Planes", "Tres alcances, <em>o uno a medida.</em>", "Desarrollo propio. Alcance y precio por escrito antes de empezar.") + f'<div class="planos">{ph_}</div><p class="nota plano-flag"><b>Digital Flagship.</b> Multidioma, vídeo, motion, configuradores o áreas privadas: no es un paquete, es un proyecto.</p><div class="pagos">{pg}</div>', extra=' id="planes"')
+            + sec(cab("", "Planes", "Cuatro alcances, <em>a escala.</em>", "Toque uno para ver qué incluye. Desarrollo propio; alcance y precio por escrito antes de empezar.") + gama() + f'<div class="pagos">{pg}</div>', extra=' id="planes"')
             + banda("¿Qué le falta <em>a su web?</em>", "Mensaje, prueba o conversión: las ocho preguntas lo distinguen.", btn(R + DIAG, CTA)))
 
 
