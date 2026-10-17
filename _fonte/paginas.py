@@ -512,6 +512,25 @@ def constelacao(items):
             f'<div class="ct-txt" data-ct-txt aria-live="polite"><p class="etiqueta">XII · 1 de 12</p><h3>{e(t0)}</h3><p>{e(d0)}</p></div></div>{ts}<ul class="vh">{lista}</ul></div>')
 
 
+
+def indice_casos(R):
+    """Os casos num índice curto: uma linha grande por caso. Ao passar o rato, um cartão com a fotografia, o resultado e
+    as cifras segue o cursor e inclina-se com o movimento; clicar abre o detalhe na própria linha (no telemóvel com a
+    fotografia). js/99-indice.js."""
+    linhas, cartoes = [], []
+    for i, c in enumerate(CASOS):
+        foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 30vw, 90vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
+        ev = "".join(f"<li>{e(x)}</li>" for x in c["ev"])
+        ev = f"<ul>{ev}</ul>" if ev else ""
+        linhas.append(f'<li class="ic-i" data-sector="{c["sector"]}"><button type="button" class="ic-f" data-ic-i="{i}" aria-expanded="false" aria-controls="ic-d{i}">'
+                      f'<span class="ic-s">{e(c["sl"])}</span><span class="ic-t">{e(c["t"])}</span><span class="ic-y" aria-hidden="true">+</span></button>'
+                      f'<div class="ic-d" id="ic-d{i}" hidden><div class="ic-dm">{foto}</div><div class="ic-dt"><p><b>El punto de partida.</b> {e(c["p"])}</p><p><b>Lo que hicimos.</b> {e(c["i"])}</p><p><b>El resultado.</b> {e(c["r"])}</p>{ev}</div></div></li>')
+        cartoes.append(f'<div class="ic-c" data-ic-c="{i}"><div class="ic-cm">{foto}</div><div class="ic-ct"><p class="etiqueta">{e(c["sl"])}</p><p class="ic-r">{e(c["r"])}</p>{ev}</div></div>')
+    return (f'<section class="sec indice-casos" id="casos"><div class="ic" data-ic><ol class="ic-l">{"".join(linhas)}</ol>'
+            f'<div class="ic-card" data-ic-card aria-hidden="true">{"".join(cartoes)}</div></div>'
+            f'<p class="mini nota-casos">Trabajo dirigido por Ferreras. Las cifras se publican una vez verificadas con el cliente.</p></section>')
+
+
 def caso_card(R, c, filtro=False):
     """Um caso num cartão de fotografia: sector, título e o resultado numa linha. Nada se abre nem se expande."""
     foto = img(R, c["foto"][0], c["foto"][1], "(min-width: 900px) 56vw, 120vw") if c["foto"] else f'<div class="caso-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg></div>'
@@ -754,7 +773,7 @@ def resultados(R):
         return "".join(f'<button type="button" data-f="{tipo}" data-v="{v}" aria-pressed="{str(v == "todos").lower()}">{e(t)}</button>' for v, t in lista)
     return (ph_media(R, "Casos", L("Lo que hicimos,", "<em>caso a caso.</em>"), "Cifras solo verificadas y autorizadas.",
                      btn("#casos", "Ver los casos"), filme(R, "interludio"))
-            + tunel(R)
+            + indice_casos(R)
             + sec(f'<div class="grelha marca-grid"><div class="marca-fotos"><figure class="f1 ventana" data-janela>{video(R, "reel-ferreras-lifestyle", "Campaña de Relojes Ferreras")}</figure><div class="f2 marca-reloj">{reloj_html(R, "-r")}</div></div><div class="marca-txt">{etq("", "Nuestra propia marca", "n")}<h2 class="titulo t-l" data-linhas>Lo probamos primero <em>con lo nuestro.</em></h2><p class="lead" data-sube>Cada método que le proponemos lo hemos aplicado antes a nuestra propia marca de relojes.</p><p data-sube>{enlace("https://relojes-ferreras.com/", "Ver Relojes Ferreras", True)}</p></div></div>', "claro marca", " data-claro")
             + banda("¿Algo parecido <em>en su sector?</em>", "Las ocho preguntas lo comparan con trabajos equivalentes.", btn(R + DIAG, CTA)))
 
@@ -823,15 +842,18 @@ def contacto(R):
     sectores = [("Hotelería", "Hotelería"), ("Automoción", "Automoción"), ("Náutica", "Náutica"), ("Joyería", "Joyería"), ("Otro", "Otro")]
     plazos = [("Inmediato", "Inmediato"), ("En 30–90 días", "En 30–90 días"), ("El próximo trimestre", "El próximo trimestre"), ("Solo estoy explorando", "Solo estoy explorando")]
     form = (f'<form class="form-l" data-lead="contacto" novalidate><div class="campos">'
+            + '<p class="f-paso campo largo"><b>1</b> Sus datos</p>'
             + campo("c-nome", "nombre", "Nombre", req="Indique su nombre.", auto="name")
             + campo("c-emp", "empresa", "Empresa", req="Indique el nombre de su empresa.", auto="organization")
             + campo("c-mail", "email", "Email", "email", req="Revise la dirección de email.", auto="email")
             + campo("c-tel", "telefono", "Teléfono", "tel", auto="tel", opc=True)
             + campo("c-cargo", "cargo", "Cargo", auto="organization-title", opc=True)
+            + '<p class="f-paso campo largo"><b>2</b> Su proyecto</p>'
             + pills("sector", "Sector", sectores) + pills("plazo", "Plazo", plazos)
             + area("c-msg", "objetivo", "Qué quiere conseguir", req="Cuéntenos brevemente qué necesita.", ph="Dos líneas bastan: qué quiere conseguir y qué le frena.")
+            + '<p class="f-paso campo largo"><b>3</b> Cómo le contactamos</p>'
             + pills("preferencia", "Prefiero que me contacten por", PREF) + consentimento(R, "c") + TRAMPA
-            + f'</div><div class="acoes"><button class="btn btn-oscuro" type="submit">Enviar solicitud <span class="fl">→</span></button></div>{estado_envio("Solicitud recibida")}</form>')
+            + f'</div><div class="acoes f-envia"><button class="btn btn-oscuro" type="submit">Enviar solicitud <span class="fl">→</span></button><p class="mini">Un clic y listo: le responde una persona en un día laborable.</p></div>{estado_envio("Solicitud recibida")}</form>')
     lado = (f'<aside class="placa placa-c"><div class="placa-foto">{img(R, "evento-terraza", "Invitados en la terraza de una presentación de Relojes Ferreras", "(min-width: 900px) 30vw, 90vw")}'
             f'<div class="placa-marca"><svg viewBox="0 0 235 256" aria-hidden="true">{marca_paths()}</svg><span>Barcelona</span></div></div>'
             f'<dl class="placa-l"><div><dt>Dirección</dt><dd>Passeig de Gràcia 95, 5º 1ª</dd></div><div><dt>Ciudad</dt><dd>08008 Barcelona</dd></div>'

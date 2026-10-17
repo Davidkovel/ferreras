@@ -235,9 +235,11 @@
     const p = P[i], v = r[p.id], foto = p.id === 'sector';
     passoEl.innerHTML = `
       <p class="etiqueta"><span class="n">Paso ${i + 1} de ${N + 1}</span>${ETAPA(i)}</p>
+      <div class="dj-barra" aria-hidden="true">${Array.from({ length: N + 1 }, (_, k) => `<i class="${k < i ? 'feito' : k === i ? 'agora' : ''}"></i>`).join('')}</div>
       <h3 class="dj-q" tabindex="-1">${p.q}</h3>
       <p class="dj-a">${p.a}</p>
-      <div class="dj-ops${foto ? ' com-foto' : ''}" role="group" aria-label="${p.q}">${p.o.map(([val, txt], j) => `<button type="button" class="op" data-v="${val}" aria-pressed="${p.multi ? (v || []).includes(val) : v === val}"><kbd>${String.fromCharCode(65 + j)}</kbd><span class="op-t">${txt}</span>${icone(p, val, j)}</button>`).join('')}</div>
+      <p class="dj-guia"><i aria-hidden="true"></i>${p.multi ? 'Marque una o varias respuestas y pulse «Continuar».' : 'Toque una respuesta: pasa sola a la siguiente pregunta.'}</p>
+      <div class="dj-ops${foto ? ' com-foto' : ''}" role="group" aria-label="${p.q}">${p.o.map(([val, txt], j) => `<button type="button" class="op" data-v="${val}" aria-pressed="${p.multi ? (v || []).includes(val) : v === val}"><span class="op-ok" aria-hidden="true"></span><kbd>${String.fromCharCode(65 + j)}</kbd><span class="op-t">${txt}</span><span class="op-eleg" aria-hidden="true">Elegir</span>${icone(p, val, j)}</button>`).join('')}</div>
       <div class="dj-nav">
         <button type="button" class="enlace" data-atras ${i ? '' : 'hidden'}><span class="fl">←</span> Atrás</button>
         <span class="acoes"><button type="button" class="btn btn-linha btn-peq" data-salta>Prefiero no responder</button>${p.multi ? '<button type="button" class="btn btn-oscuro btn-peq" data-segue>Continuar <span class="fl">→</span></button>' : ''}</span>
@@ -249,6 +251,7 @@
   const falta = () => { const k = P.findIndex((p) => r[p.id] === undefined); return k < 0 ? N : k; };
   const avanca = () => { guarda(); ir(falta()); };
   passoEl.addEventListener('click', (e) => {
+    dg.classList.add('tocou');
     if (i >= N) return;
     const p = P[i];
     const op = e.target.closest('.op');

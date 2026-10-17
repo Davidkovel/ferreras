@@ -3,6 +3,10 @@
 (() => {
   const { $$, reduz } = SITE;
   if (reduz || !window.gsap) return;
+  // a noite da IA começa azul e acaba em laranja: o contraste acontece à vista, com o scroll
+  const ia = document.querySelector('[data-mundos] .pt-ia');
+  if (ia) gsap.fromTo(ia, { '--ia-1': '#0f1830', '--ia-2': '#05070d' }, { '--ia-1': '#e0641c', '--ia-2': '#4a1606', duration: 2.4, ease: 'power2.inOut', delay: 0.4,
+    scrollTrigger: { trigger: ia, start: 'top 25%', toggleActions: 'play none none reverse' } });
   $$('[data-mundos] .pt-mundo').forEach((m) => {
     const media = m.querySelector('.filme, .pt-ia-fundo'), txt = m.querySelector('.pt-txt');
     gsap.timeline({ scrollTrigger: { trigger: m, start: 'top 85%', end: 'top 15%', scrub: 0.7 } })
