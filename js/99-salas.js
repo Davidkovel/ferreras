@@ -8,7 +8,8 @@
   const troca = (el, html) => { el.classList.remove('entra'); void el.offsetWidth; el.innerHTML = html; el.classList.add('entra'); };
 
   /* ---------- el proyector ---------- */
-  $$('[data-proj]').forEach((el) => {
+  // no telemóvel o projector dá lugar à lista (CSS); só o computador projecta
+  if (matchMedia('(min-width: 801px)').matches) $$('[data-proj]').forEach((el) => {
     const telas = $$('[data-pj-tela]', el), tpl = $$('[data-pj-t]', el), txt = $('[data-pj-txt]', el), rolo = $('[data-pj-rolo]', el), tc = $('[data-pj-tc]', el);
     const n = telas.length, prog = $$('.pj-prog i', el);
     let k = -1;

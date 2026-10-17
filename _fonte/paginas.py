@@ -495,7 +495,8 @@ def projector(R, items, medias):
     ts = "".join(f'<template data-pj-t="{i}"><p class="etiqueta">Fotograma {i + 1} de 12</p><h3>{e(t)}</h3><p>{e(d)}</p></template>' for i, (t, d) in enumerate(items))
     t0, d0 = items[0]
     lista = "".join(f"<li><b>{e(t)}</b> {e(d)}</li>" for t, d in items)
-    return (f'<div class="proj" data-proj><div class="pj-palco"><div class="pj-telas">{telas}</div><div class="pj-velo" aria-hidden="true"></div>'
+    movel = "".join(f'<li class="pj-m"><figure>{img(R, b, "", "(max-width: 800px) 92vw, 1px")}</figure><p class="etiqueta">{ROMANOS[i]} · {i + 1} de 12</p><h3>{e(t)}</h3><p>{e(d)}</p></li>' for i, (b, (t, d)) in enumerate(zip(medias, items)))
+    return (f'<ol class="pj-lista">{movel}</ol><div class="proj" data-proj><div class="pj-palco"><div class="pj-telas">{telas}</div><div class="pj-velo" aria-hidden="true"></div>'
             f'<div class="pj-txt" data-pj-txt aria-live="polite"><p class="etiqueta">Fotograma 1 de 12</p><h3>{e(t0)}</h3><p>{e(d0)}</p></div>'
             f'<div class="pj-tira" aria-hidden="true"><div class="pj-rolo" data-pj-rolo>{fotos}</div><i class="pj-janela"></i></div>'
             f'<p class="pj-tc" aria-hidden="true"><b></b>REC <span data-pj-tc>00:00:00:00</span></p><div class="pj-prog" aria-hidden="true">{"<i></i>" * len(medias)}</div></div>{ts}<ul class="vh">{lista}</ul></div>')
