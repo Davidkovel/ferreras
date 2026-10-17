@@ -5,12 +5,10 @@
    No bloquea: cualquier gesto (rueda, tecla, toque) la acelera hasta el final. Con «reducir movimiento» no existe. */
 (() => {
   const { $ } = SITE;
-  const ov = $('[data-entrada]');
-  if (!ov) return;
-  if (SITE.reduz || !window.gsap) { ov.remove(); return; }
-  const pg = ov.dataset.pagina || '', sub = ov.dataset.sector || '';
+  // monta a entrada «pg» dentro de ov e devolve a linha de tempo; os capítulos da portada (99-capitulos.js) usam-na também
+  SITE.entrada = (ov, pg, sub, fim) => {
   const h = (html) => { ov.insertAdjacentHTML('beforeend', html); return ov.lastElementChild; };
-  const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, onComplete: () => ov.remove() });
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, onComplete: fim });
   const marca = document.querySelector('.topo-marca svg, .lg-m');
 
   const R = {
@@ -80,6 +78,12 @@
   (R[pg] || (() => tl.from(h(`<div class="en-casa">${marca ? marca.outerHTML : ''}</div>`), { opacity: 0, scale: 0.9, duration: 1 })))();
   // a cortina sobe e a página fica no seu sítio
   tl.to(ov, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.8, ease: 'power3.inOut' }, '+=0.2');
+  return tl;
+  };
+  const ov = $('[data-entrada]');
+  if (!ov) return;
+  if (SITE.reduz || !window.gsap) { ov.remove(); return; }
+  const tl = SITE.entrada(ov, ov.dataset.pagina || '', ov.dataset.sector || '', () => ov.remove());
   const acelera = () => { if (tl.progress() < 0.98) tl.timeScale(5); };
   ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((ev) => addEventListener(ev, acelera, { once: true, passive: true }));
 })();

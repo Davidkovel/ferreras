@@ -1705,3 +1705,4 @@ html.mz-aberto{overflow:hidden}
   .pj-prog i{flex:1;height:3px;border-radius:2px;background:rgba(243,230,220,.22);transition:background var(--t-entra) var(--curva)}
   .pj-prog i.on{background:var(--oro-2)}
 }
+.entrada.capitulo{background:radial-gradient(80% 70% at 50% 40%,rgba(30,24,18,.97),rgba(11,9,7,.98) 75%)}
